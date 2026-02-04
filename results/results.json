@@ -1,0 +1,699 @@
+{
+  "metadata": {
+    "benchmark_version": "0.1.0",
+    "run_date": "2026-02-04T14:47:18.576408+00:00",
+    "excel_version": "openpyxl-generated",
+    "platform": "Darwin-arm64"
+  },
+  "libraries": {
+    "openpyxl": {
+      "name": "openpyxl",
+      "version": "3.1.5",
+      "language": "python",
+      "capabilities": [
+        "write",
+        "read"
+      ]
+    },
+    "xlsxwriter": {
+      "name": "xlsxwriter",
+      "version": "3.2.9",
+      "language": "python",
+      "capabilities": [
+        "write"
+      ]
+    }
+  },
+  "results": [
+    {
+      "feature": "cell_values",
+      "library": "openpyxl",
+      "scores": {
+        "read": 1,
+        "write": null
+      },
+      "test_cases": {
+        "string_simple": {
+          "passed": true,
+          "expected": {
+            "type": "string",
+            "value": "Hello World"
+          },
+          "actual": {
+            "type": "string",
+            "value": "Hello World"
+          },
+          "notes": null
+        },
+        "string_unicode": {
+          "passed": true,
+          "expected": {
+            "type": "string",
+            "value": "\u65e5\u672c\u8a9e\ud83c\udf89\u00e9mojis"
+          },
+          "actual": {
+            "type": "string",
+            "value": "\u65e5\u672c\u8a9e\ud83c\udf89\u00e9mojis"
+          },
+          "notes": null
+        },
+        "string_empty": {
+          "passed": false,
+          "expected": {
+            "type": "string",
+            "value": ""
+          },
+          "actual": {
+            "type": "blank"
+          },
+          "notes": null
+        },
+        "string_long": {
+          "passed": true,
+          "expected": {
+            "type": "string",
+            "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          },
+          "actual": {
+            "type": "string",
+            "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          },
+          "notes": null
+        },
+        "string_newline": {
+          "passed": true,
+          "expected": {
+            "type": "string",
+            "value": "Line 1\nLine 2\nLine 3"
+          },
+          "actual": {
+            "type": "string",
+            "value": "Line 1\nLine 2\nLine 3"
+          },
+          "notes": null
+        },
+        "number_integer": {
+          "passed": true,
+          "expected": {
+            "type": "number",
+            "value": 42
+          },
+          "actual": {
+            "type": "number",
+            "value": 42
+          },
+          "notes": null
+        },
+        "number_float": {
+          "passed": true,
+          "expected": {
+            "type": "number",
+            "value": 3.14159265358979
+          },
+          "actual": {
+            "type": "number",
+            "value": 3.14159265358979
+          },
+          "notes": null
+        },
+        "number_negative": {
+          "passed": true,
+          "expected": {
+            "type": "number",
+            "value": -100.5
+          },
+          "actual": {
+            "type": "number",
+            "value": -100.5
+          },
+          "notes": null
+        },
+        "number_large": {
+          "passed": true,
+          "expected": {
+            "type": "number",
+            "value": 1234567890123456
+          },
+          "actual": {
+            "type": "number",
+            "value": 1234567890123456
+          },
+          "notes": null
+        },
+        "number_scientific": {
+          "passed": true,
+          "expected": {
+            "type": "number",
+            "value": 1.23e-10
+          },
+          "actual": {
+            "type": "number",
+            "value": 1.23e-10
+          },
+          "notes": null
+        },
+        "boolean_true": {
+          "passed": true,
+          "expected": {
+            "type": "boolean",
+            "value": true
+          },
+          "actual": {
+            "type": "boolean",
+            "value": true
+          },
+          "notes": null
+        },
+        "boolean_false": {
+          "passed": true,
+          "expected": {
+            "type": "boolean",
+            "value": false
+          },
+          "actual": {
+            "type": "boolean",
+            "value": false
+          },
+          "notes": null
+        },
+        "date_standard": {
+          "passed": false,
+          "expected": {
+            "type": "date",
+            "value": "2026-02-04"
+          },
+          "actual": {
+            "type": "datetime",
+            "value": "2026-02-04T00:00:00"
+          },
+          "notes": null
+        },
+        "datetime": {
+          "passed": true,
+          "expected": {
+            "type": "datetime",
+            "value": "2026-02-04T10:30:45"
+          },
+          "actual": {
+            "type": "datetime",
+            "value": "2026-02-04T10:30:45"
+          },
+          "notes": null
+        },
+        "error_div0": {
+          "passed": false,
+          "expected": {
+            "type": "error",
+            "value": "#DIV/0!"
+          },
+          "actual": {
+            "type": "formula",
+            "value": "=1/0"
+          },
+          "notes": null
+        },
+        "error_na": {
+          "passed": false,
+          "expected": {
+            "type": "error",
+            "value": "#N/A"
+          },
+          "actual": {
+            "type": "formula",
+            "value": "=NA()"
+          },
+          "notes": null
+        },
+        "error_value": {
+          "passed": false,
+          "expected": {
+            "type": "error",
+            "value": "#VALUE!"
+          },
+          "actual": {
+            "type": "formula",
+            "value": "=\"text\"+1"
+          },
+          "notes": null
+        },
+        "blank": {
+          "passed": true,
+          "expected": {
+            "type": "blank"
+          },
+          "actual": {
+            "type": "blank"
+          },
+          "notes": null
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values",
+      "library": "xlsxwriter",
+      "scores": {
+        "read": null,
+        "write": null
+      },
+      "test_cases": {},
+      "notes": null
+    },
+    {
+      "feature": "text_formatting",
+      "library": "openpyxl",
+      "scores": {
+        "read": 3,
+        "write": null
+      },
+      "test_cases": {
+        "bold": {
+          "passed": true,
+          "expected": {
+            "bold": true
+          },
+          "actual": {
+            "bold": true
+          },
+          "notes": null
+        },
+        "italic": {
+          "passed": true,
+          "expected": {
+            "italic": true
+          },
+          "actual": {
+            "italic": true
+          },
+          "notes": null
+        },
+        "underline_single": {
+          "passed": true,
+          "expected": {
+            "underline": "single"
+          },
+          "actual": {
+            "underline": "single"
+          },
+          "notes": null
+        },
+        "underline_double": {
+          "passed": true,
+          "expected": {
+            "underline": "double"
+          },
+          "actual": {
+            "underline": "double"
+          },
+          "notes": null
+        },
+        "strikethrough": {
+          "passed": true,
+          "expected": {
+            "strikethrough": true
+          },
+          "actual": {
+            "strikethrough": true
+          },
+          "notes": null
+        },
+        "bold_italic": {
+          "passed": true,
+          "expected": {
+            "bold": true,
+            "italic": true
+          },
+          "actual": {
+            "bold": true,
+            "italic": true
+          },
+          "notes": null
+        },
+        "font_size_8": {
+          "passed": true,
+          "expected": {
+            "font_size": 8
+          },
+          "actual": {
+            "font_size": 8.0
+          },
+          "notes": null
+        },
+        "font_size_14": {
+          "passed": true,
+          "expected": {
+            "font_size": 14
+          },
+          "actual": {
+            "font_size": 14.0
+          },
+          "notes": null
+        },
+        "font_size_24": {
+          "passed": true,
+          "expected": {
+            "font_size": 24
+          },
+          "actual": {
+            "font_size": 24.0
+          },
+          "notes": null
+        },
+        "font_size_36": {
+          "passed": true,
+          "expected": {
+            "font_size": 36
+          },
+          "actual": {
+            "font_size": 36.0
+          },
+          "notes": null
+        },
+        "font_arial": {
+          "passed": true,
+          "expected": {
+            "font_name": "Arial"
+          },
+          "actual": {
+            "font_name": "Arial"
+          },
+          "notes": null
+        },
+        "font_times": {
+          "passed": true,
+          "expected": {
+            "font_name": "Times New Roman"
+          },
+          "actual": {
+            "font_name": "Times New Roman"
+          },
+          "notes": null
+        },
+        "font_courier": {
+          "passed": true,
+          "expected": {
+            "font_name": "Courier New"
+          },
+          "actual": {
+            "font_name": "Courier New"
+          },
+          "notes": null
+        },
+        "color_red": {
+          "passed": true,
+          "expected": {
+            "font_color": "#FF0000"
+          },
+          "actual": {
+            "font_color": "#FF0000"
+          },
+          "notes": null
+        },
+        "color_blue": {
+          "passed": true,
+          "expected": {
+            "font_color": "#0000FF"
+          },
+          "actual": {
+            "font_color": "#0000FF"
+          },
+          "notes": null
+        },
+        "color_green": {
+          "passed": true,
+          "expected": {
+            "font_color": "#00FF00"
+          },
+          "actual": {
+            "font_color": "#00FF00"
+          },
+          "notes": null
+        },
+        "color_custom": {
+          "passed": true,
+          "expected": {
+            "font_color": "#8B4513"
+          },
+          "actual": {
+            "font_color": "#8B4513"
+          },
+          "notes": null
+        },
+        "combined": {
+          "passed": true,
+          "expected": {
+            "bold": true,
+            "font_size": 16,
+            "font_color": "#FF0000"
+          },
+          "actual": {
+            "bold": true,
+            "font_size": 16.0,
+            "font_color": "#FF0000"
+          },
+          "notes": null
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "text_formatting",
+      "library": "xlsxwriter",
+      "scores": {
+        "read": null,
+        "write": null
+      },
+      "test_cases": {},
+      "notes": null
+    },
+    {
+      "feature": "borders",
+      "library": "openpyxl",
+      "scores": {
+        "read": 1,
+        "write": null
+      },
+      "test_cases": {
+        "thin_all": {
+          "passed": true,
+          "expected": {
+            "border_style": "thin",
+            "border_color": "#000000"
+          },
+          "actual": {
+            "border_style": "thin",
+            "border_color": "#000000"
+          },
+          "notes": null
+        },
+        "medium_all": {
+          "passed": true,
+          "expected": {
+            "border_style": "medium",
+            "border_color": "#000000"
+          },
+          "actual": {
+            "border_style": "medium",
+            "border_color": "#000000"
+          },
+          "notes": null
+        },
+        "thick_all": {
+          "passed": true,
+          "expected": {
+            "border_style": "thick",
+            "border_color": "#000000"
+          },
+          "actual": {
+            "border_style": "thick",
+            "border_color": "#000000"
+          },
+          "notes": null
+        },
+        "double": {
+          "passed": true,
+          "expected": {
+            "border_style": "double",
+            "border_color": "#000000"
+          },
+          "actual": {
+            "border_style": "double",
+            "border_color": "#000000"
+          },
+          "notes": null
+        },
+        "dashed": {
+          "passed": true,
+          "expected": {
+            "border_style": "dashed",
+            "border_color": "#000000"
+          },
+          "actual": {
+            "border_style": "dashed",
+            "border_color": "#000000"
+          },
+          "notes": null
+        },
+        "dotted": {
+          "passed": true,
+          "expected": {
+            "border_style": "dotted",
+            "border_color": "#000000"
+          },
+          "actual": {
+            "border_style": "dotted",
+            "border_color": "#000000"
+          },
+          "notes": null
+        },
+        "dash_dot": {
+          "passed": true,
+          "expected": {
+            "border_style": "dashDot",
+            "border_color": "#000000"
+          },
+          "actual": {
+            "border_style": "dashDot",
+            "border_color": "#000000"
+          },
+          "notes": null
+        },
+        "dash_dot_dot": {
+          "passed": true,
+          "expected": {
+            "border_style": "dashDotDot",
+            "border_color": "#000000"
+          },
+          "actual": {
+            "border_style": "dashDotDot",
+            "border_color": "#000000"
+          },
+          "notes": null
+        },
+        "top_only": {
+          "passed": false,
+          "expected": {
+            "border_top": "thin",
+            "border_bottom": null,
+            "border_left": null,
+            "border_right": null
+          },
+          "actual": {
+            "border_style": "thin",
+            "border_color": "#000000"
+          },
+          "notes": null
+        },
+        "bottom_only": {
+          "passed": false,
+          "expected": {
+            "border_top": null,
+            "border_bottom": "thin",
+            "border_left": null,
+            "border_right": null
+          },
+          "actual": {
+            "border_style": "thin",
+            "border_color": "#000000"
+          },
+          "notes": null
+        },
+        "left_only": {
+          "passed": false,
+          "expected": {
+            "border_top": null,
+            "border_bottom": null,
+            "border_left": "thin",
+            "border_right": null
+          },
+          "actual": {
+            "border_style": "thin",
+            "border_color": "#000000"
+          },
+          "notes": null
+        },
+        "right_only": {
+          "passed": false,
+          "expected": {
+            "border_top": null,
+            "border_bottom": null,
+            "border_left": null,
+            "border_right": "thin"
+          },
+          "actual": {
+            "border_style": "thin",
+            "border_color": "#000000"
+          },
+          "notes": null
+        },
+        "diagonal_up": {
+          "passed": true,
+          "expected": {
+            "border_diagonal_up": "thin"
+          },
+          "actual": {
+            "border_diagonal_up": "thin"
+          },
+          "notes": null
+        },
+        "diagonal_down": {
+          "passed": true,
+          "expected": {
+            "border_diagonal_down": "thin"
+          },
+          "actual": {
+            "border_diagonal_down": "thin"
+          },
+          "notes": null
+        },
+        "color_red": {
+          "passed": true,
+          "expected": {
+            "border_style": "thin",
+            "border_color": "#FF0000"
+          },
+          "actual": {
+            "border_style": "thin",
+            "border_color": "#FF0000"
+          },
+          "notes": null
+        },
+        "color_blue": {
+          "passed": true,
+          "expected": {
+            "border_style": "thin",
+            "border_color": "#0000FF"
+          },
+          "actual": {
+            "border_style": "thin",
+            "border_color": "#0000FF"
+          },
+          "notes": null
+        },
+        "color_custom": {
+          "passed": true,
+          "expected": {
+            "border_style": "thin",
+            "border_color": "#8B4513"
+          },
+          "actual": {
+            "border_style": "thin",
+            "border_color": "#8B4513"
+          },
+          "notes": null
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "borders",
+      "library": "xlsxwriter",
+      "scores": {
+        "read": null,
+        "write": null
+      },
+      "test_cases": {},
+      "notes": null
+    }
+  ]
+}

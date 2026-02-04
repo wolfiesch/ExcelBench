@@ -1,0 +1,7 @@
+library,feature,read_score,write_score
+openpyxl,cell_values,1,
+xlsxwriter,cell_values,,
+openpyxl,text_formatting,3,
+xlsxwriter,text_formatting,,
+openpyxl,borders,1,
+xlsxwriter,borders,,
