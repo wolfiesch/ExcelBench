@@ -3,6 +3,7 @@
 from excelbench.harness.adapters.base import ExcelAdapter, ReadOnlyAdapter, WriteOnlyAdapter
 from excelbench.harness.adapters.openpyxl_adapter import OpenpyxlAdapter
 from excelbench.harness.adapters.xlsxwriter_adapter import XlsxwriterAdapter
+from excelbench.harness.adapters.xlwings_oracle_adapter import ExcelOracleAdapter
 
 __all__ = [
     "ExcelAdapter",
@@ -10,6 +11,7 @@ __all__ = [
     "WriteOnlyAdapter",
     "OpenpyxlAdapter",
     "XlsxwriterAdapter",
+    "ExcelOracleAdapter",
 ]
 
 

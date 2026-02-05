@@ -2,11 +2,11 @@
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class CellType(str, Enum):
+class CellType(StrEnum):
     STRING = "string"
     NUMBER = "number"
     DATE = "date"
@@ -17,7 +17,17 @@ class CellType(str, Enum):
     FORMULA = "formula"
 
 
-class BorderStyle(str, Enum):
+class OperationType(StrEnum):
+    READ = "read"
+    WRITE = "write"
+
+
+class Importance(StrEnum):
+    BASIC = "basic"
+    EDGE = "edge"
+
+
+class BorderStyle(StrEnum):
     NONE = "none"
     THIN = "thin"
     MEDIUM = "medium"
@@ -53,6 +63,12 @@ class CellFormat:
     font_size: float | None = None
     font_color: str | None = None  # Hex color like "#FF0000"
     bg_color: str | None = None  # Background/fill color
+    number_format: str | None = None
+    h_align: str | None = None
+    v_align: str | None = None
+    wrap: bool | None = None
+    rotation: int | None = None
+    indent: int | None = None
 
 
 @dataclass
@@ -80,6 +96,9 @@ class TestCase:
     label: str
     row: int
     expected: dict[str, Any]
+    sheet: str | None = None
+    cell: str | None = None
+    importance: Importance = Importance.BASIC
 
 
 @dataclass
@@ -104,6 +123,7 @@ class Manifest:
 class TestResult:
     """Result of testing a single test case."""
     test_case_id: str
+    operation: OperationType
     passed: bool
     expected: dict[str, Any]
     actual: dict[str, Any]

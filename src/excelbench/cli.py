@@ -74,7 +74,7 @@ def benchmark(
     from excelbench.harness.runner import run_benchmark
     from excelbench.results import render_results
 
-    console.print(f"[bold]Running benchmark...[/bold]")
+    console.print("[bold]Running benchmark...[/bold]")
     console.print(f"  Test files: {test_dir}")
     console.print(f"  Output: {output_dir}")
     console.print()
@@ -125,14 +125,16 @@ def report(
     """
     import json
     from datetime import datetime
+
     from excelbench.models import (
-        BenchmarkResults,
         BenchmarkMetadata,
-        LibraryInfo,
+        BenchmarkResults,
         FeatureScore,
+        LibraryInfo,
+        OperationType,
         TestResult,
     )
-    from excelbench.results import render_markdown, render_csv
+    from excelbench.results import render_csv, render_markdown
 
     console.print(f"[bold]Regenerating reports from {results_path}...[/bold]")
 
@@ -160,16 +162,32 @@ def report(
 
         scores = []
         for s in data["results"]:
-            test_results = [
-                TestResult(
-                    test_case_id=tc_id,
-                    passed=tc["passed"],
-                    expected=tc["expected"],
-                    actual=tc["actual"],
-                    notes=tc.get("notes"),
-                )
-                for tc_id, tc in s.get("test_cases", {}).items()
-            ]
+            test_results = []
+            for tc_id, tc in s.get("test_cases", {}).items():
+                # New schema: { "read": {...}, "write": {...} }
+                if isinstance(tc, dict) and ("read" in tc or "write" in tc):
+                    for op_key in ("read", "write"):
+                        if op_key not in tc:
+                            continue
+                        op_data = tc[op_key]
+                        test_results.append(TestResult(
+                            test_case_id=tc_id,
+                            operation=OperationType(op_key),
+                            passed=op_data["passed"],
+                            expected=op_data["expected"],
+                            actual=op_data["actual"],
+                            notes=op_data.get("notes"),
+                        ))
+                else:
+                    # Legacy schema: flat per test case, assume read
+                    test_results.append(TestResult(
+                        test_case_id=tc_id,
+                        operation=OperationType.READ,
+                        passed=tc["passed"],
+                        expected=tc["expected"],
+                        actual=tc["actual"],
+                        notes=tc.get("notes"),
+                    ))
             scores.append(FeatureScore(
                 feature=s["feature"],
                 library=s["library"],
@@ -187,10 +205,11 @@ def report(
 
         # Regenerate reports
         output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
         render_markdown(results, output_dir / "README.md")
         render_csv(results, output_dir / "matrix.csv")
 
-        console.print(f"[green]✓ Reports regenerated[/green]")
+        console.print("[green]✓ Reports regenerated[/green]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")

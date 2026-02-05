@@ -1,20 +1,20 @@
 """Adapter for xlsxwriter library (write-only)."""
 
+from datetime import date as _date
+from datetime import datetime as _datetime
 from pathlib import Path
 from typing import Any
 
 import xlsxwriter
 from xlsxwriter import Workbook
-from xlsxwriter.worksheet import Worksheet
 
 from excelbench.harness.adapters.base import WriteOnlyAdapter
 from excelbench.models import (
-    CellValue,
-    CellType,
-    CellFormat,
     BorderInfo,
-    BorderEdge,
     BorderStyle,
+    CellFormat,
+    CellType,
+    CellValue,
     LibraryInfo,
 )
 
@@ -53,6 +53,8 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
         # Return a placeholder - actual workbook created at save time
         wb_data = {
             "sheets": {},  # sheet_name -> list of (cell, value, format)
+            "row_heights": {},  # sheet_name -> {row_index: height}
+            "col_widths": {},  # sheet_name -> {col_index: width}
             "path": None,
             "workbook": None,
         }
@@ -67,6 +69,10 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
         """Ensure a sheet exists."""
         if sheet not in workbook["sheets"]:
             workbook["sheets"][sheet] = []
+        if sheet not in workbook["row_heights"]:
+            workbook["row_heights"][sheet] = {}
+        if sheet not in workbook["col_widths"]:
+            workbook["col_widths"][sheet] = {}
 
     def _parse_cell(self, cell: str) -> tuple[int, int]:
         """Parse cell reference like 'A1' to (row, col) tuple."""
@@ -85,6 +91,13 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
         col -= 1  # Convert to 0-indexed
 
         return row, col
+
+    def _col_to_index(self, column: str) -> int:
+        """Convert column letter(s) to 0-indexed column number."""
+        col = 0
+        for char in column.upper():
+            col = col * 26 + (ord(char) - ord('A') + 1)
+        return col - 1
 
     def write_cell_value(
         self,
@@ -173,6 +186,34 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                 fmt_dict["font_color"] = cell_format.font_color
             if cell_format.bg_color:
                 fmt_dict["bg_color"] = cell_format.bg_color
+            if cell_format.number_format:
+                fmt_dict["num_format"] = cell_format.number_format
+            if cell_format.h_align:
+                h_align_map = {
+                    "center": "center",
+                    "left": "left",
+                    "right": "right",
+                    "justify": "justify",
+                    "centerContinuous": "center_across",
+                    "distributed": "distributed",
+                    "general": "general",
+                }
+                fmt_dict["align"] = h_align_map.get(cell_format.h_align, cell_format.h_align)
+            if cell_format.v_align:
+                v_align_map = {
+                    "top": "top",
+                    "center": "vcenter",
+                    "bottom": "bottom",
+                    "justify": "vjustify",
+                    "distributed": "vdistributed",
+                }
+                fmt_dict["valign"] = v_align_map.get(cell_format.v_align, cell_format.v_align)
+            if cell_format.wrap:
+                fmt_dict["text_wrap"] = True
+            if cell_format.rotation is not None:
+                fmt_dict["rotation"] = cell_format.rotation
+            if cell_format.indent is not None:
+                fmt_dict["indent"] = cell_format.indent
 
         if border:
             border_style_map = {
@@ -234,6 +275,12 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
             for sheet_name, operations in workbook["sheets"].items():
                 ws = wb.add_worksheet(sheet_name)
 
+                # Apply row heights / column widths
+                for row_index, height in workbook["row_heights"].get(sheet_name, {}).items():
+                    ws.set_row(row_index, height)
+                for col_index, width in workbook["col_widths"].get(sheet_name, {}).items():
+                    ws.set_column(col_index, col_index, width)
+
                 # Group operations by cell to merge formats
                 cell_ops: dict[tuple[int, int], dict] = {}
 
@@ -262,6 +309,17 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
 
                     # Write value
                     if cell_value:
+                        if cell_value.type in (CellType.DATE, CellType.DATETIME) and fmt is None:
+                            default_format = (
+                                "yyyy-mm-dd"
+                                if cell_value.type == CellType.DATE
+                                else "yyyy-mm-dd hh:mm:ss"
+                            )
+                            fmt = self._create_format(
+                                wb,
+                                CellFormat(number_format=default_format),
+                                None,
+                            )
                         if cell_value.type == CellType.BLANK:
                             ws.write_blank(row, col, None, fmt)
                         elif cell_value.type == CellType.FORMULA:
@@ -270,7 +328,12 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                             ws.write_boolean(row, col, cell_value.value, fmt)
                         elif cell_value.type == CellType.NUMBER:
                             ws.write_number(row, col, cell_value.value, fmt)
-                        elif cell_value.type in (CellType.DATE, CellType.DATETIME):
+                        elif cell_value.type == CellType.DATE:
+                            dt_value = cell_value.value
+                            if isinstance(dt_value, _date) and not isinstance(dt_value, _datetime):
+                                dt_value = _datetime.combine(dt_value, _datetime.min.time())
+                            ws.write_datetime(row, col, dt_value, fmt)
+                        elif cell_value.type == CellType.DATETIME:
                             ws.write_datetime(row, col, cell_value.value, fmt)
                         elif cell_value.type == CellType.ERROR:
                             # Write formula that produces error
@@ -279,7 +342,8 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                                 "#N/A": "=NA()",
                                 "#VALUE!": '="text"+1',
                             }
-                            formula = error_formulas.get(cell_value.value, f'=ERROR("{cell_value.value}")')
+                            fallback = f'=ERROR("{cell_value.value}")'
+                            formula = error_formulas.get(cell_value.value, fallback)
                             ws.write_formula(row, col, formula, fmt)
                         else:
                             ws.write_string(row, col, str(cell_value.value), fmt)
@@ -289,3 +353,24 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
 
         finally:
             wb.close()
+
+    def set_row_height(
+        self,
+        workbook: dict,
+        sheet: str,
+        row: int,
+        height: float,
+    ) -> None:
+        self._ensure_sheet(workbook, sheet)
+        workbook["row_heights"][sheet][row - 1] = height
+
+    def set_column_width(
+        self,
+        workbook: dict,
+        sheet: str,
+        column: str,
+        width: float,
+    ) -> None:
+        self._ensure_sheet(workbook, sheet)
+        col_index = self._col_to_index(column)
+        workbook["col_widths"][sheet][col_index] = width

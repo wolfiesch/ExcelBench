@@ -4,12 +4,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
 
-from excelbench.models import (
-    CellValue,
-    CellFormat,
-    BorderInfo,
-    LibraryInfo,
-)
+from excelbench.models import BorderInfo, CellFormat, CellValue, LibraryInfo
 
 
 class ExcelAdapter(ABC):
@@ -137,6 +132,26 @@ class ExcelAdapter(ABC):
         """
         ...
 
+    @abstractmethod
+    def read_row_height(
+        self,
+        workbook: Any,
+        sheet: str,
+        row: int,
+    ) -> float | None:
+        """Read the height of a row (1-indexed)."""
+        ...
+
+    @abstractmethod
+    def read_column_width(
+        self,
+        workbook: Any,
+        sheet: str,
+        column: str,
+    ) -> float | None:
+        """Read the width of a column by letter (e.g., "A")."""
+        ...
+
     # =========================================================================
     # Write Operations
     # =========================================================================
@@ -215,6 +230,28 @@ class ExcelAdapter(ABC):
         ...
 
     @abstractmethod
+    def set_row_height(
+        self,
+        workbook: Any,
+        sheet: str,
+        row: int,
+        height: float,
+    ) -> None:
+        """Set the height of a row (1-indexed)."""
+        ...
+
+    @abstractmethod
+    def set_column_width(
+        self,
+        workbook: Any,
+        sheet: str,
+        column: str,
+        width: float,
+    ) -> None:
+        """Set the width of a column by letter (e.g., "A")."""
+        ...
+
+    @abstractmethod
     def save_workbook(self, workbook: Any, path: Path) -> None:
         """Save a workbook to a file.
 
@@ -268,6 +305,24 @@ class ReadOnlyAdapter(ExcelAdapter):
     def save_workbook(self, workbook: Any, path: Path) -> None:
         raise NotImplementedError(f"{self.name} is read-only")
 
+    def set_row_height(
+        self,
+        workbook: Any,
+        sheet: str,
+        row: int,
+        height: float,
+    ) -> None:
+        raise NotImplementedError(f"{self.name} is read-only")
+
+    def set_column_width(
+        self,
+        workbook: Any,
+        sheet: str,
+        column: str,
+        width: float,
+    ) -> None:
+        raise NotImplementedError(f"{self.name} is read-only")
+
 
 class WriteOnlyAdapter(ExcelAdapter):
     """Base class for write-only adapters.
@@ -307,4 +362,20 @@ class WriteOnlyAdapter(ExcelAdapter):
         sheet: str,
         cell: str,
     ) -> BorderInfo:
+        raise NotImplementedError(f"{self.name} is write-only")
+
+    def read_row_height(
+        self,
+        workbook: Any,
+        sheet: str,
+        row: int,
+    ) -> float | None:
+        raise NotImplementedError(f"{self.name} is write-only")
+
+    def read_column_width(
+        self,
+        workbook: Any,
+        sheet: str,
+        column: str,
+    ) -> float | None:
         raise NotImplementedError(f"{self.name} is write-only")

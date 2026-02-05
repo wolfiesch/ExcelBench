@@ -1,18 +1,24 @@
 """Main entry point for test file generation."""
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import xlwings as xw
 
 from excelbench.generator.base import FeatureGenerator
 from excelbench.generator.features import (
-    CellValuesGenerator,
-    TextFormattingGenerator,
+    AlignmentGenerator,
+    BackgroundColorsGenerator,
     BordersGenerator,
+    CellValuesGenerator,
+    DimensionsGenerator,
+    FormulasGenerator,
+    MultipleSheetsGenerator,
+    NumberFormatsGenerator,
+    TextFormattingGenerator,
 )
-from excelbench.models import Manifest, TestFile
+from excelbench.models import Importance, Manifest, TestFile
 
 # Version of the generator
 GENERATOR_VERSION = "0.1.0"
@@ -22,8 +28,14 @@ def get_all_generators() -> list[FeatureGenerator]:
     """Get all available feature generators."""
     return [
         CellValuesGenerator(),
+        FormulasGenerator(),
         TextFormattingGenerator(),
+        BackgroundColorsGenerator(),
+        NumberFormatsGenerator(),
+        AlignmentGenerator(),
         BordersGenerator(),
+        DimensionsGenerator(),
+        MultipleSheetsGenerator(),
     ]
 
 
@@ -117,7 +129,7 @@ def generate_all(
 
     # Create manifest
     manifest = Manifest(
-        generated_at=datetime.now(timezone.utc),
+        generated_at=datetime.now(UTC),
         excel_version=excel_version,
         generator_version=GENERATOR_VERSION,
         files=test_files,
@@ -148,6 +160,9 @@ def write_manifest(manifest: Manifest, path: Path) -> None:
                         "label": tc.label,
                         "row": tc.row,
                         "expected": tc.expected,
+                        **({"sheet": tc.sheet} if tc.sheet is not None else {}),
+                        **({"cell": tc.cell} if tc.cell is not None else {}),
+                        **({"importance": tc.importance.value} if tc.importance else {}),
                     }
                     for tc in f.test_cases
                 ],
@@ -182,6 +197,13 @@ def load_manifest(path: Path) -> Manifest:
                         label=tc["label"],
                         row=tc["row"],
                         expected=tc["expected"],
+                        sheet=tc.get("sheet"),
+                        cell=tc.get("cell"),
+                        importance=(
+                            Importance(tc["importance"])
+                            if tc.get("importance")
+                            else Importance.BASIC
+                        ),
                     )
                     for tc in f["test_cases"]
                 ],

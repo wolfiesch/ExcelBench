@@ -1,9 +1,7 @@
 """Results rendering to various output formats."""
 
 import json
-from datetime import datetime
 from pathlib import Path
-from collections import defaultdict
 
 from excelbench.models import BenchmarkResults, FeatureScore
 
@@ -59,15 +57,7 @@ def render_json(results: BenchmarkResults, path: Path) -> None:
                     "read": score.read_score,
                     "write": score.write_score,
                 },
-                "test_cases": {
-                    tr.test_case_id: {
-                        "passed": tr.passed,
-                        "expected": tr.expected,
-                        "actual": tr.actual,
-                        "notes": tr.notes,
-                    }
-                    for tr in score.test_results
-                },
+                "test_cases": _group_test_cases(score.test_results),
                 "notes": score.notes,
             }
             for score in results.scores
@@ -194,7 +184,7 @@ def render_markdown(results: BenchmarkResults, path: Path) -> None:
             if failed:
                 lines.append(f"- Failed tests ({len(failed)}):")
                 for tr in failed[:5]:  # Show max 5
-                    lines.append(f"  - {tr.test_case_id}")
+                    lines.append(f"  - {tr.test_case_id} ({tr.operation.value})")
                 if len(failed) > 5:
                     lines.append(f"  - ... and {len(failed) - 5} more")
 
@@ -238,3 +228,16 @@ def score_emoji(score: int | None) -> str:
         return "🟠 1"
     else:
         return "🔴 0"
+
+
+def _group_test_cases(test_results: list) -> dict:
+    grouped: dict[str, dict] = {}
+    for tr in test_results:
+        entry = grouped.setdefault(tr.test_case_id, {})
+        entry[tr.operation.value] = {
+            "passed": tr.passed,
+            "expected": tr.expected,
+            "actual": tr.actual,
+            "notes": tr.notes,
+        }
+    return grouped

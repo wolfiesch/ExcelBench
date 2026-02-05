@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@v3
+      - name: Install deps
+        run: uv sync --extra dev
+      - name: Lint
+        run: uv run ruff check
+      - name: Type check
+        run: uv run mypy
+      - name: Tests
+        run: uv run pytest
+      - name: Benchmark (fixtures)
+        run: |
+          if [ -f fixtures/excel/manifest.json ]; then
+            uv run excelbench benchmark --tests fixtures/excel --output /tmp/excelbench-results
+          else
+            echo "fixtures/excel/manifest.json missing; skipping benchmark."
+          fi
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: excelbench-results
+          path: /tmp/excelbench-results/results.json

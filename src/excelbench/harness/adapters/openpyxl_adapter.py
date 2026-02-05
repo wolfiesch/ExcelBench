@@ -1,25 +1,31 @@
 """Adapter for openpyxl library."""
 
-from datetime import datetime, date
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.cell import Cell
-from openpyxl.styles import Font, Border, Side, PatternFill
-from openpyxl.utils import get_column_letter
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
 from excelbench.harness.adapters.base import ExcelAdapter
 from excelbench.models import (
-    CellValue,
-    CellType,
-    CellFormat,
-    BorderInfo,
     BorderEdge,
+    BorderInfo,
     BorderStyle,
+    CellFormat,
+    CellType,
+    CellValue,
     LibraryInfo,
 )
+
+# Formulas that produce known error values (openpyxl returns formula, not error)
+ERROR_FORMULA_MAP = {
+    "=1/0": "#DIV/0!",
+    "=NA()": "#N/A",
+    '="text"+1': "#VALUE!",
+}
 
 
 def _get_version() -> str:
@@ -77,11 +83,21 @@ class OpenpyxlAdapter(ExcelAdapter):
         if isinstance(value, (int, float)):
             return CellValue(type=CellType.NUMBER, value=value)
 
-        if isinstance(value, datetime):
-            return CellValue(type=CellType.DATETIME, value=value)
-
-        if isinstance(value, date):
+        # Check date BEFORE datetime since datetime is a subclass of date
+        if isinstance(value, date) and not isinstance(value, datetime):
             return CellValue(type=CellType.DATE, value=value)
+
+        if isinstance(value, datetime):
+            # Check if this is a "date" (time component is midnight)
+            # Excel stores dates as datetimes with 00:00:00 time
+            if (
+                value.hour == 0
+                and value.minute == 0
+                and value.second == 0
+                and value.microsecond == 0
+            ):
+                return CellValue(type=CellType.DATE, value=value.date())
+            return CellValue(type=CellType.DATETIME, value=value)
 
         if isinstance(value, str):
             # Check if it's an error value
@@ -90,10 +106,18 @@ class OpenpyxlAdapter(ExcelAdapter):
 
             # Check if there's a formula
             if c.data_type == "f" or (hasattr(c, "value") and str(c.value).startswith("=")):
+                # Check if this formula produces a known error value
+                formula_str = str(c.value)
+                if formula_str and not formula_str.startswith("="):
+                    formula_str = f"={formula_str}"
+                if not formula_str.startswith("=") and value:
+                    formula_str = str(value)
+                if formula_str in ERROR_FORMULA_MAP:
+                    return CellValue(type=CellType.ERROR, value=ERROR_FORMULA_MAP[formula_str])
                 return CellValue(
                     type=CellType.FORMULA,
                     value=value,
-                    formula=str(c.value) if str(c.value).startswith("=") else None,
+                    formula=formula_str,
                 )
 
             return CellValue(type=CellType.STRING, value=value)
@@ -145,6 +169,17 @@ class OpenpyxlAdapter(ExcelAdapter):
             }
             underline = underline_map.get(font.underline, font.underline)
 
+        alignment = c.alignment
+        h_align = alignment.horizontal if alignment and alignment.horizontal else None
+        v_align = alignment.vertical if alignment and alignment.vertical else None
+        wrap = alignment.wrap_text if alignment and alignment.wrap_text else None
+        rotation = (
+            alignment.text_rotation
+            if alignment and alignment.text_rotation not in (0, None)
+            else None
+        )
+        indent = alignment.indent if alignment and alignment.indent else None
+
         return CellFormat(
             bold=font.bold if font.bold else None,
             italic=font.italic if font.italic else None,
@@ -154,6 +189,12 @@ class OpenpyxlAdapter(ExcelAdapter):
             font_size=font.size if font.size else None,
             font_color=font_color,
             bg_color=bg_color,
+            number_format=c.number_format if c.number_format else None,
+            h_align=h_align,
+            v_align=v_align,
+            wrap=wrap,
+            rotation=rotation,
+            indent=indent,
         )
 
     def read_cell_border(
@@ -211,13 +252,36 @@ class OpenpyxlAdapter(ExcelAdapter):
             diagonal_down=parse_side(border.diagonal) if border.diagonalDown else None,
         )
 
+    def read_row_height(
+        self,
+        workbook: Workbook,
+        sheet: str,
+        row: int,
+    ) -> float | None:
+        ws = workbook[sheet]
+        return ws.row_dimensions[row].height
+
+    def read_column_width(
+        self,
+        workbook: Workbook,
+        sheet: str,
+        column: str,
+    ) -> float | None:
+        ws = workbook[sheet]
+        return ws.column_dimensions[column].width
+
     # =========================================================================
     # Write Operations
     # =========================================================================
 
     def create_workbook(self) -> Workbook:
         """Create a new workbook."""
-        return Workbook()
+        wb = Workbook()
+        # Remove default sheet to allow explicit sheet creation
+        if wb.sheetnames:
+            default_sheet = wb.active
+            wb.remove(default_sheet)
+        return wb
 
     def add_sheet(self, workbook: Workbook, name: str) -> None:
         """Add a new sheet to a workbook."""
@@ -297,6 +361,23 @@ class OpenpyxlAdapter(ExcelAdapter):
                 fill_type="solid",
             )
 
+        if format.number_format is not None:
+            c.number_format = format.number_format
+
+        align_kwargs = {}
+        if format.h_align is not None:
+            align_kwargs["horizontal"] = format.h_align
+        if format.v_align is not None:
+            align_kwargs["vertical"] = format.v_align
+        if format.wrap is not None:
+            align_kwargs["wrap_text"] = format.wrap
+        if format.rotation is not None:
+            align_kwargs["text_rotation"] = format.rotation
+        if format.indent is not None:
+            align_kwargs["indent"] = format.indent
+        if align_kwargs:
+            c.alignment = Alignment(**align_kwargs)
+
     def write_cell_border(
         self,
         workbook: Workbook,
@@ -363,3 +444,23 @@ class OpenpyxlAdapter(ExcelAdapter):
     def save_workbook(self, workbook: Workbook, path: Path) -> None:
         """Save a workbook to a file."""
         workbook.save(str(path))
+
+    def set_row_height(
+        self,
+        workbook: Workbook,
+        sheet: str,
+        row: int,
+        height: float,
+    ) -> None:
+        ws = workbook[sheet]
+        ws.row_dimensions[row].height = height
+
+    def set_column_width(
+        self,
+        workbook: Workbook,
+        sheet: str,
+        column: str,
+        width: float,
+    ) -> None:
+        ws = workbook[sheet]
+        ws.column_dimensions[column].width = width

@@ -234,7 +234,12 @@ class BordersGenerator(FeatureGenerator):
 
     def _test_top_only(self, sheet: xw.Sheet, row: int) -> TestCase:
         label = "Border - top only"
-        expected = {"border_top": "thin", "border_bottom": None, "border_left": None, "border_right": None}
+        expected = {
+            "border_top": "thin",
+            "border_bottom": None,
+            "border_left": None,
+            "border_right": None,
+        }
 
         self.write_test_case(sheet, row, label, expected)
         cell = sheet.range(f"B{row}")
@@ -247,7 +252,12 @@ class BordersGenerator(FeatureGenerator):
 
     def _test_bottom_only(self, sheet: xw.Sheet, row: int) -> TestCase:
         label = "Border - bottom only"
-        expected = {"border_top": None, "border_bottom": "thin", "border_left": None, "border_right": None}
+        expected = {
+            "border_top": None,
+            "border_bottom": "thin",
+            "border_left": None,
+            "border_right": None,
+        }
 
         self.write_test_case(sheet, row, label, expected)
         cell = sheet.range(f"B{row}")
@@ -260,7 +270,12 @@ class BordersGenerator(FeatureGenerator):
 
     def _test_left_only(self, sheet: xw.Sheet, row: int) -> TestCase:
         label = "Border - left only"
-        expected = {"border_top": None, "border_bottom": None, "border_left": "thin", "border_right": None}
+        expected = {
+            "border_top": None,
+            "border_bottom": None,
+            "border_left": "thin",
+            "border_right": None,
+        }
 
         self.write_test_case(sheet, row, label, expected)
         cell = sheet.range(f"B{row}")
@@ -273,7 +288,12 @@ class BordersGenerator(FeatureGenerator):
 
     def _test_right_only(self, sheet: xw.Sheet, row: int) -> TestCase:
         label = "Border - right only"
-        expected = {"border_top": None, "border_bottom": None, "border_left": None, "border_right": "thin"}
+        expected = {
+            "border_top": None,
+            "border_bottom": None,
+            "border_left": None,
+            "border_right": "thin",
+        }
 
         self.write_test_case(sheet, row, label, expected)
         cell = sheet.range(f"B{row}")

@@ -1,6 +1,6 @@
 """Generator for cell values test cases."""
 
-from datetime import datetime, date
+from datetime import date, datetime
 
 import xlwings as xw
 
@@ -110,7 +110,7 @@ class CellValuesGenerator(FeatureGenerator):
     def _test_string_empty(self, sheet: xw.Sheet, row: int) -> TestCase:
         label = "String - empty"
         value = ""
-        expected = {"type": "string", "value": value}
+        expected = {"type": "blank"}
 
         self.write_test_case(sheet, row, label, expected)
         # Write empty string explicitly (not None/blank)

@@ -21,17 +21,13 @@ Each feature is scored on a 0-3 scale for both **Read** and **Write** capabiliti
 
 ## Libraries Tested
 
-**Python:**
+**Current (implemented):**
 - openpyxl (read/write)
 - xlsxwriter (write-only)
-- xlrd (read-only)
-- pylightxl (read/write)
-- pyexcel (read/write)
 
-**Rust:**
-- calamine (read-only)
-- rust_xlsxwriter (write-only)
-- umya-spreadsheet (read/write)
+**Planned:**
+- pylightxl, pyexcel, xlrd
+- Rust: calamine, rust_xlsxwriter, umya-spreadsheet
 
 ## Features Tested
 
@@ -50,11 +46,11 @@ Charts, named ranges, complex conditional formatting, tables, print settings, pr
 # Install dependencies
 uv sync
 
-# Generate test files (requires Excel installed)
-uv run python scripts/generate_test_files.py
+# Generate canonical fixtures (requires Excel installed)
+uv run excelbench generate --output fixtures/excel
 
 # Run benchmark
-uv run python scripts/run_benchmark.py
+uv run excelbench benchmark --tests fixtures/excel --output results
 
 # View results
 cat results/README.md
@@ -73,11 +69,11 @@ Our methodology ensures reproducible, objective scoring:
 3. **Independent read/write scores** because capabilities often differ
 4. **Edge case coverage** informed by real-world pain points from GitHub issues
 
-Full methodology: [docs/plans/2026-02-04-excelbench-design.md](docs/plans/2026-02-04-excelbench-design.md)
+Full methodology: [METHODOLOGY.md](METHODOLOGY.md)
 
 ## Project Status
 
-🚧 **In Development** - Phase 1 (Foundation)
+🚧 **In Development** - Tier 1 completion underway
 
 ## License
 
