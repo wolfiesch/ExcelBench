@@ -1,6 +1,6 @@
 # ExcelBench Results
 
-*Generated: 2026-02-06 06:09 UTC*
+*Generated: 2026-02-06 06:17 UTC*
 *Excel Version: 16.105.3*
 *Platform: Darwin-arm64*
 
@@ -21,7 +21,7 @@
 | alignment | 🟠 1 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🟠 1 |
 | background_colors | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 | borders | 🟢 3 | 🟠 1 | 🔴 0 | 🔴 0 | 🔴 0 | 🟠 1 |
-| cell_values | 🟢 3 | 🟢 3 | 🟠 1 | 🔴 0 | 🟠 1 | 🟢 3 |
+| cell_values | 🟢 3 | 🟢 3 | 🟢 3 | 🟠 1 | 🟠 1 | 🟢 3 |
 | comments | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 | conditional_formatting | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 |
 | data_validation | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🟠 1 |
@@ -161,15 +161,14 @@ Notes:
 - Write: 🟢 3 (3/3)
 
 **pylightxl**
-- Read: 🟠 1 (1/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (21):
-  - date_standard (read)
-  - datetime (read)
-  - error_na (read)
-  - string_simple (write)
-  - string_unicode (write)
-  - ... and 16 more
+- Read: 🟢 3 (3/3)
+- Write: 🟠 1 (1/3)
+- Failed tests (5):
+  - date_standard (write)
+  - datetime (write)
+  - boolean_true (write)
+  - boolean_false (write)
+  - error_na (write)
 
 **python-calamine**
 - Read: 🟠 1 (1/3)

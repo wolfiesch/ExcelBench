@@ -1,7 +1,7 @@
 {
   "metadata": {
     "benchmark_version": "0.1.0",
-    "run_date": "2026-02-06T06:09:21.812486+00:00",
+    "run_date": "2026-02-06T06:17:07.403568+00:00",
     "excel_version": "16.105.3",
     "platform": "Darwin-arm64"
   },
@@ -11,8 +11,8 @@
       "version": "3.1.5",
       "language": "python",
       "capabilities": [
-        "read",
-        "write"
+        "write",
+        "read"
       ]
     },
     "xlsxwriter": {
@@ -36,8 +36,8 @@
       "version": "1.61",
       "language": "python",
       "capabilities": [
-        "read",
-        "write"
+        "write",
+        "read"
       ]
     }
   },
@@ -1032,8 +1032,8 @@
       "feature": "cell_values",
       "library": "pylightxl",
       "scores": {
-        "read": 1,
-        "write": 0
+        "read": 3,
+        "write": 1
       },
       "test_cases": {
         "string_simple": {
@@ -1050,15 +1050,16 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "string",
               "value": "Hello World"
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "string",
+              "value": "Hello World"
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "string_unicode": {
@@ -1075,15 +1076,16 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "string",
               "value": "\u65e5\u672c\u8a9e\ud83c\udf89\u00e9mojis"
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "string",
+              "value": "\u65e5\u672c\u8a9e\ud83c\udf89\u00e9mojis"
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "string_empty": {
@@ -1098,14 +1100,14 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "blank"
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "blank"
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "string_long": {
@@ -1122,15 +1124,16 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "string",
               "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "string",
+              "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "string_newline": {
@@ -1147,15 +1150,16 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "string",
               "value": "Line 1\nLine 2\nLine 3"
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "string",
+              "value": "Line 1\nLine 2\nLine 3"
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "number_integer": {
@@ -1172,15 +1176,16 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "number",
               "value": 42
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "number",
+              "value": 42
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "number_float": {
@@ -1197,15 +1202,16 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "number",
               "value": 3.14159265358979
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "number",
+              "value": 3.14159265358979
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "number_negative": {
@@ -1222,15 +1228,16 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "number",
               "value": -100.5
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "number",
+              "value": -100.5
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "number_large": {
@@ -1247,15 +1254,16 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "number",
               "value": 1234567890123456
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "number",
+              "value": 1234567890123456
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "number_scientific": {
@@ -1272,27 +1280,28 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "number",
               "value": 1.23e-10
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "number",
+              "value": 1.23e-10
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "date_standard": {
           "read": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "date",
               "value": "2026-02-04"
             },
             "actual": {
-              "type": "string",
-              "value": "2026/02/04"
+              "type": "date",
+              "value": "2026-02-04"
             },
             "notes": null
           },
@@ -1303,21 +1312,22 @@
               "value": "2026-02-04"
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "string",
+              "value": "2026-02-04"
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "datetime": {
           "read": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "datetime",
               "value": "2026-02-04T10:30:45"
             },
             "actual": {
-              "type": "string",
-              "value": "2026/02/04 10:30:45"
+              "type": "datetime",
+              "value": "2026-02-04T10:30:45"
             },
             "notes": null
           },
@@ -1328,9 +1338,10 @@
               "value": "2026-02-04T10:30:45"
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "string",
+              "value": "2026-02-04T10:30:45"
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "boolean_true": {
@@ -1353,9 +1364,10 @@
               "value": true
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "number",
+              "value": 1
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "boolean_false": {
@@ -1378,9 +1390,10 @@
               "value": false
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "number",
+              "value": 0
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "error_div0": {
@@ -1397,26 +1410,27 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "error",
               "value": "#DIV/0!"
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "error",
+              "value": "#DIV/0!"
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "error_na": {
           "read": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "error",
               "value": "#N/A"
             },
             "actual": {
-              "type": "string",
+              "type": "error",
               "value": "#N/A"
             },
             "notes": null
@@ -1428,9 +1442,10 @@
               "value": "#N/A"
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "string",
+              "value": "#N/A"
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "error_value": {
@@ -1447,15 +1462,16 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "error",
               "value": "#VALUE!"
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "error",
+              "value": "#VALUE!"
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         },
         "blank": {
@@ -1470,14 +1486,14 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "blank"
             },
             "actual": {
-              "error": "Unable to read workbook: could not read worksheets from /var/folders/c7/js41yvcx1r73nfbhx6nrl7_c0000gn/T/tmp49f3whcf/pylightxl/cell_values.xlsx.\nThis is most probably because the workbook source files contain some invalid XML.\nPlease see the exception for more details."
+              "type": "blank"
             },
-            "notes": "Failed to open workbook for verification"
+            "notes": null
           }
         }
       },

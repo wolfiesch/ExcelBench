@@ -121,7 +121,9 @@ class CalamineAdapter(ReadOnlyAdapter):
             return CellValue(type=CellType.DATETIME, value=datetime.combine(date.today(), value))
 
         if isinstance(value, str):
-            # Error values
+            # Error values — includes #N/A (no trailing !)
+            if value in ("#N/A", "#NULL!", "#NAME?", "#REF!"):
+                return CellValue(type=CellType.ERROR, value=value)
             if value.startswith("#") and value.endswith("!"):
                 return CellValue(type=CellType.ERROR, value=value)
 

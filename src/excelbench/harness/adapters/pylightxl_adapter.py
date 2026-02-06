@@ -104,7 +104,19 @@ class PylightxlAdapter(ExcelAdapter):
             return CellValue(type=CellType.DATE, value=value)
 
         if isinstance(value, str):
-            # Error values
+            # Date strings — pylightxl returns dates as "YYYY/MM/DD" strings
+            if re.match(r"^\d{4}/\d{2}/\d{2}$", value):
+                parsed = datetime.strptime(value, "%Y/%m/%d").date()
+                return CellValue(type=CellType.DATE, value=parsed)
+
+            # DateTime strings — "YYYY/MM/DD HH:MM:SS"
+            if re.match(r"^\d{4}/\d{2}/\d{2}\s\d{2}:\d{2}:\d{2}$", value):
+                parsed_dt = datetime.strptime(value, "%Y/%m/%d %H:%M:%S")
+                return CellValue(type=CellType.DATETIME, value=parsed_dt)
+
+            # Error values — includes #N/A (no trailing !)
+            if value in ("#N/A", "#NULL!", "#NAME?", "#REF!"):
+                return CellValue(type=CellType.ERROR, value=value)
             if value.startswith("#") and value.endswith("!"):
                 return CellValue(type=CellType.ERROR, value=value)
 
@@ -201,7 +213,10 @@ class PylightxlAdapter(ExcelAdapter):
         elif value.type == CellType.ERROR:
             workbook.ws(ws=sheet).update_address(address=cell, val=str(value.value))
         elif value.type == CellType.BOOLEAN:
-            workbook.ws(ws=sheet).update_address(address=cell, val=value.value)
+            # pylightxl writes Python True/False as literal strings in XML,
+            # producing invalid XLSX. Convert to 1/0 which is the XLSX boolean
+            # representation, though openpyxl will read these back as integers.
+            workbook.ws(ws=sheet).update_address(address=cell, val=int(value.value))
         elif value.type == CellType.DATE:
             val = value.value
             if isinstance(val, date):
