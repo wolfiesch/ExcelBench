@@ -16,9 +16,11 @@ dependencies = [
 
     # Libraries under test - Python
     "openpyxl>=3.1.0",
+    "pillow>=10.0.0",
     "xlsxwriter>=3.1.0",
     "xlrd>=2.0.0",
     "pylightxl>=1.60",
+    "python-calamine>=0.2.0",
     "pyexcel>=0.7.0",
     "pyexcel-xlsx>=0.6.0",
 

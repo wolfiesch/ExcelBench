@@ -24,17 +24,19 @@ Each feature is scored on a 0-3 scale for both **Read** and **Write** capabiliti
 **Current (implemented):**
 - openpyxl (read/write)
 - xlsxwriter (write-only)
+- python-calamine (read-only, Rust-backed)
+- pylightxl (read/write, zero-dependency)
 
 **Planned:**
-- pylightxl, pyexcel, xlrd
-- Rust: calamine, rust_xlsxwriter, umya-spreadsheet
+- pyexcel, xlrd
+- Rust: rust_xlsxwriter, umya-spreadsheet
 
 ## Features Tested
 
 ### Tier 1 - Essential
 Cell values, formulas, text formatting, background colors, number formats, alignment, borders, dimensions, multiple sheets
 
-### Tier 2 - Standard
+### Tier 2 - Standard (Implemented)
 Merged cells, conditional formatting, data validation, hyperlinks, images, pivot tables, comments, freeze panes
 
 ### Tier 3 - Advanced
