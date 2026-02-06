@@ -150,35 +150,50 @@ def generate_all(
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    owned_app = False
     app = xw.apps.active
     if app is None:
-        raise RuntimeError("No active Excel instance found. Open Excel and retry generation.")
+        try:
+            app = xw.App(visible=False, add_book=False)
+            owned_app = True
+        except Exception as e:
+            raise RuntimeError(
+                "No active Excel instance found and failed to launch Excel automatically. "
+                "Open Excel and retry generation."
+            ) from e
 
-    # Get Excel version before generating
-    excel_version = get_excel_version(app)
-    print(f"Using Excel version: {excel_version}")
+    try:
+        # Get Excel version before generating
+        excel_version = get_excel_version(app)
+        print(f"Using Excel version: {excel_version}")
 
-    # Generate each test file
-    test_files: list[TestFile] = []
-    for generator in generators:
-        test_file = generate_test_file(generator, output_dir, app=app)
-        test_files.append(test_file)
+        # Generate each test file
+        test_files: list[TestFile] = []
+        for generator in generators:
+            test_file = generate_test_file(generator, output_dir, app=app)
+            test_files.append(test_file)
 
-    # Create manifest
-    manifest = Manifest(
-        generated_at=datetime.now(UTC),
-        excel_version=excel_version,
-        generator_version=GENERATOR_VERSION,
-        file_format="xlsx",
-        files=test_files,
-    )
+        # Create manifest
+        manifest = Manifest(
+            generated_at=datetime.now(UTC),
+            excel_version=excel_version,
+            generator_version=GENERATOR_VERSION,
+            file_format="xlsx",
+            files=test_files,
+        )
 
-    # Write manifest to JSON
-    manifest_path = output_dir / "manifest.json"
-    write_manifest(manifest, manifest_path)
-    print(f"Wrote manifest to {manifest_path}")
+        # Write manifest to JSON
+        manifest_path = output_dir / "manifest.json"
+        write_manifest(manifest, manifest_path)
+        print(f"Wrote manifest to {manifest_path}")
 
-    return manifest
+        return manifest
+    finally:
+        if owned_app:
+            try:
+                app.quit()
+            except Exception:
+                pass
 
 
 def write_manifest(manifest: Manifest, path: Path) -> None:

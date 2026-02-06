@@ -64,8 +64,33 @@ class PivotTablesGenerator(FeatureGenerator):
     def post_process(self, output_path: Path) -> None:
         if sys.platform != "darwin":
             return
-        if self._fixture_path.exists():
-            shutil.copyfile(self._fixture_path, output_path)
+        if not self._fixture_path.exists():
+            return
+
+        # If we're generating directly into the canonical fixture location,
+        # never copy (or overwrite) the fixture onto itself.
+        if self._fixture_path.resolve() == output_path.resolve():
+            return
+
+        shutil.copyfile(self._fixture_path, output_path)
+
+    def save_and_close(self, wb: xw.Book, output_path: Path) -> None:
+        # On macOS we may rely on a pre-generated Windows pivot fixture.
+        # If the caller is generating directly into that canonical path,
+        # do not overwrite it.
+        if sys.platform == "darwin" and self._fixture_path.exists():
+            try:
+                if self._fixture_path.resolve() == output_path.resolve():
+                    wb.close()
+                    owned_app = getattr(wb, "_excelbench_owned_app", None)
+                    if owned_app is not None:
+                        owned_app.quit()
+                    return
+            except Exception:
+                # Fall back to normal save behavior.
+                pass
+
+        super().save_and_close(wb, output_path)
 
     def _fixture_test_cases(self, sheet: xw.Sheet) -> list[TestCase]:
         return self._minimal_test_cases(sheet)

@@ -27,8 +27,15 @@ class ImagesGenerator(FeatureGenerator):
         row = 2
 
         image_dir = Path("fixtures/images")
-        png_path = (image_dir / "sample.png").resolve()
-        jpg_path = (image_dir / "sample.jpg").resolve()
+        png_rel = image_dir / "sample.png"
+        jpg_rel = image_dir / "sample.jpg"
+
+        # Use absolute paths for insertion, but keep expected paths repo-relative so
+        # canonical manifests are stable across machines.
+        png_path = png_rel.resolve()
+        jpg_path = jpg_rel.resolve()
+        png_expected_path = png_rel.as_posix()
+        jpg_expected_path = jpg_rel.as_posix()
 
         # One-cell anchor image
         label = "Image: one-cell anchor"
@@ -45,14 +52,14 @@ class ImagesGenerator(FeatureGenerator):
             )
             expected = ImageSpec(
                 cell=cell,
-                path=str(png_path),
+                path=png_expected_path,
                 anchor="oneCell",
             ).to_expected()
         else:
             self._ops.append({"cell": cell, "path": str(png_path)})
             expected = ImageSpec(
                 cell=cell,
-                path=str(png_path),
+                path=png_expected_path,
                 anchor="oneCell",
             ).to_expected()
         self.write_test_case(sheet, row, label, expected)
@@ -74,7 +81,7 @@ class ImagesGenerator(FeatureGenerator):
             )
             expected = ImageSpec(
                 cell=cell,
-                path=str(jpg_path),
+                path=jpg_expected_path,
                 anchor="twoCell",
                 offset=(8, 6),
             ).to_expected()
@@ -82,7 +89,7 @@ class ImagesGenerator(FeatureGenerator):
             self._ops.append({"cell": cell, "path": str(jpg_path)})
             expected = ImageSpec(
                 cell=cell,
-                path=str(jpg_path),
+                path=jpg_expected_path,
                 anchor="oneCell",
             ).to_expected()
         self.write_test_case(sheet, row, label, expected)
