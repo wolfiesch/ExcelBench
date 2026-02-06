@@ -109,7 +109,7 @@ def benchmark(
         console.print("[red]Error: profile must be one of: xlsx, xls[/red]")
         raise typer.Exit(1)
 
-    if profile == "xls" and test_dir == XLSX_PROFILE_DEFAULT_TEST_DIR:
+    if profile == "xls" and test_dir.resolve() == XLSX_PROFILE_DEFAULT_TEST_DIR.resolve():
         test_dir = XLS_PROFILE_DEFAULT_TEST_DIR
 
     adapters = None
