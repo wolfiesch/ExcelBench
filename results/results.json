@@ -1,7 +1,7 @@
 {
   "metadata": {
     "benchmark_version": "0.1.0",
-    "run_date": "2026-02-06T07:21:25.818096+00:00",
+    "run_date": "2026-02-06T07:50:05.271776+00:00",
     "excel_version": "16.105.3",
     "platform": "Darwin-arm64"
   },
@@ -1754,7 +1754,7 @@
       "feature": "formulas",
       "library": "openpyxl",
       "scores": {
-        "read": 1,
+        "read": 3,
         "write": 3
       },
       "test_cases": {
@@ -1838,14 +1838,14 @@
         },
         "formula_cross_sheet": {
           "read": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "type": "formula",
               "formula": "='References'!B2"
             },
             "actual": {
               "type": "formula",
-              "formula": "=References!B2"
+              "formula": "='References'!B2"
             },
             "notes": null
           },
@@ -4051,18 +4051,18 @@
       "feature": "number_formats",
       "library": "openpyxl",
       "scores": {
-        "read": 1,
+        "read": 3,
         "write": 3
       },
       "test_cases": {
         "numfmt_currency": {
           "read": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "number_format": "$#,##0.00"
             },
             "actual": {
-              "number_format": "\"$\"#,##0.00"
+              "number_format": "$#,##0.00"
             },
             "notes": null
           },
@@ -4101,12 +4101,12 @@
         },
         "numfmt_date": {
           "read": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "number_format": "yyyy-mm-dd"
             },
             "actual": {
-              "number_format": "yyyy\\-mm\\-dd"
+              "number_format": "yyyy-mm-dd"
             },
             "notes": null
           },
@@ -4145,12 +4145,12 @@
         },
         "numfmt_custom_text": {
           "read": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "number_format": "\"USD\" 0.00"
             },
             "actual": {
-              "number_format": "\"USD\"\\ 0.00"
+              "number_format": "\"USD\" 0.00"
             },
             "notes": null
           },
@@ -4497,7 +4497,8 @@
               "h_align": "left"
             },
             "actual": {
-              "h_align": "left"
+              "h_align": "left",
+              "v_align": "bottom"
             },
             "notes": null
           },
@@ -4507,7 +4508,8 @@
               "h_align": "left"
             },
             "actual": {
-              "h_align": "left"
+              "h_align": "left",
+              "v_align": "bottom"
             },
             "notes": null
           }
@@ -4519,7 +4521,8 @@
               "h_align": "center"
             },
             "actual": {
-              "h_align": "center"
+              "h_align": "center",
+              "v_align": "bottom"
             },
             "notes": null
           },
@@ -4529,7 +4532,8 @@
               "h_align": "center"
             },
             "actual": {
-              "h_align": "center"
+              "h_align": "center",
+              "v_align": "bottom"
             },
             "notes": null
           }
@@ -4541,7 +4545,8 @@
               "h_align": "right"
             },
             "actual": {
-              "h_align": "right"
+              "h_align": "right",
+              "v_align": "bottom"
             },
             "notes": null
           },
@@ -4551,7 +4556,8 @@
               "h_align": "right"
             },
             "actual": {
-              "h_align": "right"
+              "h_align": "right",
+              "v_align": "bottom"
             },
             "notes": null
           }
@@ -4563,7 +4569,8 @@
               "v_align": "top"
             },
             "actual": {
-              "v_align": "top"
+              "v_align": "top",
+              "h_align": "general"
             },
             "notes": null
           },
@@ -4573,7 +4580,8 @@
               "v_align": "top"
             },
             "actual": {
-              "v_align": "top"
+              "v_align": "top",
+              "h_align": "general"
             },
             "notes": null
           }
@@ -4585,7 +4593,8 @@
               "v_align": "center"
             },
             "actual": {
-              "v_align": "center"
+              "v_align": "center",
+              "h_align": "general"
             },
             "notes": null
           },
@@ -4595,7 +4604,8 @@
               "v_align": "center"
             },
             "actual": {
-              "v_align": "center"
+              "v_align": "center",
+              "h_align": "general"
             },
             "notes": null
           }
@@ -4607,7 +4617,8 @@
               "v_align": "bottom"
             },
             "actual": {
-              "v_align": "bottom"
+              "v_align": "bottom",
+              "h_align": "general"
             },
             "notes": null
           },
@@ -4617,7 +4628,8 @@
               "v_align": "bottom"
             },
             "actual": {
-              "v_align": "bottom"
+              "v_align": "bottom",
+              "h_align": "general"
             },
             "notes": null
           }
@@ -4629,7 +4641,9 @@
               "wrap": true
             },
             "actual": {
-              "wrap": true
+              "wrap": true,
+              "h_align": "general",
+              "v_align": "bottom"
             },
             "notes": null
           },
@@ -4639,7 +4653,9 @@
               "wrap": true
             },
             "actual": {
-              "wrap": true
+              "wrap": true,
+              "h_align": "general",
+              "v_align": "bottom"
             },
             "notes": null
           }
@@ -4651,7 +4667,9 @@
               "rotation": 45
             },
             "actual": {
-              "rotation": 45
+              "rotation": 45,
+              "h_align": "general",
+              "v_align": "bottom"
             },
             "notes": null
           },
@@ -4661,7 +4679,9 @@
               "rotation": 45
             },
             "actual": {
-              "rotation": 45
+              "rotation": 45,
+              "h_align": "general",
+              "v_align": "bottom"
             },
             "notes": null
           }
@@ -4673,7 +4693,9 @@
               "indent": 2
             },
             "actual": {
-              "indent": 2.0
+              "indent": 2.0,
+              "h_align": "general",
+              "v_align": "bottom"
             },
             "notes": null
           },
@@ -4683,7 +4705,9 @@
               "indent": 2
             },
             "actual": {
-              "indent": 2.0
+              "indent": 2.0,
+              "h_align": "general",
+              "v_align": "bottom"
             },
             "notes": null
           }
@@ -4696,7 +4720,7 @@
       "library": "xlsxwriter",
       "scores": {
         "read": null,
-        "write": 1
+        "write": 3
       },
       "test_cases": {
         "h_left": {
@@ -4706,7 +4730,8 @@
               "h_align": "left"
             },
             "actual": {
-              "h_align": "left"
+              "h_align": "left",
+              "v_align": "bottom"
             },
             "notes": null
           }
@@ -4718,7 +4743,8 @@
               "h_align": "center"
             },
             "actual": {
-              "h_align": "center"
+              "h_align": "center",
+              "v_align": "bottom"
             },
             "notes": null
           }
@@ -4730,7 +4756,8 @@
               "h_align": "right"
             },
             "actual": {
-              "h_align": "right"
+              "h_align": "right",
+              "v_align": "bottom"
             },
             "notes": null
           }
@@ -4742,7 +4769,8 @@
               "v_align": "top"
             },
             "actual": {
-              "v_align": "top"
+              "v_align": "top",
+              "h_align": "general"
             },
             "notes": null
           }
@@ -4754,18 +4782,22 @@
               "v_align": "center"
             },
             "actual": {
-              "v_align": "center"
+              "v_align": "center",
+              "h_align": "general"
             },
             "notes": null
           }
         },
         "v_bottom": {
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "v_align": "bottom"
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -4776,7 +4808,9 @@
               "wrap": true
             },
             "actual": {
-              "wrap": true
+              "wrap": true,
+              "h_align": "general",
+              "v_align": "bottom"
             },
             "notes": null
           }
@@ -4788,7 +4822,9 @@
               "rotation": 45
             },
             "actual": {
-              "rotation": 45
+              "rotation": 45,
+              "h_align": "general",
+              "v_align": "bottom"
             },
             "notes": null
           }
@@ -4801,7 +4837,8 @@
             },
             "actual": {
               "h_align": "left",
-              "indent": 2.0
+              "indent": 2.0,
+              "v_align": "bottom"
             },
             "notes": null
           }
@@ -4813,7 +4850,7 @@
       "feature": "alignment",
       "library": "python-calamine",
       "scores": {
-        "read": 0,
+        "read": 1,
         "write": null
       },
       "test_cases": {
@@ -4823,7 +4860,10 @@
             "expected": {
               "h_align": "left"
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -4833,7 +4873,10 @@
             "expected": {
               "h_align": "center"
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -4843,7 +4886,10 @@
             "expected": {
               "h_align": "right"
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -4853,7 +4899,10 @@
             "expected": {
               "v_align": "top"
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -4863,17 +4912,23 @@
             "expected": {
               "v_align": "center"
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
         "v_bottom": {
           "read": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "v_align": "bottom"
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -4883,7 +4938,10 @@
             "expected": {
               "wrap": true
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -4893,7 +4951,10 @@
             "expected": {
               "rotation": 45
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -4903,7 +4964,10 @@
             "expected": {
               "indent": 2
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         }
@@ -4915,7 +4979,7 @@
       "library": "pylightxl",
       "scores": {
         "read": 0,
-        "write": 0
+        "write": 1
       },
       "test_cases": {
         "h_left": {
@@ -4934,7 +4998,10 @@
             "expected": {
               "h_align": "left"
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -4954,7 +5021,10 @@
             "expected": {
               "h_align": "center"
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -4974,7 +5044,10 @@
             "expected": {
               "h_align": "right"
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -4994,7 +5067,10 @@
             "expected": {
               "v_align": "top"
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -5014,7 +5090,10 @@
             "expected": {
               "v_align": "center"
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -5030,11 +5109,14 @@
             "notes": "Failed to open workbook"
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "v_align": "bottom"
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -5054,7 +5136,10 @@
             "expected": {
               "wrap": true
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -5074,7 +5159,10 @@
             "expected": {
               "rotation": 45
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         },
@@ -5094,7 +5182,10 @@
             "expected": {
               "indent": 2
             },
-            "actual": {},
+            "actual": {
+              "h_align": "general",
+              "v_align": "bottom"
+            },
             "notes": null
           }
         }
@@ -5225,7 +5316,7 @@
       "library": "openpyxl",
       "scores": {
         "read": 3,
-        "write": 1
+        "write": 3
       },
       "test_cases": {
         "thin_all": {
@@ -5759,14 +5850,20 @@
             "notes": null
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "border_top_color": "#FF0000",
               "border_bottom_color": "#00FF00",
               "border_left_color": "#0000FF",
               "border_right_color": "#FFFF00"
             },
-            "actual": {},
+            "actual": {
+              "border_top_color": "#FF0000",
+              "border_bottom_color": "#00FF00",
+              "border_left_color": "#0000FF",
+              "border_right_color": "#FFFF00",
+              "border_style": "thin"
+            },
             "notes": null
           }
         }
@@ -5778,7 +5875,7 @@
       "library": "xlsxwriter",
       "scores": {
         "read": null,
-        "write": 1
+        "write": 3
       },
       "test_cases": {
         "thin_all": {
@@ -5959,24 +6056,24 @@
         },
         "diagonal_up": {
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "border_diagonal_up": "thin"
             },
             "actual": {
-              "border_diagonal_down": "thin"
+              "border_diagonal_up": "thin"
             },
             "notes": null
           }
         },
         "diagonal_down": {
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "border_diagonal_down": "thin"
             },
             "actual": {
-              "border_diagonal_up": "thin"
+              "border_diagonal_down": "thin"
             },
             "notes": null
           }
@@ -6058,14 +6155,20 @@
         },
         "mixed_colors": {
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "border_top_color": "#FF0000",
               "border_bottom_color": "#00FF00",
               "border_left_color": "#0000FF",
               "border_right_color": "#FFFF00"
             },
-            "actual": {},
+            "actual": {
+              "border_top_color": "#FF0000",
+              "border_bottom_color": "#00FF00",
+              "border_left_color": "#0000FF",
+              "border_right_color": "#FFFF00",
+              "border_style": "thin"
+            },
             "notes": null
           }
         }
@@ -7169,7 +7272,7 @@
       "library": "xlsxwriter",
       "scores": {
         "read": null,
-        "write": 1
+        "write": 3
       },
       "test_cases": {
         "row_height_30": {
@@ -7198,24 +7301,24 @@
         },
         "col_width_20": {
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "column_width": 20
             },
             "actual": {
-              "column_width": 20.7109375
+              "column_width": 20.0
             },
             "notes": null
           }
         },
         "col_width_8": {
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "column_width": 8
             },
             "actual": {
-              "column_width": 8.7109375
+              "column_width": 8.0
             },
             "notes": null
           }
@@ -8661,12 +8764,12 @@
       "library": "xlsxwriter",
       "scores": {
         "read": null,
-        "write": 0
+        "write": 2
       },
       "test_cases": {
         "cf_cell_gt": {
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "cf_rule": {
                 "range": "B2:B6",
@@ -8687,7 +8790,7 @@
                 "formula": "5",
                 "priority": 1,
                 "format": {
-                  "bg_color": "#000000"
+                  "bg_color": "#FFFF00"
                 }
               }
             },
@@ -8696,7 +8799,7 @@
         },
         "cf_formula_cross_sheet": {
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "cf_rule": {
                 "range": "B2:B6",
@@ -8708,13 +8811,23 @@
                 }
               }
             },
-            "actual": {},
+            "actual": {
+              "cf_rule": {
+                "range": "B2:B6",
+                "rule_type": "expression",
+                "formula": "=Ref!$A$1>5",
+                "priority": 2,
+                "format": {
+                  "bg_color": "#FF00FF"
+                }
+              }
+            },
             "notes": null
           }
         },
         "cf_text_contains": {
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "cf_rule": {
                 "range": "B2:B6",
@@ -8726,7 +8839,17 @@
                 }
               }
             },
-            "actual": {},
+            "actual": {
+              "cf_rule": {
+                "range": "B2:B6",
+                "rule_type": "expression",
+                "formula": "=ISNUMBER(SEARCH(\"foo\",B2))",
+                "priority": 3,
+                "format": {
+                  "bg_color": "#FFFF00"
+                }
+              }
+            },
             "notes": null
           }
         },
@@ -8793,9 +8916,9 @@
                 "operator": "lessThan",
                 "formula": "3",
                 "priority": 6,
-                "stop_if_true": null,
+                "stop_if_true": true,
                 "format": {
-                  "bg_color": "#000000"
+                  "bg_color": "#FF0000"
                 }
               }
             },
@@ -9492,7 +9615,7 @@
       "library": "xlsxwriter",
       "scores": {
         "read": null,
-        "write": 1
+        "write": 3
       },
       "test_cases": {
         "dv_list_csv": {
@@ -9579,7 +9702,7 @@
         },
         "dv_whole_between": {
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "validation": {
                 "range": "B6",
@@ -9596,7 +9719,7 @@
               "validation": {
                 "range": "B6",
                 "validation_type": "whole",
-                "operator": null,
+                "operator": "between",
                 "formula1": "1",
                 "formula2": "10",
                 "allow_blank": false,

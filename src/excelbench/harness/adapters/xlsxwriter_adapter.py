@@ -277,9 +277,9 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                 if border.diagonal_up and border.diagonal_down:
                     diag_type = 3
                 elif border.diagonal_up:
-                    diag_type = 2
-                elif border.diagonal_down:
                     diag_type = 1
+                elif border.diagonal_down:
+                    diag_type = 2
                 fmt_dict["diag_type"] = diag_type
 
         return wb.add_format(fmt_dict)
@@ -395,6 +395,7 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                     operator = cf.get("operator")
                     formula = cf.get("formula")
                     fmt = cf.get("format") or {}
+                    stop_if_true = cf.get("stop_if_true")
 
                     options: dict[str, Any] = {}
                     if rule_type in ("cellIs", "cellIsRule"):
@@ -412,14 +413,23 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                         options["value"] = formula
                     elif rule_type in ("expression", "formula"):
                         options["type"] = "formula"
-                        options["criteria"] = formula
+                        # xlsxwriter adds '=' internally; strip leading '='
+                        criteria = formula.lstrip("=") if formula else formula
+                        options["criteria"] = criteria
                     elif rule_type == "colorScale":
                         options["type"] = "3_color_scale"
                     elif rule_type == "dataBar":
                         options["type"] = "data_bar"
 
+                    if stop_if_true:
+                        options["stop_if_true"] = True
+
                     if fmt.get("bg_color"):
-                        options["format"] = wb.add_format({"bg_color": fmt["bg_color"]})
+                        # Use fg_color for conditional format dxf fills
+                        options["format"] = wb.add_format({
+                            "fg_color": fmt["bg_color"],
+                            "pattern": 1,
+                        })
                     if options and rng:
                         ws.conditional_format(rng, options)
 

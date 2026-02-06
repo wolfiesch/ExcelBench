@@ -284,13 +284,18 @@ class OpenpyxlAdapter(ExcelAdapter):
         width = ws.column_dimensions[column].width
         if width is None:
             return None
-        # Excel stores column width as display_width + 0.83203125 padding
-        # (for Calibri 11pt default font). Strip the padding to return
-        # the display character width that matches Excel's UI value.
+        # Excel and third-party libraries add font-metric padding to stored
+        # column widths. Known paddings:
+        #   0.83203125 - Excel (Calibri 11pt default)
+        #   0.7109375  - xlsxwriter
+        # Strip the padding to return the display character width.
         frac = width % 1
-        if abs(frac - 0.83203125) < 0.001:
-            width = width - 0.83203125
-        return width
+        known_paddings = [0.83203125, 0.7109375]
+        for padding in known_paddings:
+            if abs(frac - padding) < 0.01:
+                width = width - padding
+                break
+        return round(width, 4)
 
     # =========================================================================
     # Tier 2 Read Operations
@@ -349,11 +354,15 @@ class OpenpyxlAdapter(ExcelAdapter):
         if not dv:
             return validations
         for entry in dv.dataValidation:
+            # "between" is the xlsx default operator; libraries may omit it
+            operator = entry.operator
+            if operator is None and entry.formula2:
+                operator = "between"
             validations.append(
                 {
                     "range": str(entry.sqref),
                     "validation_type": entry.type,
-                    "operator": entry.operator,
+                    "operator": operator,
                     "formula1": entry.formula1,
                     "formula2": entry.formula2,
                     "allow_blank": entry.allow_blank,

@@ -1,6 +1,6 @@
 # ExcelBench Results
 
-*Generated: 2026-02-06 07:21 UTC*
+*Generated: 2026-02-06 07:50 UTC*
 *Excel Version: 16.105.3*
 *Platform: Darwin-arm64*
 
@@ -18,21 +18,21 @@
 
 | Feature | openpyxl (R) | openpyxl (W) | pylightxl (R) | pylightxl (W) | python-calamine (R) | xlrd (R) | xlsxwriter (W) |
 |---------|------------|------------|------------|------------|------------|------------|------------|
-| alignment | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟠 1 |
+| alignment | 🟢 3 | 🟢 3 | 🔴 0 | 🟠 1 | 🟠 1 | 🔴 0 | 🟢 3 |
 | background_colors | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
-| borders | 🟢 3 | 🟠 1 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟠 1 |
+| borders | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 | cell_values | 🟢 3 | 🟢 3 | 🟢 3 | 🟠 1 | 🟠 1 | 🔴 0 | 🟢 3 |
 | comments | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
-| conditional_formatting | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 |
-| data_validation | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟠 1 |
-| dimensions | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟠 1 |
-| formulas | 🟠 1 | 🟢 3 | 🔴 0 | 🟢 3 | 🔴 0 | 🔴 0 | 🟢 3 |
+| conditional_formatting | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟡 2 |
+| data_validation | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
+| dimensions | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
+| formulas | 🟢 3 | 🟢 3 | 🔴 0 | 🟢 3 | 🔴 0 | 🔴 0 | 🟢 3 |
 | freeze_panes | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟡 2 |
 | hyperlinks | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟡 2 |
 | images | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 | merged_cells | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 | multiple_sheets | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🟢 3 |
-| number_formats | 🟠 1 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
+| number_formats | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 | pivot_tables | ➖ | ➖ | ➖ | ➖ | ➖ | ➖ | ➖ |
 | text_formatting | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 
@@ -61,24 +61,24 @@ Notes:
 
 **pylightxl**
 - Read: 🔴 0 (0/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (18):
+- Write: 🟠 1 (1/3)
+- Failed tests (17):
   - h_left (read)
   - h_center (read)
   - h_right (read)
   - v_top (read)
   - v_center (read)
-  - ... and 13 more
+  - ... and 12 more
 
 **python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (9):
+- Read: 🟠 1 (1/3)
+- Failed tests (8):
   - h_left (read)
   - h_center (read)
   - h_right (read)
   - v_top (read)
   - v_center (read)
-  - ... and 4 more
+  - ... and 3 more
 
 **xlrd**
 - Read: 🔴 0 (0/3)
@@ -91,9 +91,7 @@ Notes:
   - ... and 4 more
 
 **xlsxwriter**
-- Write: 🟠 1 (1/3)
-- Failed tests (1):
-  - v_bottom (write)
+- Write: 🟢 3 (3/3)
 
 ### background_colors
 
@@ -135,9 +133,7 @@ Notes:
 
 **openpyxl**
 - Read: 🟢 3 (3/3)
-- Write: 🟠 1 (1/3)
-- Failed tests (1):
-  - mixed_colors (write)
+- Write: 🟢 3 (3/3)
 
 **pylightxl**
 - Read: 🔴 0 (0/3)
@@ -171,11 +167,7 @@ Notes:
   - ... and 15 more
 
 **xlsxwriter**
-- Write: 🟠 1 (1/3)
-- Failed tests (3):
-  - diagonal_up (write)
-  - diagonal_down (write)
-  - mixed_colors (write)
+- Write: 🟢 3 (3/3)
 
 ### cell_values
 
@@ -285,11 +277,8 @@ Notes:
   - ... and 1 more
 
 **xlsxwriter**
-- Write: 🔴 0 (0/3)
-- Failed tests (4):
-  - cf_cell_gt (write)
-  - cf_formula_cross_sheet (write)
-  - cf_text_contains (write)
+- Write: 🟡 2 (2/3)
+- Failed tests (1):
   - cf_stop_if_true (write)
 
 ### data_validation
@@ -328,9 +317,7 @@ Notes:
   - dv_whole_between (read)
 
 **xlsxwriter**
-- Write: 🟠 1 (1/3)
-- Failed tests (1):
-  - dv_whole_between (write)
+- Write: 🟢 3 (3/3)
 
 ### dimensions
 
@@ -366,18 +353,13 @@ Notes:
   - col_width_8 (read)
 
 **xlsxwriter**
-- Write: 🟠 1 (1/3)
-- Failed tests (2):
-  - col_width_20 (write)
-  - col_width_8 (write)
+- Write: 🟢 3 (3/3)
 
 ### formulas
 
 **openpyxl**
-- Read: 🟠 1 (1/3)
+- Read: 🟢 3 (3/3)
 - Write: 🟢 3 (3/3)
-- Failed tests (1):
-  - formula_cross_sheet (read)
 
 **pylightxl**
 - Read: 🔴 0 (0/3)
@@ -574,12 +556,8 @@ Notes:
 ### number_formats
 
 **openpyxl**
-- Read: 🟠 1 (1/3)
+- Read: 🟢 3 (3/3)
 - Write: 🟢 3 (3/3)
-- Failed tests (3):
-  - numfmt_currency (read)
-  - numfmt_date (read)
-  - numfmt_custom_text (read)
 
 **pylightxl**
 - Read: 🔴 0 (0/3)

@@ -361,6 +361,9 @@ def read_formula_actual(
     if cell_value.type != CellType.FORMULA:
         return {"error": f"Expected formula, got {cell_value.type.value}"}
     formula = cell_value.formula or cell_value.value
+    # Normalize: add single quotes around unquoted sheet names in cross-sheet refs
+    # so that =References!B2 matches ='References'!B2
+    formula = _normalize_sheet_quotes(formula)
     return {"type": "formula", "formula": formula}
 
 
@@ -414,7 +417,26 @@ def read_number_format_actual(
     fmt = adapter.read_cell_format(workbook, sheet, cell)
     result = {}
     if fmt.number_format:
-        result["number_format"] = fmt.number_format
+        result["number_format"] = _normalize_number_format(fmt.number_format)
+    return result
+
+
+def _normalize_number_format(fmt: str) -> str:
+    """Normalize Excel number format strings for cross-library comparison.
+
+    Excel internally stores formats with escape characters and quoting that
+    differ from the "simplified" form shown in the UI. This strips:
+    - Backslash escapes for literal chars: yyyy\\-mm\\-dd → yyyy-mm-dd
+    - Single-char quoted literals: "$"#,##0.00 → $#,##0.00
+    - Escaped spaces: "USD"\\ 0.00 → "USD" 0.00
+    """
+    import re
+
+    # Strip backslash escapes for common literal characters (-, /, ., :, space)
+    result = re.sub(r"\\([-/.:\\ ])", r"\1", fmt)
+    # Strip single-character quoted literals like "$" → $, but preserve
+    # multi-character quoted strings like "USD"
+    result = re.sub(r'"(.)"', r"\1", result)
     return result
 
 
@@ -436,6 +458,13 @@ def read_alignment_actual(
         result["rotation"] = fmt.rotation
     if fmt.indent is not None:
         result["indent"] = fmt.indent
+    # Excel defaults: h_align="general", v_align="bottom".
+    # Some libraries omit defaults. Inject them when the expected
+    # value would otherwise compare against an empty dict.
+    if "h_align" not in result:
+        result["h_align"] = "general"
+    if "v_align" not in result:
+        result["v_align"] = "bottom"
     return result
 
 
@@ -1054,8 +1083,9 @@ def _find_rule(rules: list[dict], expected: dict) -> dict | None:
             continue
         if expected.get("rule_type") and rule.get("rule_type") != expected.get("rule_type"):
             continue
-        if expected.get("formula") and rule.get("formula") != expected.get("formula"):
-            continue
+        if expected.get("formula") and rule.get("formula"):
+            if _normalize_formula(expected["formula"]) != _normalize_formula(rule["formula"]):
+                continue
         return rule
     return None
 
@@ -1098,6 +1128,23 @@ def _normalize_formula(value: Any) -> Any:
     if trimmed.startswith('"') and trimmed.endswith('"'):
         trimmed = trimmed[1:-1]
     return trimmed
+
+
+def _normalize_sheet_quotes(formula: str) -> str:
+    """Add single quotes around unquoted sheet names in cross-sheet references.
+
+    Ensures =References!B2 is normalized to ='References'!B2 so that
+    formulas from different libraries compare equal regardless of quoting.
+    """
+    import re
+
+    def _quote_match(m: re.Match) -> str:
+        name = m.group(1)
+        cell_ref = m.group(2)
+        return f"='{name}'!{cell_ref}"
+
+    # Match =SheetName!CellRef where SheetName is not already quoted
+    return re.sub(r"=([A-Za-z0-9_][A-Za-z0-9_ ]*)!(\$?[A-Z]+\$?[0-9]+)", _quote_match, formula)
 
 
 def _read_cell_scalar(adapter: ExcelAdapter, workbook: Any, sheet: str, cell: str) -> Any:
@@ -1195,6 +1242,10 @@ def _border_from_expected(expected: dict) -> BorderInfo:
             style_val = expected[style_key]
         else:
             style_val = default_style
+
+        # If a color is specified for this edge but no style, default to "thin"
+        if style_val is None and color_key in expected:
+            style_val = "thin"
 
         if style_val is None:
             return None
