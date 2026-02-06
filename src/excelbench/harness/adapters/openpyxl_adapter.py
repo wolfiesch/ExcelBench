@@ -518,12 +518,17 @@ class OpenpyxlAdapter(ExcelAdapter):
             y_val = int(pane.ySplit) if pane.ySplit is not None else None
             # xlsxwriter stores split values as twips (assuming default Calibri 11pt):
             #   y_twips = 20 * rows + 300,  x_twips = 180 * cols + 390
-            # Convert back to logical row/col counts when values exceed 100
-            # (logical values are small integers; twip values start at ≥300).
-            if x_val is not None and x_val > 100:
-                x_val = round((x_val - 390) / 180)
-            if y_val is not None and y_val > 100:
-                y_val = round((y_val - 300) / 20)
+            # Convert back to logical row/col counts when values exceed a threshold
+            # (logical values are small integers; twip values start at >=300).
+            TWIPS_X_OFFSET = 390
+            TWIPS_X_FACTOR = 180
+            TWIPS_Y_OFFSET = 300
+            TWIPS_Y_FACTOR = 20
+            TWIPS_CONVERSION_THRESHOLD = 100
+            if x_val is not None and x_val > TWIPS_CONVERSION_THRESHOLD:
+                x_val = round((x_val - TWIPS_X_OFFSET) / TWIPS_X_FACTOR)
+            if y_val is not None and y_val > TWIPS_CONVERSION_THRESHOLD:
+                y_val = round((y_val - TWIPS_Y_OFFSET) / TWIPS_Y_FACTOR)
             result["x_split"] = x_val
             result["y_split"] = y_val
             if pane.topLeftCell:
