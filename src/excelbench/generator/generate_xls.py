@@ -3,19 +3,20 @@
 import json
 from datetime import UTC, date, datetime
 from pathlib import Path
+from typing import Any
 
 import xlwt
 
 from excelbench.generator.generate import write_manifest
 from excelbench.models import Importance, Manifest, TestCase, TestFile
 
+JSONDict = dict[str, Any]
+
 GENERATOR_VERSION = "0.1.0-xls"
 
 
 def _write_header(ws: xlwt.Worksheet) -> None:
-    header_style = xlwt.easyxf(
-        "font: bold on; pattern: pattern solid, fore_colour gray25;"
-    )
+    header_style = xlwt.easyxf("font: bold on; pattern: pattern solid, fore_colour gray25;")
     ws.write(0, 0, "Label", header_style)
     ws.write(0, 1, "Test Cell", header_style)
     ws.write(0, 2, "Expected", header_style)
@@ -24,7 +25,7 @@ def _write_header(ws: xlwt.Worksheet) -> None:
     ws.col(2).width = int(50 * 256)
 
 
-def _write_expected(ws: xlwt.Worksheet, row_1based: int, expected: dict) -> None:
+def _write_expected(ws: xlwt.Worksheet, row_1based: int, expected: JSONDict) -> None:
     ws.write(row_1based - 1, 2, json.dumps(expected, ensure_ascii=False))
 
 
@@ -38,7 +39,7 @@ def _generate_cell_values(output_dir: Path) -> TestFile:
 
     test_cases: list[TestCase] = []
 
-    def add_case(case_id: str, label: str, row: int, expected: dict) -> None:
+    def add_case(case_id: str, label: str, row: int, expected: JSONDict) -> None:
         ws.write(row - 1, 0, label)
         _write_expected(ws, row, expected)
         test_cases.append(
@@ -142,7 +143,7 @@ def _generate_alignment(output_dir: Path) -> TestFile:
         case_id: str,
         label: str,
         row: int,
-        expected: dict,
+        expected: JSONDict,
         style: xlwt.XFStyle,
         value: str,
     ) -> None:
@@ -252,7 +253,7 @@ def _generate_dimensions(output_dir: Path) -> TestFile:
 
     test_cases: list[TestCase] = []
 
-    def add_case(case_id: str, label: str, row: int, expected: dict, cell: str) -> None:
+    def add_case(case_id: str, label: str, row: int, expected: JSONDict, cell: str) -> None:
         ws.write(row - 1, 0, label)
         _write_expected(ws, row, expected)
         test_cases.append(

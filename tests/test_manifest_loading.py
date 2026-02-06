@@ -1,12 +1,14 @@
 import json
 from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
 
 from excelbench.generator.generate import load_manifest
 from excelbench.models import Importance
 
 
-def test_manifest_load_defaults(tmp_path):
-    data = {
+def test_manifest_load_defaults(tmp_path: Path) -> None:
+    data: dict[str, Any] = {
         "generated_at": datetime.now(UTC).isoformat(),
         "excel_version": "test",
         "generator_version": "1.0.0",
@@ -32,8 +34,8 @@ def test_manifest_load_defaults(tmp_path):
     assert tc.importance == Importance.BASIC
 
 
-def test_manifest_load_explicit_fields(tmp_path):
-    data = {
+def test_manifest_load_explicit_fields(tmp_path: Path) -> None:
+    data: dict[str, Any] = {
         "generated_at": datetime.now(UTC).isoformat(),
         "excel_version": "test",
         "generator_version": "1.0.0",

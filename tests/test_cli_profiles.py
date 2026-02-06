@@ -55,7 +55,7 @@ def _write_cell_values_suite(test_dir: Path, extension: str, file_format: str) -
     write_manifest(manifest, test_dir / "manifest.json")
 
 
-def test_benchmark_profile_xls_sets_metadata(tmp_path):
+def test_benchmark_profile_xls_sets_metadata(tmp_path: Path) -> None:
     xls_suite = tmp_path / "xls_suite"
     output_dir = tmp_path / "out_xls"
     _write_cell_values_suite(xls_suite, extension="xls", file_format="xls")
@@ -73,7 +73,7 @@ def test_benchmark_profile_xls_sets_metadata(tmp_path):
     assert data["metadata"]["profile"] == "xls"
 
 
-def test_benchmark_profiles_writes_split_outputs_and_index(tmp_path):
+def test_benchmark_profiles_writes_split_outputs_and_index(tmp_path: Path) -> None:
     xlsx_suite = tmp_path / "xlsx_suite"
     xls_suite = tmp_path / "xls_suite"
     output_dir = tmp_path / "results"

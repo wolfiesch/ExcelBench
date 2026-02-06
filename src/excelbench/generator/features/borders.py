@@ -2,11 +2,26 @@
 
 import sys
 from pathlib import Path
+from typing import TypedDict
 
 import xlwings as xw
 
 from excelbench.generator.base import FeatureGenerator
 from excelbench.models import TestCase
+
+
+class _BorderEdgeSpec(TypedDict, total=False):
+    line_style: int
+    weight: int
+    color: tuple[int, int, int]
+
+
+BorderEdges = dict[str, _BorderEdgeSpec]
+
+
+class _BorderOp(TypedDict):
+    row: int
+    edges: BorderEdges
 
 
 # Excel border style constants (from xlwings/Excel API)
@@ -51,7 +66,7 @@ class BordersGenerator(FeatureGenerator):
 
     def __init__(self) -> None:
         self._use_openpyxl = sys.platform == "darwin"
-        self._border_ops: list[dict[str, object]] = []
+        self._border_ops: list[_BorderOp] = []
 
     def generate(self, sheet: xw.Sheet) -> list[TestCase]:
         """Generate border test cases."""
@@ -135,11 +150,18 @@ class BordersGenerator(FeatureGenerator):
         color: tuple[int, int, int] | None = None,
     ) -> None:
         """Set all four edges of a cell border."""
-        edges = {
-            "top": {"line_style": line_style, "weight": weight, "color": color},
-            "bottom": {"line_style": line_style, "weight": weight, "color": color},
-            "left": {"line_style": line_style, "weight": weight, "color": color},
-            "right": {"line_style": line_style, "weight": weight, "color": color},
+
+        def _spec() -> _BorderEdgeSpec:
+            spec: _BorderEdgeSpec = {"line_style": line_style, "weight": weight}
+            if color is not None:
+                spec["color"] = color
+            return spec
+
+        edges: BorderEdges = {
+            "top": _spec(),
+            "bottom": _spec(),
+            "left": _spec(),
+            "right": _spec(),
         }
         self._apply_border_edges(cell, edges)
 
@@ -480,7 +502,7 @@ class BordersGenerator(FeatureGenerator):
         }
         return mapping[name]
 
-    def _apply_border_edges(self, cell: xw.Range, edges: dict[str, dict[str, object]]) -> None:
+    def _apply_border_edges(self, cell: xw.Range, edges: BorderEdges) -> None:
         if self._use_openpyxl:
             self._border_ops.append({"row": cell.row, "edges": edges})
             return
@@ -493,7 +515,7 @@ class BordersGenerator(FeatureGenerator):
                 border.Weight = weight
             color = spec.get("color")
             if color is not None:
-                border.Color = self._rgb_to_int(color)  # type: ignore[arg-type]
+                border.Color = self._rgb_to_int(color)
 
     def _openpyxl_style(self, line_style: int | None, weight: int | None) -> str | None:
         if line_style in (None, XlLineStyle.NONE):

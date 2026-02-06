@@ -25,6 +25,8 @@ from excelbench.models import (
     LibraryInfo,
 )
 
+JSONDict = dict[str, Any]
+
 # Formulas that produce known error values (openpyxl returns formula, not error)
 ERROR_FORMULA_MAP = {
     "=1/0": "#DIV/0!",
@@ -43,7 +45,7 @@ def _col_letter(index: int) -> str:
 
 def _get_version() -> str:
     """Get openpyxl version."""
-    return openpyxl.__version__
+    return str(openpyxl.__version__)
 
 
 class OpenpyxlAdapter(ExcelAdapter):
@@ -76,7 +78,7 @@ class OpenpyxlAdapter(ExcelAdapter):
 
     def get_sheet_names(self, workbook: Workbook) -> list[str]:
         """Get list of sheet names in a workbook."""
-        return workbook.sheetnames
+        return [str(name) for name in workbook.sheetnames]
 
     def read_cell_value(
         self,
@@ -278,7 +280,8 @@ class OpenpyxlAdapter(ExcelAdapter):
         row: int,
     ) -> float | None:
         ws = workbook[sheet]
-        return ws.row_dimensions[row].height
+        height = ws.row_dimensions[row].height
+        return float(height) if isinstance(height, (int, float)) else None
 
     def read_column_width(
         self,
@@ -290,18 +293,22 @@ class OpenpyxlAdapter(ExcelAdapter):
         width = ws.column_dimensions[column].width
         if width is None:
             return None
+        try:
+            width_f = float(width)
+        except (TypeError, ValueError):
+            return None
         # Excel and third-party libraries add font-metric padding to stored
         # column widths. Known paddings:
         #   0.83203125 - Excel (Calibri 11pt default)
         #   0.7109375  - xlsxwriter
         # Strip the padding to return the display character width.
-        frac = width % 1
+        frac = width_f % 1
         known_paddings = [0.83203125, 0.7109375]
         for padding in known_paddings:
             if abs(frac - padding) < 0.01:
-                width = width - padding
+                width_f = width_f - padding
                 break
-        return round(width, 4)
+        return round(width_f, 4)
 
     # =========================================================================
     # Tier 2 Read Operations
@@ -311,9 +318,9 @@ class OpenpyxlAdapter(ExcelAdapter):
         ws = workbook[sheet]
         return [str(rng) for rng in ws.merged_cells.ranges]
 
-    def read_conditional_formats(self, workbook: Workbook, sheet: str) -> list[dict]:
+    def read_conditional_formats(self, workbook: Workbook, sheet: str) -> list[JSONDict]:
         ws = workbook[sheet]
-        rules: list[dict] = []
+        rules: list[JSONDict] = []
         cf_rules = getattr(ws.conditional_formatting, "_cf_rules", {})
         for sqref, rule_list in cf_rules.items():
             range_value = None
@@ -353,9 +360,9 @@ class OpenpyxlAdapter(ExcelAdapter):
                 rules.append(entry)
         return rules
 
-    def read_data_validations(self, workbook: Workbook, sheet: str) -> list[dict]:
+    def read_data_validations(self, workbook: Workbook, sheet: str) -> list[JSONDict]:
         ws = workbook[sheet]
-        validations: list[dict] = []
+        validations: list[JSONDict] = []
         dv = getattr(ws, "data_validations", None)
         if not dv:
             return validations
@@ -382,9 +389,9 @@ class OpenpyxlAdapter(ExcelAdapter):
             )
         return validations
 
-    def read_hyperlinks(self, workbook: Workbook, sheet: str) -> list[dict]:
+    def read_hyperlinks(self, workbook: Workbook, sheet: str) -> list[JSONDict]:
         ws = workbook[sheet]
-        links: list[dict] = []
+        links: list[JSONDict] = []
         for row in ws.iter_rows():
             for cell in row:
                 if cell.hyperlink:
@@ -411,9 +418,9 @@ class OpenpyxlAdapter(ExcelAdapter):
                     )
         return links
 
-    def read_images(self, workbook: Workbook, sheet: str) -> list[dict]:
+    def read_images(self, workbook: Workbook, sheet: str) -> list[JSONDict]:
         ws = workbook[sheet]
-        images: list[dict] = []
+        images: list[JSONDict] = []
         for img in getattr(ws, "_images", []):
             anchor = getattr(img, "anchor", None)
             anchor_type = None
@@ -439,9 +446,9 @@ class OpenpyxlAdapter(ExcelAdapter):
             )
         return images
 
-    def read_pivot_tables(self, workbook: Workbook, sheet: str) -> list[dict]:
+    def read_pivot_tables(self, workbook: Workbook, sheet: str) -> list[JSONDict]:
         ws = workbook[sheet]
-        pivots: list[dict] = []
+        pivots: list[JSONDict] = []
         pivot_list = getattr(ws, "_pivots", []) or []
         for pivot in pivot_list:
             source_range = None
@@ -450,9 +457,7 @@ class OpenpyxlAdapter(ExcelAdapter):
             if cache_source is not None:
                 worksheet_source = getattr(cache_source, "worksheetSource", None)
                 ref = (
-                    getattr(worksheet_source, "ref", None)
-                    if worksheet_source is not None
-                    else None
+                    getattr(worksheet_source, "ref", None) if worksheet_source is not None else None
                 )
                 source_sheet = (
                     getattr(worksheet_source, "sheet", None)
@@ -489,9 +494,9 @@ class OpenpyxlAdapter(ExcelAdapter):
             )
         return pivots
 
-    def read_comments(self, workbook: Workbook, sheet: str) -> list[dict]:
+    def read_comments(self, workbook: Workbook, sheet: str) -> list[JSONDict]:
         ws = workbook[sheet]
-        comments: list[dict] = []
+        comments: list[JSONDict] = []
         for row in ws.iter_rows():
             for cell in row:
                 if cell.comment:
@@ -505,9 +510,9 @@ class OpenpyxlAdapter(ExcelAdapter):
                     )
         return comments
 
-    def read_freeze_panes(self, workbook: Workbook, sheet: str) -> dict:
+    def read_freeze_panes(self, workbook: Workbook, sheet: str) -> JSONDict:
         ws = workbook[sheet]
-        result: dict[str, Any] = {}
+        result: JSONDict = {}
         if ws.freeze_panes:
             result["mode"] = "freeze"
             result["top_left_cell"] = (
@@ -600,7 +605,7 @@ class OpenpyxlAdapter(ExcelAdapter):
         c: Cell = ws[cell]
 
         # Build font kwargs
-        font_kwargs = {}
+        font_kwargs: dict[str, Any] = {}
 
         if format.bold is not None:
             font_kwargs["bold"] = format.bold
@@ -636,7 +641,7 @@ class OpenpyxlAdapter(ExcelAdapter):
         if format.number_format is not None:
             c.number_format = format.number_format
 
-        align_kwargs = {}
+        align_kwargs: dict[str, Any] = {}
         if format.h_align is not None:
             align_kwargs["horizontal"] = format.h_align
         if format.v_align is not None:
@@ -746,7 +751,7 @@ class OpenpyxlAdapter(ExcelAdapter):
         ws = workbook[sheet]
         ws.merge_cells(cell_range)
 
-    def add_conditional_format(self, workbook: Workbook, sheet: str, rule: dict) -> None:
+    def add_conditional_format(self, workbook: Workbook, sheet: str, rule: JSONDict) -> None:
         ws = workbook[sheet]
         cf = rule.get("cf_rule", rule)
         range_ref = cf.get("range")
@@ -772,12 +777,18 @@ class OpenpyxlAdapter(ExcelAdapter):
             from openpyxl.formatting.rule import CellIsRule
 
             rule_obj = CellIsRule(
-                operator=operator, formula=[formula],
-                fill=fill, font=font, stopIfTrue=stop_if_true,
+                operator=operator,
+                formula=[formula],
+                fill=fill,
+                font=font,
+                stopIfTrue=stop_if_true,
             )
         elif rule_type in ("expression", "formula"):
             rule_obj = FormulaRule(
-                formula=[formula], fill=fill, font=font, stopIfTrue=stop_if_true,
+                formula=[formula],
+                fill=fill,
+                font=font,
+                stopIfTrue=stop_if_true,
             )
         elif rule_type == "colorScale":
             rule_obj = ColorScaleRule(
@@ -800,7 +811,7 @@ class OpenpyxlAdapter(ExcelAdapter):
                 rule_obj.priority = priority
             ws.conditional_formatting.add(range_ref, rule_obj)
 
-    def add_data_validation(self, workbook: Workbook, sheet: str, validation: dict) -> None:
+    def add_data_validation(self, workbook: Workbook, sheet: str, validation: JSONDict) -> None:
         ws = workbook[sheet]
         v = validation.get("validation", validation)
         dv = DataValidation(
@@ -819,7 +830,7 @@ class OpenpyxlAdapter(ExcelAdapter):
         ws.add_data_validation(dv)
         dv.add(v.get("range"))
 
-    def add_hyperlink(self, workbook: Workbook, sheet: str, link: dict) -> None:
+    def add_hyperlink(self, workbook: Workbook, sheet: str, link: JSONDict) -> None:
         ws = workbook[sheet]
         data = link.get("hyperlink", link)
         cell = data.get("cell")
@@ -838,7 +849,7 @@ class OpenpyxlAdapter(ExcelAdapter):
         if c.hyperlink and tooltip is not None:
             c.hyperlink.tooltip = tooltip
 
-    def add_image(self, workbook: Workbook, sheet: str, image: dict) -> None:
+    def add_image(self, workbook: Workbook, sheet: str, image: JSONDict) -> None:
         ws = workbook[sheet]
         data = image.get("image", image)
         path = data.get("path")
@@ -848,10 +859,10 @@ class OpenpyxlAdapter(ExcelAdapter):
         img = Image(path)
         ws.add_image(img, cell)
 
-    def add_pivot_table(self, workbook: Workbook, sheet: str, pivot: dict) -> None:
+    def add_pivot_table(self, workbook: Workbook, sheet: str, pivot: JSONDict) -> None:
         raise NotImplementedError("openpyxl does not support pivot table creation")
 
-    def add_comment(self, workbook: Workbook, sheet: str, comment: dict) -> None:
+    def add_comment(self, workbook: Workbook, sheet: str, comment: JSONDict) -> None:
         ws = workbook[sheet]
         data = comment.get("comment", comment)
         cell = data.get("cell")
@@ -860,7 +871,7 @@ class OpenpyxlAdapter(ExcelAdapter):
         if cell and text is not None:
             ws[cell].comment = Comment(text, author)
 
-    def set_freeze_panes(self, workbook: Workbook, sheet: str, settings: dict) -> None:
+    def set_freeze_panes(self, workbook: Workbook, sheet: str, settings: JSONDict) -> None:
         ws = workbook[sheet]
         cfg = settings.get("freeze", settings)
         mode = cfg.get("mode")

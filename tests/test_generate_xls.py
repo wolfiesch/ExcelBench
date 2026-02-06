@@ -1,10 +1,11 @@
 import json
+from pathlib import Path
 
 from excelbench.generator.generate import load_manifest
 from excelbench.generator.generate_xls import generate_xls
 
 
-def test_generate_xls_creates_expected_manifest_and_files(tmp_path):
+def test_generate_xls_creates_expected_manifest_and_files(tmp_path: Path) -> None:
     output_dir = tmp_path / "excel_xls"
     manifest = generate_xls(output_dir)
 
@@ -24,7 +25,7 @@ def test_generate_xls_creates_expected_manifest_and_files(tmp_path):
     assert all((output_dir / f.path).exists() for f in parsed.files)
 
 
-def test_generate_xls_cell_values_uses_literal_error_tokens(tmp_path):
+def test_generate_xls_cell_values_uses_literal_error_tokens(tmp_path: Path) -> None:
     output_dir = tmp_path / "excel_xls"
     generate_xls(output_dir, features=["cell_values"])
 

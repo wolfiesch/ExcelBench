@@ -17,6 +17,8 @@ from excelbench.models import (
     LibraryInfo,
 )
 
+JSONDict = dict[str, Any]
+
 
 class XlLineStyle:
     CONTINUOUS = 1
@@ -244,8 +246,10 @@ class ExcelOracleAdapter(ReadOnlyAdapter):
             rotation = rng.api.text_orientation.get()
             indent = rng.api.indent_level.get()
         else:
-            h_align = H_ALIGN_MAP.get(getattr(rng.api, "HorizontalAlignment", None))
-            v_align = V_ALIGN_MAP.get(getattr(rng.api, "VerticalAlignment", None))
+            h_key = getattr(rng.api, "HorizontalAlignment", None)
+            v_key = getattr(rng.api, "VerticalAlignment", None)
+            h_align = H_ALIGN_MAP.get(int(h_key)) if isinstance(h_key, (int, float)) else None
+            v_align = V_ALIGN_MAP.get(int(v_key)) if isinstance(v_key, (int, float)) else None
             wrap = getattr(rng.api, "WrapText", None)
             rotation = getattr(rng.api, "Orientation", None)
             indent = getattr(rng.api, "IndentLevel", None)
@@ -323,7 +327,8 @@ class ExcelOracleAdapter(ReadOnlyAdapter):
         row: int,
     ) -> float | None:
         ws = workbook.sheets[sheet]
-        return ws.range(f"{row}:{row}").row_height
+        height = ws.range(f"{row}:{row}").row_height
+        return float(height) if isinstance(height, (int, float)) else None
 
     def read_column_width(
         self,
@@ -332,7 +337,8 @@ class ExcelOracleAdapter(ReadOnlyAdapter):
         column: str,
     ) -> float | None:
         ws = workbook.sheets[sheet]
-        return ws.range(f"{column}:{column}").column_width
+        width = ws.range(f"{column}:{column}").column_width
+        return float(width) if isinstance(width, (int, float)) else None
 
     # =========================================================================
     # Tier 2 Read Operations
@@ -358,9 +364,9 @@ class ExcelOracleAdapter(ReadOnlyAdapter):
                     continue
         return sorted(merges)
 
-    def read_conditional_formats(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_conditional_formats(self, workbook: Any, sheet: str) -> list[JSONDict]:
         ws = workbook.sheets[sheet]
-        rules: list[dict] = []
+        rules: list[JSONDict] = []
         try:
             fc = ws.api.UsedRange.FormatConditions
             count = fc.Count
@@ -385,10 +391,11 @@ class ExcelOracleAdapter(ReadOnlyAdapter):
         }
         for i in range(1, count + 1):
             rule = fc.Item(i)
-            entry = {
+            op_code = getattr(rule, "Operator", None)
+            entry: JSONDict = {
                 "range": rule.AppliesTo.Address(False, False),
                 "rule_type": type_map.get(rule.Type, str(rule.Type)),
-                "operator": op_map.get(getattr(rule, "Operator", None), None),
+                "operator": op_map.get(int(op_code)) if isinstance(op_code, int) else None,
                 "formula": getattr(rule, "Formula1", None),
                 "priority": getattr(rule, "Priority", None),
                 "stop_if_true": bool(getattr(rule, "StopIfTrue", None))
@@ -405,15 +412,15 @@ class ExcelOracleAdapter(ReadOnlyAdapter):
             rules.append(entry)
         return rules
 
-    def read_data_validations(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_data_validations(self, workbook: Any, sheet: str) -> list[JSONDict]:
         ws = workbook.sheets[sheet]
         used = ws.api.UsedRange
         rows = used.Rows.Count
         cols = used.Columns.Count
         start_row = used.Row
         start_col = used.Column
-        validations: list[dict] = []
-        seen: set[tuple] = set()
+        validations: list[JSONDict] = []
+        seen: set[tuple[str, object, object, object]] = set()
         for r in range(start_row, start_row + rows):
             for c in range(start_col, start_col + cols):
                 cell = ws.api.Cells(r, c)
@@ -421,7 +428,12 @@ class ExcelOracleAdapter(ReadOnlyAdapter):
                     val = cell.Validation
                     if val is None or val.Type in (0, None):
                         continue
-                    key = (cell.Address(False, False), val.Type, val.Formula1, val.Formula2)
+                    key: tuple[str, object, object, object] = (
+                        cell.Address(False, False),
+                        val.Type,
+                        val.Formula1,
+                        val.Formula2,
+                    )
                     if key in seen:
                         continue
                     seen.add(key)
@@ -451,9 +463,9 @@ class ExcelOracleAdapter(ReadOnlyAdapter):
                     continue
         return validations
 
-    def read_hyperlinks(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_hyperlinks(self, workbook: Any, sheet: str) -> list[JSONDict]:
         ws = workbook.sheets[sheet]
-        links: list[dict] = []
+        links: list[JSONDict] = []
         try:
             hyperlinks = ws.api.Hyperlinks
             for i in range(1, hyperlinks.Count + 1):
@@ -472,9 +484,9 @@ class ExcelOracleAdapter(ReadOnlyAdapter):
             pass
         return links
 
-    def read_images(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_images(self, workbook: Any, sheet: str) -> list[JSONDict]:
         ws = workbook.sheets[sheet]
-        images: list[dict] = []
+        images: list[JSONDict] = []
         try:
             shapes = ws.api.Shapes
             for i in range(1, shapes.Count + 1):
@@ -496,9 +508,9 @@ class ExcelOracleAdapter(ReadOnlyAdapter):
             pass
         return images
 
-    def read_pivot_tables(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_pivot_tables(self, workbook: Any, sheet: str) -> list[JSONDict]:
         ws = workbook.sheets[sheet]
-        pivots: list[dict] = []
+        pivots: list[JSONDict] = []
         try:
             pts = ws.api.PivotTables()
             for i in range(1, pts.Count + 1):
@@ -548,9 +560,9 @@ class ExcelOracleAdapter(ReadOnlyAdapter):
             pass
         return pivots
 
-    def read_comments(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_comments(self, workbook: Any, sheet: str) -> list[JSONDict]:
         ws = workbook.sheets[sheet]
-        comments: list[dict] = []
+        comments: list[JSONDict] = []
         try:
             legacy = ws.api.Comments
             for i in range(1, legacy.Count + 1):
@@ -581,7 +593,7 @@ class ExcelOracleAdapter(ReadOnlyAdapter):
             pass
         return comments
 
-    def read_freeze_panes(self, workbook: Any, sheet: str) -> dict:
+    def read_freeze_panes(self, workbook: Any, sheet: str) -> JSONDict:
         ws = workbook.sheets[sheet]
         try:
             ws.api.Activate()
@@ -612,7 +624,7 @@ def _excel_validation_type(code: int | None) -> str | None:
         6: "textLength",
         7: "custom",
     }
-    return mapping.get(code)
+    return mapping.get(code) if code is not None else None
 
 
 def _excel_validation_operator(code: int | None) -> str | None:
@@ -626,4 +638,4 @@ def _excel_validation_operator(code: int | None) -> str | None:
         7: "greaterThanOrEqual",
         8: "lessThanOrEqual",
     }
-    return mapping.get(code)
+    return mapping.get(code) if code is not None else None

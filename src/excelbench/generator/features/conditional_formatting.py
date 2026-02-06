@@ -302,11 +302,15 @@ class ConditionalFormattingGenerator(FeatureGenerator):
                     fill=fill,
                 )
             elif kind == "dataBar":
+                min_obj = op.get("min_value", 0)
+                max_obj = op.get("max_value", 0)
+                min_value = int(min_obj) if isinstance(min_obj, (int, float, str)) else 0
+                max_value = int(max_obj) if isinstance(max_obj, (int, float, str)) else 0
                 rule = DataBarRule(
                     start_type="num",
-                    start_value=int(op.get("min_value", 0)),
+                    start_value=min_value,
                     end_type="num",
-                    end_value=int(op.get("max_value", 0)),
+                    end_value=max_value,
                     color="638EC6",
                 )
             elif kind == "colorScale":
