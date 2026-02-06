@@ -58,6 +58,10 @@ class OpenpyxlAdapter(ExcelAdapter):
             capabilities={"read", "write"},
         )
 
+    @property
+    def supported_read_extensions(self) -> set[str]:
+        return {".xlsx"}
+
     # =========================================================================
     # Read Operations
     # =========================================================================
@@ -114,6 +118,8 @@ class OpenpyxlAdapter(ExcelAdapter):
 
         if isinstance(value, str):
             # Check if it's an error value
+            if value in ("#N/A", "#NULL!", "#NAME?", "#REF!"):
+                return CellValue(type=CellType.ERROR, value=value)
             if value.startswith("#") and value.endswith("!"):
                 return CellValue(type=CellType.ERROR, value=value)
 
@@ -438,13 +444,43 @@ class OpenpyxlAdapter(ExcelAdapter):
         pivots: list[dict] = []
         pivot_list = getattr(ws, "_pivots", []) or []
         for pivot in pivot_list:
+            source_range = None
+            cache = getattr(pivot, "cache", None)
+            cache_source = getattr(cache, "cacheSource", None) if cache is not None else None
+            if cache_source is not None:
+                worksheet_source = getattr(cache_source, "worksheetSource", None)
+                ref = getattr(worksheet_source, "ref", None) if worksheet_source is not None else None
+                source_sheet = (
+                    getattr(worksheet_source, "sheet", None)
+                    if worksheet_source is not None
+                    else None
+                )
+                if source_sheet and ref:
+                    source_range = f"{source_sheet}!{ref}"
+                elif ref:
+                    source_range = ref
+                else:
+                    fallback = getattr(cache_source, "ref", None)
+                    if fallback:
+                        source_range = fallback
+                    else:
+                        source_range = str(cache_source)
+
+            location = getattr(pivot, "location", None)
+            target_cell = None
+            if isinstance(location, str):
+                target_cell = location
+            elif location is not None:
+                target_cell = getattr(location, "ref", None) or str(location)
+
+            if target_cell and "!" not in target_cell:
+                target_cell = f"{sheet}!{target_cell}"
+
             pivots.append(
                 {
                     "name": getattr(pivot, "name", None),
-                    "source_range": getattr(pivot, "cache", None).cacheSource
-                    if getattr(pivot, "cache", None)
-                    else None,
-                    "target_cell": getattr(pivot, "location", None),
+                    "source_range": source_range,
+                    "target_cell": target_cell,
                 }
             )
         return pivots

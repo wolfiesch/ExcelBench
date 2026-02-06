@@ -39,6 +39,7 @@ def render_json(results: BenchmarkResults, path: Path) -> None:
             "run_date": results.metadata.run_date.isoformat(),
             "excel_version": results.metadata.excel_version,
             "platform": results.metadata.platform,
+            "profile": results.metadata.profile,
         },
         "libraries": {
             name: {
@@ -81,6 +82,7 @@ def render_markdown(results: BenchmarkResults, path: Path) -> None:
     lines.append("# ExcelBench Results")
     lines.append("")
     lines.append(f"*Generated: {results.metadata.run_date.strftime('%Y-%m-%d %H:%M UTC')}*")
+    lines.append(f"*Profile: {results.metadata.profile}*")
     lines.append(f"*Excel Version: {results.metadata.excel_version}*")
     lines.append(f"*Platform: {results.metadata.platform}*")
     lines.append("")

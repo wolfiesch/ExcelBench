@@ -38,6 +38,7 @@ def run_benchmark(
     test_dir: Path,
     adapters: list[ExcelAdapter] | None = None,
     features: list[str] | None = None,
+    profile: str = "xlsx",
 ) -> BenchmarkResults:
     """Run the full benchmark suite.
 
@@ -74,6 +75,7 @@ def run_benchmark(
         run_date=datetime.now(UTC),
         excel_version=manifest.excel_version,
         platform=f"{platform.system()}-{platform.machine()}",
+        profile=profile,
     )
 
     # Collect library info
@@ -97,10 +99,12 @@ def run_benchmark(
                 test_file=test_file,
                 file_path=file_path,
             )
+            score = _annotate_known_limitations(score)
             if (
                 test_file.feature == "pivot_tables"
                 and platform.system() == "Darwin"
                 and not test_file.test_cases
+                and not score.notes
             ):
                 score.notes = (
                     "Unsupported on macOS without a Windows-generated pivot fixture "
@@ -131,6 +135,16 @@ def test_feature(
     Returns:
         FeatureScore with results.
     """
+    ext = file_path.suffix.lower() or "<unknown>"
+    if not adapter.supports_read_path(file_path):
+        return FeatureScore(
+            feature=test_file.feature,
+            library=adapter.name,
+            read_score=None,
+            write_score=None,
+            notes=f"Not applicable: {adapter.name} does not support {ext} input",
+        )
+
     read_results: list[TestResult] = []
     write_results: list[TestResult] = []
 
@@ -153,6 +167,49 @@ def test_feature(
         write_score=write_score,
         test_results=read_results + write_results,
     )
+
+
+def _annotate_known_limitations(score: FeatureScore) -> FeatureScore:
+    limitation_notes: dict[tuple[str, str], tuple[str, str]] = {
+        (
+            "python-calamine",
+            "alignment",
+        ): (
+            "read",
+            "Known limitation: python-calamine alignment read is limited because its API does not expose style/alignment metadata.",
+        ),
+        (
+            "python-calamine",
+            "cell_values",
+        ): (
+            "read",
+            "Known limitation: python-calamine can surface formula error cells as blank values in current API responses.",
+        ),
+        (
+            "pylightxl",
+            "alignment",
+        ): (
+            "write",
+            "Known limitation: pylightxl alignment write is a no-op because the library does not support formatting writes.",
+        ),
+        (
+            "pylightxl",
+            "cell_values",
+        ): (
+            "write",
+            "Known limitation: pylightxl cell-values write has date/boolean/error fidelity limits due to writer encoding behavior.",
+        ),
+    }
+    key = (score.library, score.feature)
+    limitation = limitation_notes.get(key)
+    if limitation is None:
+        return score
+    side, note = limitation
+    if side == "read" and score.read_score is not None and score.read_score < 3 and not score.notes:
+        score.notes = note
+    if side == "write" and score.write_score is not None and score.write_score < 3 and not score.notes:
+        score.notes = note
+    return score
 
 
 def test_read(
@@ -682,11 +739,15 @@ def read_pivot_actual(
         return {}
     normalized = dict(match)
     if normalized.get("source_range"):
-        normalized["source_range"] = str(normalized["source_range"]).replace("$", "")
+        normalized["source_range"] = (
+            str(normalized["source_range"]).replace("$", "").replace("'", "")
+        )
     if normalized.get("target_cell"):
-        value = str(normalized["target_cell"]).replace("$", "")
+        value = str(normalized["target_cell"]).replace("$", "").replace("'", "")
         if ":" in value:
             value = value.split(":", 1)[0]
+        if "!" not in value and expected_rule.get("target_cell") and "!" in expected_rule["target_cell"]:
+            value = f"{expected_rule['target_cell'].split('!', 1)[0]}!{value}"
         normalized["target_cell"] = value
     return {"pivot": _project_rule(normalized, expected_rule)}
 

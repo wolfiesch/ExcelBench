@@ -107,6 +107,7 @@ class TestFile:
     path: str
     feature: str
     tier: int
+    file_format: str | None = None
     test_cases: list[TestCase] = field(default_factory=list)
 
 
@@ -116,6 +117,7 @@ class Manifest:
     generated_at: datetime
     excel_version: str
     generator_version: str
+    file_format: str = "xlsx"
     files: list[TestFile] = field(default_factory=list)
 
 
@@ -390,6 +392,7 @@ class BenchmarkMetadata:
     run_date: datetime
     excel_version: str
     platform: str
+    profile: str = "xlsx"
 
 
 @dataclass

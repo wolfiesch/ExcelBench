@@ -105,6 +105,10 @@ class XlrdAdapter(ReadOnlyAdapter):
             capabilities={"read"},
         )
 
+    @property
+    def supported_read_extensions(self) -> set[str]:
+        return {".xls"}
+
     # =========================================================================
     # Read Operations
     # =========================================================================

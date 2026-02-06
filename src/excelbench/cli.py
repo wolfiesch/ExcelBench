@@ -11,6 +11,8 @@ app = typer.Typer(
     help="Comprehensive benchmark suite for Excel library feature parity.",
 )
 console = Console()
+XLS_PROFILE_DEFAULT_TEST_DIR = Path("fixtures/excel_xls")
+XLSX_PROFILE_DEFAULT_TEST_DIR = Path("test_files")
 
 
 @app.command()
@@ -86,6 +88,11 @@ def benchmark(
         "--append-results",
         help="Append into existing results.json if present.",
     ),
+    profile: str = typer.Option(
+        "xlsx",
+        "--profile",
+        help="Benchmark profile: xlsx (default) or xls.",
+    ),
 ):
     """Run benchmark against all adapters.
 
@@ -93,16 +100,36 @@ def benchmark(
     tests each library adapter against them.
     """
     from excelbench.harness.runner import run_benchmark
+    from excelbench.harness.adapters import get_all_adapters
     from excelbench.models import BenchmarkResults
     from excelbench.results import render_results
 
+    profile = profile.strip().lower()
+    if profile not in {"xlsx", "xls"}:
+        console.print("[red]Error: profile must be one of: xlsx, xls[/red]")
+        raise typer.Exit(1)
+
+    if profile == "xls" and test_dir == XLSX_PROFILE_DEFAULT_TEST_DIR:
+        test_dir = XLS_PROFILE_DEFAULT_TEST_DIR
+
+    adapters = None
+    if profile == "xls":
+        adapters = [
+            adapter for adapter in get_all_adapters()
+            if adapter.supports_read_path(Path("profile_input.xls"))
+        ]
+        if not adapters:
+            console.print("[red]Error: No adapters available for .xls profile.[/red]")
+            raise typer.Exit(1)
+
     console.print("[bold]Running benchmark...[/bold]")
+    console.print(f"  Profile: {profile}")
     console.print(f"  Test files: {test_dir}")
     console.print(f"  Output: {output_dir}")
     console.print()
 
     try:
-        results = run_benchmark(test_dir, features=features)
+        results = run_benchmark(test_dir, adapters=adapters, features=features, profile=profile)
 
         if append_results:
             import json
@@ -112,6 +139,11 @@ def benchmark(
                 with open(results_path) as f:
                     data = json.load(f)
                 existing = _results_from_json(data)
+                if existing.metadata.profile != results.metadata.profile:
+                    raise ValueError(
+                        "Cannot append results from a different profile "
+                        f"({existing.metadata.profile} vs {results.metadata.profile})."
+                    )
                 merged_scores = {(s.feature, s.library): s for s in existing.scores}
                 for score in results.scores:
                     merged_scores[(score.feature, score.library)] = score
@@ -145,6 +177,94 @@ def benchmark(
         raise typer.Exit(1)
 
 
+@app.command("generate-xls")
+def generate_xls_command(
+    output_dir: Path = typer.Option(
+        XLS_PROFILE_DEFAULT_TEST_DIR,
+        "--output",
+        "-o",
+        help="Directory to save generated .xls test files.",
+    ),
+    features: list[str] | None = typer.Option(
+        None,
+        "--feature",
+        "-f",
+        help="Generate only the specified .xls feature(s).",
+    ),
+):
+    """Generate deterministic .xls fixtures for the .xls benchmark profile."""
+    from excelbench.generator.generate_xls import generate_xls
+
+    console.print(f"[bold]Generating .xls test files to {output_dir}...[/bold]")
+    console.print()
+
+    try:
+        manifest = generate_xls(output_dir, features=features)
+        console.print(f"[green]✓ Generated {len(manifest.files)} .xls files[/green]")
+
+        table = Table(title="Generated .xls Files")
+        table.add_column("File", style="cyan")
+        table.add_column("Feature", style="magenta")
+        table.add_column("Test Cases", justify="right", style="green")
+        for test_file in manifest.files:
+            table.add_row(test_file.path, test_file.feature, str(len(test_file.test_cases)))
+        console.print(table)
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise typer.Exit(1)
+
+
+@app.command("benchmark-profiles")
+def benchmark_profiles(
+    xlsx_tests: Path = typer.Option(
+        XLSX_PROFILE_DEFAULT_TEST_DIR,
+        "--xlsx-tests",
+        help="Directory containing .xlsx tests and manifest.json.",
+    ),
+    xls_tests: Path = typer.Option(
+        XLS_PROFILE_DEFAULT_TEST_DIR,
+        "--xls-tests",
+        help="Directory containing .xls tests and manifest.json.",
+    ),
+    output_dir: Path = typer.Option(
+        Path("results"),
+        "--output",
+        "-o",
+        help="Root directory for split profile results.",
+    ),
+):
+    """Run both xlsx and xls profiles and render split outputs."""
+    from excelbench.harness.adapters import get_all_adapters
+    from excelbench.harness.runner import run_benchmark
+    from excelbench.results import render_results
+
+    output_dir = Path(output_dir)
+    xlsx_output = output_dir / "xlsx"
+    xls_output = output_dir / "xls"
+
+    console.print("[bold]Running xlsx profile...[/bold]")
+    xlsx_results = run_benchmark(xlsx_tests, profile="xlsx")
+    render_results(xlsx_results, xlsx_output)
+
+    console.print("[bold]Running xls profile...[/bold]")
+    xls_adapters = [
+        adapter for adapter in get_all_adapters()
+        if adapter.supports_read_path(Path("profile_input.xls"))
+    ]
+    if not xls_adapters:
+        console.print("[red]Error: No adapters available for .xls profile.[/red]")
+        raise typer.Exit(1)
+    xls_results = run_benchmark(xls_tests, adapters=xls_adapters, profile="xls")
+    render_results(xls_results, xls_output)
+
+    _write_profile_index(output_dir)
+
+    console.print(f"[green]✓ Wrote split results to {output_dir}[/green]")
+    console.print(f"  - {xlsx_output}/results.json")
+    console.print(f"  - {xls_output}/results.json")
+    console.print(f"  - {output_dir}/README.md")
+
+
 def _results_from_json(data: dict) -> "BenchmarkResults":
     from datetime import datetime
 
@@ -162,6 +282,7 @@ def _results_from_json(data: dict) -> "BenchmarkResults":
         run_date=datetime.fromisoformat(data["metadata"]["run_date"]),
         excel_version=data["metadata"]["excel_version"],
         platform=data["metadata"]["platform"],
+        profile=data["metadata"].get("profile", "xlsx"),
     )
 
     libraries = {
@@ -236,6 +357,24 @@ def _results_from_json(data: dict) -> "BenchmarkResults":
         libraries=libraries,
         scores=scores,
     )
+
+
+def _write_profile_index(output_dir: Path) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    content = "\n".join(
+        [
+            "# ExcelBench Results",
+            "",
+            "Results are split by workbook format profile.",
+            "",
+            "- [xlsx profile](./xlsx/README.md)",
+            "- [xls profile](./xls/README.md)",
+            "",
+            "> Do not compare scores across these profiles directly. They target different workbook formats and adapter capability surfaces.",
+            "",
+        ]
+    )
+    (output_dir / "README.md").write_text(content)
 
 
 @app.command()

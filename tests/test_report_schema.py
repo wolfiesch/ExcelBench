@@ -1,7 +1,7 @@
 import json
 from datetime import UTC, datetime
 
-from excelbench.cli import report
+from excelbench.cli import _results_from_json, report
 
 
 def _base_results():
@@ -84,3 +84,18 @@ def test_report_legacy_schema(tmp_path):
 
     assert (output_dir / "README.md").exists()
     assert (output_dir / "matrix.csv").exists()
+
+
+def test_results_from_json_profile_defaults_to_xlsx():
+    data = _base_results()
+    data["results"] = []
+    parsed = _results_from_json(data)
+    assert parsed.metadata.profile == "xlsx"
+
+
+def test_results_from_json_profile_reads_explicit_value():
+    data = _base_results()
+    data["metadata"]["profile"] = "xls"
+    data["results"] = []
+    parsed = _results_from_json(data)
+    assert parsed.metadata.profile == "xls"

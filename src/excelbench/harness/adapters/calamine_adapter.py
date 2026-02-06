@@ -57,6 +57,10 @@ class CalamineAdapter(ReadOnlyAdapter):
             capabilities={"read"},
         )
 
+    @property
+    def supported_read_extensions(self) -> set[str]:
+        return {".xlsx", ".xls"}
+
     # =========================================================================
     # Read Operations
     # =========================================================================
