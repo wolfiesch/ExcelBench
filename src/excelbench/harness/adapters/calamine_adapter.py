@@ -92,6 +92,10 @@ class CalamineAdapter(ReadOnlyAdapter):
         if value is None:
             return CellValue(type=CellType.BLANK)
 
+        # calamine returns "" for empty cells within the data range
+        if value == "":
+            return CellValue(type=CellType.BLANK)
+
         # Check bool BEFORE int (bool is subclass of int in Python)
         if isinstance(value, bool):
             return CellValue(type=CellType.BOOLEAN, value=value)
