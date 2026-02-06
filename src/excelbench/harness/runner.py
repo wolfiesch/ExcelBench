@@ -1375,8 +1375,8 @@ def _border_from_expected(expected: JSONDict) -> BorderInfo:
         if color_val is None:
             color_val = "#000000"
 
-        style_str = style_val if isinstance(style_val, str) else str(style_val)
-        color_str = color_val if isinstance(color_val, str) else str(color_val)
+        style_str = str(style_val)
+        color_str = str(color_val)
         return BorderEdge(style=BorderStyle(style_str), color=color_str)
 
     return BorderInfo(

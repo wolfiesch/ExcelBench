@@ -2,8 +2,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from _pytest.monkeypatch import MonkeyPatch
 from openpyxl import Workbook
+from pytest import MonkeyPatch
 
 from excelbench.generator.generate import write_manifest
 from excelbench.harness.adapters.base import ReadOnlyAdapter

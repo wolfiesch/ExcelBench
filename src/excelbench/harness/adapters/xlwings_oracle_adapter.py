@@ -248,8 +248,8 @@ class ExcelOracleAdapter(ReadOnlyAdapter):
         else:
             h_key = getattr(rng.api, "HorizontalAlignment", None)
             v_key = getattr(rng.api, "VerticalAlignment", None)
-            h_align = H_ALIGN_MAP.get(int(h_key)) if isinstance(h_key, int) else None
-            v_align = V_ALIGN_MAP.get(int(v_key)) if isinstance(v_key, int) else None
+            h_align = H_ALIGN_MAP.get(int(h_key)) if isinstance(h_key, (int, float)) else None
+            v_align = V_ALIGN_MAP.get(int(v_key)) if isinstance(v_key, (int, float)) else None
             wrap = getattr(rng.api, "WrapText", None)
             rotation = getattr(rng.api, "Orientation", None)
             indent = getattr(rng.api, "IndentLevel", None)

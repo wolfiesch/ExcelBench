@@ -7,6 +7,8 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from excelbench.models import FeatureScore
+
 if TYPE_CHECKING:
     from excelbench.models import BenchmarkResults
 
@@ -457,7 +459,7 @@ def show_summary(results: "BenchmarkResults") -> None:
             table.add_column(f"{lib} (W)", justify="center")
 
     # Build lookup
-    score_lookup: dict[tuple[str, str], Any] = {}
+    score_lookup: dict[tuple[str, str], FeatureScore] = {}
     for score_entry in results.scores:
         score_lookup[(score_entry.feature, score_entry.library)] = score_entry
 
