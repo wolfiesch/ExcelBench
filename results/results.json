@@ -1,7 +1,7 @@
 {
   "metadata": {
     "benchmark_version": "0.1.0",
-    "run_date": "2026-02-06T09:19:26.204449+00:00",
+    "run_date": "2026-02-06T09:30:16.730046+00:00",
     "excel_version": "16.105.3",
     "platform": "Darwin-arm64"
   },
@@ -8473,7 +8473,6 @@
                 "rule_type": "cellIs",
                 "operator": "greaterThan",
                 "formula": "5",
-                "priority": 1,
                 "format": {
                   "bg_color": "#FFFF00"
                 }
@@ -8501,7 +8500,6 @@
                 "rule_type": "cellIs",
                 "operator": "greaterThan",
                 "formula": "5",
-                "priority": 1,
                 "format": {
                   "bg_color": "#FFFF00"
                 }
@@ -8529,7 +8527,6 @@
                 "range": "B2:B6",
                 "rule_type": "expression",
                 "formula": "=Ref!$A$1>5",
-                "priority": 2,
                 "format": {
                   "bg_color": "#FF00FF"
                 }
@@ -8555,7 +8552,6 @@
                 "range": "B2:B6",
                 "rule_type": "expression",
                 "formula": "=Ref!$A$1>5",
-                "priority": 2,
                 "format": {
                   "bg_color": "#FF00FF"
                 }
@@ -8583,7 +8579,6 @@
                 "range": "B2:B6",
                 "rule_type": "expression",
                 "formula": "=ISNUMBER(SEARCH(\"foo\",B2))",
-                "priority": 3,
                 "format": {
                   "bg_color": "#FFFF00"
                 }
@@ -8609,7 +8604,6 @@
                 "range": "B2:B6",
                 "rule_type": "expression",
                 "formula": "=ISNUMBER(SEARCH(\"foo\",B2))",
-                "priority": 3,
                 "format": {
                   "bg_color": "#FFFF00"
                 }
@@ -8631,8 +8625,7 @@
             "actual": {
               "cf_rule": {
                 "range": "B2:B6",
-                "rule_type": "dataBar",
-                "priority": 4
+                "rule_type": "dataBar"
               }
             },
             "notes": null
@@ -8649,8 +8642,7 @@
             "actual": {
               "cf_rule": {
                 "range": "B2:B6",
-                "rule_type": "dataBar",
-                "priority": 4
+                "rule_type": "dataBar"
               }
             },
             "notes": null
@@ -8669,8 +8661,7 @@
             "actual": {
               "cf_rule": {
                 "range": "B2:B6",
-                "rule_type": "colorScale",
-                "priority": 5
+                "rule_type": "colorScale"
               }
             },
             "notes": null
@@ -8687,8 +8678,7 @@
             "actual": {
               "cf_rule": {
                 "range": "B2:B6",
-                "rule_type": "colorScale",
-                "priority": 5
+                "rule_type": "colorScale"
               }
             },
             "notes": null
@@ -8716,7 +8706,6 @@
                 "rule_type": "cellIs",
                 "operator": "lessThan",
                 "formula": "3",
-                "priority": 1,
                 "stop_if_true": true,
                 "format": {
                   "bg_color": "#FF0000"
@@ -8746,7 +8735,6 @@
                 "rule_type": "cellIs",
                 "operator": "lessThan",
                 "formula": "3",
-                "priority": 1,
                 "stop_if_true": true,
                 "format": {
                   "bg_color": "#FF0000"
@@ -8764,7 +8752,7 @@
       "library": "xlsxwriter",
       "scores": {
         "read": null,
-        "write": 2
+        "write": 3
       },
       "test_cases": {
         "cf_cell_gt": {
@@ -8788,7 +8776,6 @@
                 "rule_type": "cellIs",
                 "operator": "greaterThan",
                 "formula": "5",
-                "priority": 1,
                 "format": {
                   "bg_color": "#FFFF00"
                 }
@@ -8816,7 +8803,6 @@
                 "range": "B2:B6",
                 "rule_type": "expression",
                 "formula": "=Ref!$A$1>5",
-                "priority": 2,
                 "format": {
                   "bg_color": "#FF00FF"
                 }
@@ -8844,7 +8830,6 @@
                 "range": "B2:B6",
                 "rule_type": "expression",
                 "formula": "=ISNUMBER(SEARCH(\"foo\",B2))",
-                "priority": 3,
                 "format": {
                   "bg_color": "#FFFF00"
                 }
@@ -8866,8 +8851,7 @@
             "actual": {
               "cf_rule": {
                 "range": "B2:B6",
-                "rule_type": "dataBar",
-                "priority": 4
+                "rule_type": "dataBar"
               }
             },
             "notes": null
@@ -8886,8 +8870,7 @@
             "actual": {
               "cf_rule": {
                 "range": "B2:B6",
-                "rule_type": "colorScale",
-                "priority": 5
+                "rule_type": "colorScale"
               }
             },
             "notes": null
@@ -8895,7 +8878,7 @@
         },
         "cf_stop_if_true": {
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "cf_rule": {
                 "range": "B7:B9",
@@ -8915,7 +8898,6 @@
                 "rule_type": "cellIs",
                 "operator": "lessThan",
                 "formula": "3",
-                "priority": 6,
                 "stop_if_true": true,
                 "format": {
                   "bg_color": "#FF0000"
@@ -11535,7 +11517,7 @@
       "library": "xlsxwriter",
       "scores": {
         "read": null,
-        "write": 2
+        "write": 3
       },
       "test_cases": {
         "freeze_b2": {
@@ -11576,7 +11558,7 @@
         },
         "split_2x1": {
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "freeze": {
                 "mode": "split",
@@ -11587,8 +11569,8 @@
             "actual": {
               "freeze": {
                 "mode": "split",
-                "x_split": 570,
-                "y_split": 340
+                "x_split": 1,
+                "y_split": 2
               }
             },
             "notes": null

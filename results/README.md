@@ -1,6 +1,6 @@
 # ExcelBench Results
 
-*Generated: 2026-02-06 09:19 UTC*
+*Generated: 2026-02-06 09:30 UTC*
 *Excel Version: 16.105.3*
 *Platform: Darwin-arm64*
 
@@ -23,11 +23,11 @@
 | borders | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 | cell_values | 🟢 3 | 🟢 3 | 🟢 3 | 🟠 1 | 🟠 1 | 🔴 0 | 🟢 3 |
 | comments | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
-| conditional_formatting | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟡 2 |
+| conditional_formatting | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 | data_validation | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 | dimensions | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 | formulas | 🟢 3 | 🟢 3 | 🔴 0 | 🟢 3 | 🔴 0 | 🔴 0 | 🟢 3 |
-| freeze_panes | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟡 2 |
+| freeze_panes | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 | hyperlinks | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 | images | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
 | merged_cells | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 |
@@ -277,9 +277,7 @@ Notes:
   - ... and 1 more
 
 **xlsxwriter**
-- Write: 🟡 2 (2/3)
-- Failed tests (1):
-  - cf_stop_if_true (write)
+- Write: 🟢 3 (3/3)
 
 ### data_validation
 
@@ -421,9 +419,7 @@ Notes:
   - split_2x1 (read)
 
 **xlsxwriter**
-- Write: 🟡 2 (2/3)
-- Failed tests (1):
-  - split_2x1 (write)
+- Write: 🟢 3 (3/3)
 
 ### hyperlinks
 

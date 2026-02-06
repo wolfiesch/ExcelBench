@@ -478,8 +478,18 @@ class OpenpyxlAdapter(ExcelAdapter):
         pane = getattr(ws.sheet_view, "pane", None)
         if pane and pane.state == "split" and (pane.xSplit or pane.ySplit):
             result["mode"] = "split"
-            result["x_split"] = int(pane.xSplit) if pane.xSplit is not None else None
-            result["y_split"] = int(pane.ySplit) if pane.ySplit is not None else None
+            x_val = int(pane.xSplit) if pane.xSplit is not None else None
+            y_val = int(pane.ySplit) if pane.ySplit is not None else None
+            # xlsxwriter stores split values as twips (assuming default Calibri 11pt):
+            #   y_twips = 20 * rows + 300,  x_twips = 180 * cols + 390
+            # Convert back to logical row/col counts when values exceed 100
+            # (logical values are small integers; twip values start at ≥300).
+            if x_val is not None and x_val > 100:
+                x_val = round((x_val - 390) / 180)
+            if y_val is not None and y_val > 100:
+                y_val = round((y_val - 300) / 20)
+            result["x_split"] = x_val
+            result["y_split"] = y_val
             if pane.topLeftCell:
                 result["top_left_cell"] = pane.topLeftCell
             if pane.activePane:

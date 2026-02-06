@@ -50,7 +50,7 @@ python-calamine,merged_cells,0,
 pylightxl,merged_cells,0,0
 xlrd,merged_cells,0,
 openpyxl,conditional_formatting,3,3
-xlsxwriter,conditional_formatting,,2
+xlsxwriter,conditional_formatting,,3
 python-calamine,conditional_formatting,0,
 pylightxl,conditional_formatting,0,0
 xlrd,conditional_formatting,0,
@@ -80,7 +80,7 @@ python-calamine,comments,0,
 pylightxl,comments,0,0
 xlrd,comments,0,
 openpyxl,freeze_panes,3,3
-xlsxwriter,freeze_panes,,2
+xlsxwriter,freeze_panes,,3
 python-calamine,freeze_panes,0,
 pylightxl,freeze_panes,0,0
 xlrd,freeze_panes,0,

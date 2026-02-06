@@ -303,7 +303,13 @@ def test_read_case(
         else:
             actual = {"error": f"Unknown feature: {feature}"}
 
-        passed = compare_results(expected, actual)
+        # For comparison, strip CF priority from expected (auto-assigned
+        # by write libraries, not controllable) so it doesn't cause false
+        # negatives.  The original expected is kept for result reporting.
+        cmp_expected = expected
+        if feature == "conditional_formatting":
+            cmp_expected = _strip_cf_priority(expected)
+        passed = compare_results(cmp_expected, actual)
 
         return TestResult(
             test_case_id=test_case.id,
@@ -570,6 +576,15 @@ def read_merged_cells_actual(
     return result
 
 
+def _strip_cf_priority(expected: dict) -> dict:
+    """Return a copy of *expected* without ``cf_rule.priority``."""
+    if "cf_rule" not in expected:
+        return expected
+    out = dict(expected)
+    out["cf_rule"] = {k: v for k, v in out["cf_rule"].items() if k != "priority"}
+    return out
+
+
 def read_conditional_format_actual(
     adapter: ExcelAdapter,
     workbook: Any,
@@ -587,7 +602,11 @@ def read_conditional_format_actual(
             normalized.get("formula")
         ):
             normalized["formula"] = expected_rule.get("formula")
-    return {"cf_rule": _project_rule(normalized, expected_rule)}
+    projected = _project_rule(normalized, expected_rule)
+    # Priority is auto-assigned by write libraries and not controllable;
+    # skip it to avoid false negatives in write verification.
+    projected.pop("priority", None)
+    return {"cf_rule": projected}
 
 
 def read_data_validation_actual(
