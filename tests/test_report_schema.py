@@ -1,10 +1,14 @@
 import json
 from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
 
 from excelbench.cli import _results_from_json, report
 
+JSONDict = dict[str, Any]
 
-def _base_results():
+
+def _base_results() -> JSONDict:
     return {
         "metadata": {
             "benchmark_version": "0.1.0",
@@ -23,7 +27,7 @@ def _base_results():
     }
 
 
-def test_report_new_schema(tmp_path):
+def test_report_new_schema(tmp_path: Path) -> None:
     data = _base_results()
     data["results"] = [
         {
@@ -58,7 +62,7 @@ def test_report_new_schema(tmp_path):
     assert (output_dir / "matrix.csv").exists()
 
 
-def test_report_legacy_schema(tmp_path):
+def test_report_legacy_schema(tmp_path: Path) -> None:
     data = _base_results()
     data["results"] = [
         {
@@ -86,14 +90,14 @@ def test_report_legacy_schema(tmp_path):
     assert (output_dir / "matrix.csv").exists()
 
 
-def test_results_from_json_profile_defaults_to_xlsx():
+def test_results_from_json_profile_defaults_to_xlsx() -> None:
     data = _base_results()
     data["results"] = []
     parsed = _results_from_json(data)
     assert parsed.metadata.profile == "xlsx"
 
 
-def test_results_from_json_profile_reads_explicit_value():
+def test_results_from_json_profile_reads_explicit_value() -> None:
     data = _base_results()
     data["metadata"]["profile"] = "xls"
     data["results"] = []

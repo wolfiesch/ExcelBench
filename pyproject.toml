@@ -60,7 +60,28 @@ select = ["E", "F", "I", "N", "W", "UP"]
 [tool.mypy]
 python_version = "3.11"
 strict = true
-files = ["src/excelbench/models.py", "src/excelbench/results/renderer.py"]
+files = ["src/excelbench", "tests"]
+
+[[tool.mypy.overrides]]
+module = [
+    "openpyxl",
+    "openpyxl.*",
+    "pyexcel",
+    "pyexcel.*",
+    "pylightxl",
+    "pylightxl.*",
+    "python_calamine",
+    "python_calamine.*",
+    "xlsxwriter",
+    "xlsxwriter.*",
+    "xlrd",
+    "xlrd.*",
+    "xlwt",
+    "xlwt.*",
+    "xlwings",
+    "xlwings.*",
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

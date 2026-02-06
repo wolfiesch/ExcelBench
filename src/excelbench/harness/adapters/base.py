@@ -6,6 +6,8 @@ from typing import Any
 
 from excelbench.models import BorderInfo, CellFormat, CellValue, LibraryInfo
 
+JSONDict = dict[str, Any]
+
 
 class ExcelAdapter(ABC):
     """Abstract base class for Excel library adapters.
@@ -177,37 +179,37 @@ class ExcelAdapter(ABC):
         ...
 
     @abstractmethod
-    def read_conditional_formats(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_conditional_formats(self, workbook: Any, sheet: str) -> list[JSONDict]:
         """Read conditional formatting rules in a sheet."""
         ...
 
     @abstractmethod
-    def read_data_validations(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_data_validations(self, workbook: Any, sheet: str) -> list[JSONDict]:
         """Read data validation rules in a sheet."""
         ...
 
     @abstractmethod
-    def read_hyperlinks(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_hyperlinks(self, workbook: Any, sheet: str) -> list[JSONDict]:
         """Read hyperlinks in a sheet."""
         ...
 
     @abstractmethod
-    def read_images(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_images(self, workbook: Any, sheet: str) -> list[JSONDict]:
         """Read images/embedded objects in a sheet."""
         ...
 
     @abstractmethod
-    def read_pivot_tables(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_pivot_tables(self, workbook: Any, sheet: str) -> list[JSONDict]:
         """Read pivot table definitions in a sheet."""
         ...
 
     @abstractmethod
-    def read_comments(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_comments(self, workbook: Any, sheet: str) -> list[JSONDict]:
         """Read comments/notes in a sheet."""
         ...
 
     @abstractmethod
-    def read_freeze_panes(self, workbook: Any, sheet: str) -> dict:
+    def read_freeze_panes(self, workbook: Any, sheet: str) -> JSONDict:
         """Read freeze/split pane settings in a sheet."""
         ...
 
@@ -320,37 +322,37 @@ class ExcelAdapter(ABC):
         ...
 
     @abstractmethod
-    def add_conditional_format(self, workbook: Any, sheet: str, rule: dict) -> None:
+    def add_conditional_format(self, workbook: Any, sheet: str, rule: JSONDict) -> None:
         """Add a conditional formatting rule to a sheet."""
         ...
 
     @abstractmethod
-    def add_data_validation(self, workbook: Any, sheet: str, validation: dict) -> None:
+    def add_data_validation(self, workbook: Any, sheet: str, validation: JSONDict) -> None:
         """Add a data validation rule to a sheet."""
         ...
 
     @abstractmethod
-    def add_hyperlink(self, workbook: Any, sheet: str, link: dict) -> None:
+    def add_hyperlink(self, workbook: Any, sheet: str, link: JSONDict) -> None:
         """Add a hyperlink to a sheet."""
         ...
 
     @abstractmethod
-    def add_image(self, workbook: Any, sheet: str, image: dict) -> None:
+    def add_image(self, workbook: Any, sheet: str, image: JSONDict) -> None:
         """Add an image/embedded object to a sheet."""
         ...
 
     @abstractmethod
-    def add_pivot_table(self, workbook: Any, sheet: str, pivot: dict) -> None:
+    def add_pivot_table(self, workbook: Any, sheet: str, pivot: JSONDict) -> None:
         """Add a pivot table to a sheet."""
         ...
 
     @abstractmethod
-    def add_comment(self, workbook: Any, sheet: str, comment: dict) -> None:
+    def add_comment(self, workbook: Any, sheet: str, comment: JSONDict) -> None:
         """Add a comment/note to a sheet."""
         ...
 
     @abstractmethod
-    def set_freeze_panes(self, workbook: Any, sheet: str, settings: dict) -> None:
+    def set_freeze_panes(self, workbook: Any, sheet: str, settings: JSONDict) -> None:
         """Set freeze/split pane settings in a sheet."""
         ...
 
@@ -429,25 +431,25 @@ class ReadOnlyAdapter(ExcelAdapter):
     def merge_cells(self, workbook: Any, sheet: str, cell_range: str) -> None:
         raise NotImplementedError(f"{self.name} is read-only")
 
-    def add_conditional_format(self, workbook: Any, sheet: str, rule: dict) -> None:
+    def add_conditional_format(self, workbook: Any, sheet: str, rule: JSONDict) -> None:
         raise NotImplementedError(f"{self.name} is read-only")
 
-    def add_data_validation(self, workbook: Any, sheet: str, validation: dict) -> None:
+    def add_data_validation(self, workbook: Any, sheet: str, validation: JSONDict) -> None:
         raise NotImplementedError(f"{self.name} is read-only")
 
-    def add_hyperlink(self, workbook: Any, sheet: str, link: dict) -> None:
+    def add_hyperlink(self, workbook: Any, sheet: str, link: JSONDict) -> None:
         raise NotImplementedError(f"{self.name} is read-only")
 
-    def add_image(self, workbook: Any, sheet: str, image: dict) -> None:
+    def add_image(self, workbook: Any, sheet: str, image: JSONDict) -> None:
         raise NotImplementedError(f"{self.name} is read-only")
 
-    def add_pivot_table(self, workbook: Any, sheet: str, pivot: dict) -> None:
+    def add_pivot_table(self, workbook: Any, sheet: str, pivot: JSONDict) -> None:
         raise NotImplementedError(f"{self.name} is read-only")
 
-    def add_comment(self, workbook: Any, sheet: str, comment: dict) -> None:
+    def add_comment(self, workbook: Any, sheet: str, comment: JSONDict) -> None:
         raise NotImplementedError(f"{self.name} is read-only")
 
-    def set_freeze_panes(self, workbook: Any, sheet: str, settings: dict) -> None:
+    def set_freeze_panes(self, workbook: Any, sheet: str, settings: JSONDict) -> None:
         raise NotImplementedError(f"{self.name} is read-only")
 
 
@@ -510,23 +512,23 @@ class WriteOnlyAdapter(ExcelAdapter):
     def read_merged_ranges(self, workbook: Any, sheet: str) -> list[str]:
         raise NotImplementedError(f"{self.name} is write-only")
 
-    def read_conditional_formats(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_conditional_formats(self, workbook: Any, sheet: str) -> list[JSONDict]:
         raise NotImplementedError(f"{self.name} is write-only")
 
-    def read_data_validations(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_data_validations(self, workbook: Any, sheet: str) -> list[JSONDict]:
         raise NotImplementedError(f"{self.name} is write-only")
 
-    def read_hyperlinks(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_hyperlinks(self, workbook: Any, sheet: str) -> list[JSONDict]:
         raise NotImplementedError(f"{self.name} is write-only")
 
-    def read_images(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_images(self, workbook: Any, sheet: str) -> list[JSONDict]:
         raise NotImplementedError(f"{self.name} is write-only")
 
-    def read_pivot_tables(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_pivot_tables(self, workbook: Any, sheet: str) -> list[JSONDict]:
         raise NotImplementedError(f"{self.name} is write-only")
 
-    def read_comments(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_comments(self, workbook: Any, sheet: str) -> list[JSONDict]:
         raise NotImplementedError(f"{self.name} is write-only")
 
-    def read_freeze_panes(self, workbook: Any, sheet: str) -> dict:
+    def read_freeze_panes(self, workbook: Any, sheet: str) -> JSONDict:
         raise NotImplementedError(f"{self.name} is write-only")

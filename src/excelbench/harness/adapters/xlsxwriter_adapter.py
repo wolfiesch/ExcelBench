@@ -18,10 +18,13 @@ from excelbench.models import (
     LibraryInfo,
 )
 
+JSONDict = dict[str, Any]
+WorkbookData = dict[str, Any]
+
 
 def _get_version() -> str:
     """Get xlsxwriter version."""
-    return xlsxwriter.__version__
+    return str(xlsxwriter.__version__)
 
 
 class XlsxwriterAdapter(WriteOnlyAdapter):
@@ -32,8 +35,8 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
     This adapter creates formats on-demand for simplicity.
     """
 
-    def __init__(self):
-        self._workbooks: dict[int, dict] = {}  # wb id -> {sheets, formats, path}
+    def __init__(self) -> None:
+        self._workbooks: dict[int, WorkbookData] = {}  # wb id -> {sheets, formats, path}
 
     @property
     def info(self) -> LibraryInfo:
@@ -44,14 +47,14 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
             capabilities={"write"},
         )
 
-    def create_workbook(self) -> dict:
+    def create_workbook(self) -> WorkbookData:
         """Create a new workbook.
 
         Returns a wrapper dict because xlsxwriter workbooks need
         to be saved to a path at creation time.
         """
         # Return a placeholder - actual workbook created at save time
-        wb_data = {
+        wb_data: WorkbookData = {
             "sheets": {},  # sheet_name -> list of (cell, value, format)
             "row_heights": {},  # sheet_name -> {row_index: height}
             "col_widths": {},  # sheet_name -> {col_index: width}
@@ -67,12 +70,12 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
         }
         return wb_data
 
-    def add_sheet(self, workbook: dict, name: str) -> None:
+    def add_sheet(self, workbook: WorkbookData, name: str) -> None:
         """Add a new sheet to a workbook."""
         if name not in workbook["sheets"]:
             workbook["sheets"][name] = []
 
-    def _ensure_sheet(self, workbook: dict, sheet: str) -> None:
+    def _ensure_sheet(self, workbook: WorkbookData, sheet: str) -> None:
         """Ensure a sheet exists."""
         if sheet not in workbook["sheets"]:
             workbook["sheets"][sheet] = []
@@ -98,6 +101,7 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
     def _parse_cell(self, cell: str) -> tuple[int, int]:
         """Parse cell reference like 'A1' to (row, col) tuple."""
         import re
+
         match = re.match(r"([A-Z]+)(\d+)", cell.upper())
         if not match:
             raise ValueError(f"Invalid cell reference: {cell}")
@@ -108,7 +112,7 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
         # Convert column letters to number
         col = 0
         for char in col_str:
-            col = col * 26 + (ord(char) - ord('A') + 1)
+            col = col * 26 + (ord(char) - ord("A") + 1)
         col -= 1  # Convert to 0-indexed
 
         return row, col
@@ -117,12 +121,12 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
         """Convert column letter(s) to 0-indexed column number."""
         col = 0
         for char in column.upper():
-            col = col * 26 + (ord(char) - ord('A') + 1)
+            col = col * 26 + (ord(char) - ord("A") + 1)
         return col - 1
 
     def write_cell_value(
         self,
-        workbook: dict,
+        workbook: WorkbookData,
         sheet: str,
         cell: str,
         value: CellValue,
@@ -132,16 +136,18 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
         row, col = self._parse_cell(cell)
 
         # Store the operation for later execution
-        workbook["sheets"][sheet].append({
-            "type": "value",
-            "row": row,
-            "col": col,
-            "value": value,
-        })
+        workbook["sheets"][sheet].append(
+            {
+                "type": "value",
+                "row": row,
+                "col": col,
+                "value": value,
+            }
+        )
 
     def write_cell_format(
         self,
-        workbook: dict,
+        workbook: WorkbookData,
         sheet: str,
         cell: str,
         format: CellFormat,
@@ -150,16 +156,18 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
         self._ensure_sheet(workbook, sheet)
         row, col = self._parse_cell(cell)
 
-        workbook["sheets"][sheet].append({
-            "type": "format",
-            "row": row,
-            "col": col,
-            "format": format,
-        })
+        workbook["sheets"][sheet].append(
+            {
+                "type": "format",
+                "row": row,
+                "col": col,
+                "format": format,
+            }
+        )
 
     def write_cell_border(
         self,
-        workbook: dict,
+        workbook: WorkbookData,
         sheet: str,
         cell: str,
         border: BorderInfo,
@@ -168,12 +176,14 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
         self._ensure_sheet(workbook, sheet)
         row, col = self._parse_cell(cell)
 
-        workbook["sheets"][sheet].append({
-            "type": "border",
-            "row": row,
-            "col": col,
-            "border": border,
-        })
+        workbook["sheets"][sheet].append(
+            {
+                "type": "border",
+                "row": row,
+                "col": col,
+                "border": border,
+            }
+        )
 
     def _create_format(
         self,
@@ -182,7 +192,7 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
         border: BorderInfo | None = None,
     ) -> Any:
         """Create an xlsxwriter format from our models."""
-        fmt_dict = {}
+        fmt_dict: dict[str, Any] = {}
 
         if cell_format:
             if cell_format.bold:
@@ -268,10 +278,13 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                 fmt_dict["right_color"] = border.right.color
 
             # Diagonal borders
-            if border.diagonal_up or border.diagonal_down:
-                diag_border = border.diagonal_up or border.diagonal_down
-                fmt_dict["diag_border"] = border_style_map.get(diag_border.style, 1)
-                fmt_dict["diag_color"] = diag_border.color
+            if border.diagonal_up is not None or border.diagonal_down is not None:
+                diag_border = (
+                    border.diagonal_up if border.diagonal_up is not None else border.diagonal_down
+                )
+                if diag_border is not None:
+                    fmt_dict["diag_border"] = border_style_map.get(diag_border.style, 1)
+                    fmt_dict["diag_color"] = diag_border.color
 
                 diag_type = 0
                 if border.diagonal_up and border.diagonal_down:
@@ -284,7 +297,7 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
 
         return wb.add_format(fmt_dict)
 
-    def save_workbook(self, workbook: dict, path: Path) -> None:
+    def save_workbook(self, workbook: WorkbookData, path: Path) -> None:
         """Save a workbook to a file.
 
         This is where the actual xlsxwriter workbook is created and
@@ -318,7 +331,7 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                     ws.merge_range(cell_range, "")
 
                 # Group operations by cell to merge formats
-                cell_ops: dict[tuple[int, int], dict] = {}
+                cell_ops: dict[tuple[int, int], dict[str, Any]] = {}
 
                 for op in operations:
                     key = (op["row"], op["col"])
@@ -426,10 +439,12 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
 
                     if fmt.get("bg_color"):
                         # Use fg_color for conditional format dxf fills
-                        options["format"] = wb.add_format({
-                            "fg_color": fmt["bg_color"],
-                            "pattern": 1,
-                        })
+                        options["format"] = wb.add_format(
+                            {
+                                "fg_color": fmt["bg_color"],
+                                "pattern": 1,
+                            }
+                        )
                     if options and rng:
                         ws.conditional_format(rng, options)
 
@@ -439,7 +454,7 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                     cell_range = v.get("range")
                     vtype = v.get("validation_type")
                     vop = v.get("operator")
-                    options: dict[str, Any] = {}
+                    dv_options: dict[str, Any] = {}
                     type_map = {
                         "list": "list",
                         "whole": "integer",
@@ -449,32 +464,32 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                         "time": "time",
                         "textLength": "length",
                     }
-                    options["validate"] = type_map.get(vtype, vtype)
+                    dv_options["validate"] = type_map.get(vtype, vtype)
                     if vop:
-                        options["criteria"] = vop
+                        dv_options["criteria"] = vop
                     if v.get("formula1"):
-                        if options["validate"] == "list":
+                        if dv_options["validate"] == "list":
                             source = v.get("formula1")
                             if isinstance(source, str):
                                 if source.startswith('"') and source.endswith('"'):
                                     source = source[1:-1]
-                            options["source"] = source
+                            dv_options["source"] = source
                         else:
-                            options["value"] = v.get("formula1")
+                            dv_options["value"] = v.get("formula1")
                     if v.get("formula2"):
-                        options["maximum"] = v.get("formula2")
+                        dv_options["maximum"] = v.get("formula2")
                     if v.get("allow_blank") is not None:
-                        options["ignore_blank"] = bool(v.get("allow_blank"))
+                        dv_options["ignore_blank"] = bool(v.get("allow_blank"))
                     if v.get("prompt_title"):
-                        options["input_title"] = v.get("prompt_title")
+                        dv_options["input_title"] = v.get("prompt_title")
                     if v.get("prompt"):
-                        options["input_message"] = v.get("prompt")
+                        dv_options["input_message"] = v.get("prompt")
                     if v.get("error_title"):
-                        options["error_title"] = v.get("error_title")
+                        dv_options["error_title"] = v.get("error_title")
                     if v.get("error"):
-                        options["error_message"] = v.get("error")
-                    if cell_range and options:
-                        ws.data_validation(cell_range, options)
+                        dv_options["error_message"] = v.get("error")
+                    if cell_range and dv_options:
+                        ws.data_validation(cell_range, dv_options)
 
                 # Hyperlinks
                 for link in workbook["hyperlinks"].get(sheet_name, []):
@@ -490,10 +505,10 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                     if internal:
                         url = f"internal:{str(target).lstrip('#')}"
                     r, c = self._parse_cell(cell)
-                    opts = {}
+                    url_opts: dict[str, Any] = {}
                     if tooltip:
-                        opts["tip"] = tooltip
-                    ws.write_url(r, c, url, string=display, **opts)
+                        url_opts["tip"] = tooltip
+                    ws.write_url(r, c, url, string=display, **url_opts)
 
                 # Images
                 for image in workbook["images"].get(sheet_name, []):
@@ -503,11 +518,11 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                     if not cell or not path:
                         continue
                     r, c = self._parse_cell(cell)
-                    opts = {}
+                    img_opts: dict[str, Any] = {}
                     if data.get("offset"):
-                        opts["x_offset"] = data["offset"][0]
-                        opts["y_offset"] = data["offset"][1]
-                    ws.insert_image(r, c, path, opts)
+                        img_opts["x_offset"] = data["offset"][0]
+                        img_opts["y_offset"] = data["offset"][1]
+                    ws.insert_image(r, c, path, img_opts)
 
                 # Comments
                 for comment in workbook["comments"].get(sheet_name, []):
@@ -517,17 +532,17 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                     if not cell or text is None:
                         continue
                     r, c = self._parse_cell(cell)
-                    opts = {}
+                    comment_opts: dict[str, Any] = {}
                     if data.get("author"):
-                        opts["author"] = data.get("author")
-                    ws.write_comment(r, c, text, opts)
+                        comment_opts["author"] = data.get("author")
+                    ws.write_comment(r, c, text, comment_opts)
 
         finally:
             wb.close()
 
     def set_row_height(
         self,
-        workbook: dict,
+        workbook: WorkbookData,
         sheet: str,
         row: int,
         height: float,
@@ -537,7 +552,7 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
 
     def set_column_width(
         self,
-        workbook: dict,
+        workbook: WorkbookData,
         sheet: str,
         column: str,
         width: float,
@@ -550,33 +565,33 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
     # Tier 2 Write Operations
     # =========================================================================
 
-    def merge_cells(self, workbook: dict, sheet: str, cell_range: str) -> None:
+    def merge_cells(self, workbook: WorkbookData, sheet: str, cell_range: str) -> None:
         self._ensure_sheet(workbook, sheet)
         workbook["merges"][sheet].append(cell_range)
 
-    def add_conditional_format(self, workbook: dict, sheet: str, rule: dict) -> None:
+    def add_conditional_format(self, workbook: WorkbookData, sheet: str, rule: JSONDict) -> None:
         self._ensure_sheet(workbook, sheet)
         workbook["conditional_formats"][sheet].append(rule)
 
-    def add_data_validation(self, workbook: dict, sheet: str, validation: dict) -> None:
+    def add_data_validation(self, workbook: WorkbookData, sheet: str, validation: JSONDict) -> None:
         self._ensure_sheet(workbook, sheet)
         workbook["data_validations"][sheet].append(validation)
 
-    def add_hyperlink(self, workbook: dict, sheet: str, link: dict) -> None:
+    def add_hyperlink(self, workbook: WorkbookData, sheet: str, link: JSONDict) -> None:
         self._ensure_sheet(workbook, sheet)
         workbook["hyperlinks"][sheet].append(link)
 
-    def add_image(self, workbook: dict, sheet: str, image: dict) -> None:
+    def add_image(self, workbook: WorkbookData, sheet: str, image: JSONDict) -> None:
         self._ensure_sheet(workbook, sheet)
         workbook["images"][sheet].append(image)
 
-    def add_pivot_table(self, workbook: dict, sheet: str, pivot: dict) -> None:
+    def add_pivot_table(self, workbook: WorkbookData, sheet: str, pivot: JSONDict) -> None:
         raise NotImplementedError("xlsxwriter pivot tables are not supported in this adapter")
 
-    def add_comment(self, workbook: dict, sheet: str, comment: dict) -> None:
+    def add_comment(self, workbook: WorkbookData, sheet: str, comment: JSONDict) -> None:
         self._ensure_sheet(workbook, sheet)
         workbook["comments"][sheet].append(comment)
 
-    def set_freeze_panes(self, workbook: dict, sheet: str, settings: dict) -> None:
+    def set_freeze_panes(self, workbook: WorkbookData, sheet: str, settings: JSONDict) -> None:
         self._ensure_sheet(workbook, sheet)
         workbook["freeze"][sheet] = settings

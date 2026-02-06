@@ -33,6 +33,8 @@ from excelbench.models import (
 
 BENCHMARK_VERSION = "0.1.0"
 
+JSONDict = dict[str, Any]
+
 
 def run_benchmark(
     test_dir: Path,
@@ -209,12 +211,7 @@ def _annotate_known_limitations(score: FeatureScore) -> FeatureScore:
     if limitation is None:
         return score
     side, note = limitation
-    if (
-        side == "read"
-        and score.read_score is not None
-        and score.read_score < 3
-        and not score.notes
-    ):
+    if side == "read" and score.read_score is not None and score.read_score < 3 and not score.notes:
         score.notes = note
     if (
         side == "write"
@@ -413,12 +410,12 @@ def read_cell_value_actual(
     workbook: Any,
     sheet: str,
     cell: str,
-    expected: dict,
-) -> dict:
+    expected: JSONDict,
+) -> JSONDict:
     """Read cell value and return as comparable dict."""
     cell_value = adapter.read_cell_value(workbook, sheet, cell)
 
-    result = {"type": cell_value.type.value}
+    result: JSONDict = {"type": cell_value.type.value}
 
     if cell_value.type.value != "blank":
         value = cell_value.value
@@ -438,7 +435,7 @@ def read_formula_actual(
     workbook: Any,
     sheet: str,
     cell: str,
-) -> dict:
+) -> JSONDict:
     cell_value = adapter.read_cell_value(workbook, sheet, cell)
     if cell_value.type != CellType.FORMULA:
         return {"error": f"Expected formula, got {cell_value.type.value}"}
@@ -454,11 +451,11 @@ def read_text_format_actual(
     workbook: Any,
     sheet: str,
     cell: str,
-) -> dict:
+) -> JSONDict:
     """Read cell formatting and return as comparable dict."""
     fmt = adapter.read_cell_format(workbook, sheet, cell)
 
-    result = {}
+    result: JSONDict = {}
     if fmt.bold:
         result["bold"] = True
     if fmt.italic:
@@ -482,9 +479,9 @@ def read_background_color_actual(
     workbook: Any,
     sheet: str,
     cell: str,
-) -> dict:
+) -> JSONDict:
     fmt = adapter.read_cell_format(workbook, sheet, cell)
-    result = {}
+    result: JSONDict = {}
     if fmt.bg_color:
         result["bg_color"] = fmt.bg_color.upper()
     return result
@@ -495,9 +492,9 @@ def read_number_format_actual(
     workbook: Any,
     sheet: str,
     cell: str,
-) -> dict:
+) -> JSONDict:
     fmt = adapter.read_cell_format(workbook, sheet, cell)
-    result = {}
+    result: JSONDict = {}
     if fmt.number_format:
         result["number_format"] = _normalize_number_format(fmt.number_format)
     return result
@@ -527,9 +524,9 @@ def read_alignment_actual(
     workbook: Any,
     sheet: str,
     cell: str,
-) -> dict:
+) -> JSONDict:
     fmt = adapter.read_cell_format(workbook, sheet, cell)
-    result = {}
+    result: JSONDict = {}
     if fmt.h_align:
         result["h_align"] = fmt.h_align
     if fmt.v_align:
@@ -555,11 +552,11 @@ def read_border_actual(
     workbook: Any,
     sheet: str,
     cell: str,
-) -> dict:
+) -> JSONDict:
     """Read cell border and return as comparable dict."""
     border = adapter.read_cell_border(workbook, sheet, cell)
 
-    result = {}
+    result: JSONDict = {}
 
     # Check for uniform border style
     styles = []
@@ -581,13 +578,13 @@ def read_border_actual(
     if len(styles) == 4 and len(set(styles)) == 1:
         result["border_style"] = styles[0]
         # Remove individual entries
-        for edge in ["top", "bottom", "left", "right"]:
-            result.pop(f"border_{edge}", None)
+        for side in ["top", "bottom", "left", "right"]:
+            result.pop(f"border_{side}", None)
 
     if len(colors) == 4 and len(set(colors)) == 1:
         result["border_color"] = colors[0]
-        for edge in ["top", "bottom", "left", "right"]:
-            result.pop(f"border_{edge}_color", None)
+        for side in ["top", "bottom", "left", "right"]:
+            result.pop(f"border_{side}_color", None)
 
     # Diagonal borders
     if border.diagonal_up:
@@ -604,8 +601,8 @@ def read_dimensions_actual(
     sheet: str,
     cell: str,
     test_case: TestCase,
-) -> dict:
-    result = {}
+) -> JSONDict:
+    result: JSONDict = {}
     row = test_case.row
     column = _extract_column(cell)
     if "row_height" in test_case.expected:
@@ -620,10 +617,10 @@ def read_merged_cells_actual(
     workbook: Any,
     sheet: str,
     test_case: TestCase,
-) -> dict:
+) -> JSONDict:
     expected = test_case.expected
     merged_ranges = adapter.read_merged_ranges(workbook, sheet)
-    result: dict[str, Any] = {}
+    result: JSONDict = {}
     expected_range = expected.get("merged_range")
     if expected_range:
         match = _find_range(merged_ranges, expected_range)
@@ -652,12 +649,15 @@ def read_merged_cells_actual(
     return result
 
 
-def _strip_cf_priority(expected: dict) -> dict:
+def _strip_cf_priority(expected: JSONDict) -> JSONDict:
     """Return a copy of *expected* without ``cf_rule.priority``."""
     if "cf_rule" not in expected:
         return expected
-    out = dict(expected)
-    out["cf_rule"] = {k: v for k, v in out["cf_rule"].items() if k != "priority"}
+    cf = expected.get("cf_rule")
+    if not isinstance(cf, dict):
+        return expected
+    out: JSONDict = dict(expected)
+    out["cf_rule"] = {k: v for k, v in cf.items() if k != "priority"}
     return out
 
 
@@ -665,8 +665,8 @@ def read_conditional_format_actual(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
-) -> dict:
+    expected: JSONDict,
+) -> JSONDict:
     rules = adapter.read_conditional_formats(workbook, sheet)
     expected_rule = expected.get("cf_rule", expected)
     match = _find_rule(rules, expected_rule)
@@ -689,8 +689,8 @@ def read_data_validation_actual(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
-) -> dict:
+    expected: JSONDict,
+) -> JSONDict:
     validations = adapter.read_data_validations(workbook, sheet)
     expected_rule = expected.get("validation", expected)
     match = _find_validation(validations, expected_rule)
@@ -710,8 +710,8 @@ def read_hyperlink_actual(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
-) -> dict:
+    expected: JSONDict,
+) -> JSONDict:
     links = adapter.read_hyperlinks(workbook, sheet)
     expected_rule = expected.get("hyperlink", expected)
     match = _find_by_key(links, "cell", expected_rule.get("cell"))
@@ -728,8 +728,8 @@ def read_image_actual(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
-) -> dict:
+    expected: JSONDict,
+) -> JSONDict:
     images = adapter.read_images(workbook, sheet)
     expected_rule = expected.get("image", expected)
     match = _find_by_key(images, "cell", expected_rule.get("cell"))
@@ -747,8 +747,8 @@ def read_pivot_actual(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
-) -> dict:
+    expected: JSONDict,
+) -> JSONDict:
     pivots = adapter.read_pivot_tables(workbook, sheet)
     expected_rule = expected.get("pivot", expected)
     match = _find_by_key(pivots, "name", expected_rule.get("name"))
@@ -779,8 +779,8 @@ def read_comment_actual(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
-) -> dict:
+    expected: JSONDict,
+) -> JSONDict:
     comments = adapter.read_comments(workbook, sheet)
     expected_rule = expected.get("comment", expected)
     match = _find_by_key(comments, "cell", expected_rule.get("cell"))
@@ -793,14 +793,14 @@ def read_freeze_panes_actual(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
-) -> dict:
+    expected: JSONDict,
+) -> JSONDict:
     settings = adapter.read_freeze_panes(workbook, sheet)
     expected_rule = expected.get("freeze", expected)
     return {"freeze": _project_rule(settings, expected_rule)}
 
 
-def read_sheet_names_actual(adapter: ExcelAdapter, workbook: Any) -> dict:
+def read_sheet_names_actual(adapter: ExcelAdapter, workbook: Any) -> JSONDict:
     return {"sheet_names": adapter.get_sheet_names(workbook)}
 
 
@@ -986,7 +986,7 @@ def test_write(
     return results
 
 
-def compare_results(expected: dict, actual: dict) -> bool:
+def compare_results(expected: JSONDict, actual: JSONDict) -> bool:
     """Compare expected and actual results.
 
     Args:
@@ -1036,7 +1036,7 @@ def _deep_compare(expected: Any, actual: Any) -> bool:
     if isinstance(expected, (int, float)) and isinstance(actual, (int, float)):
         return abs(expected - actual) <= 0.0001
 
-    return expected == actual
+    return bool(expected == actual)
 
 
 def get_write_verifier() -> ExcelAdapter:
@@ -1044,8 +1044,10 @@ def get_write_verifier() -> ExcelAdapter:
     if oracle == "openpyxl":
         return OpenpyxlAdapter()
     if oracle == "excel":
+        if ExcelOracleAdapter is None:
+            return OpenpyxlAdapter()
         return ExcelOracleAdapter()
-    if _excel_available():
+    if _excel_available() and ExcelOracleAdapter is not None:
         return ExcelOracleAdapter()
     return OpenpyxlAdapter()
 
@@ -1065,7 +1067,7 @@ def get_write_verifier_for_feature(feature: str) -> ExcelAdapter:
         return get_write_verifier()
     if platform.system() == "Darwin":
         return OpenpyxlAdapter()
-    if feature in complex_features and _excel_available():
+    if feature in complex_features and _excel_available() and ExcelOracleAdapter is not None:
         return ExcelOracleAdapter()
     return OpenpyxlAdapter()
 
@@ -1078,6 +1080,7 @@ def get_write_verifier_for_adapter(adapter: ExcelAdapter, feature: str) -> Excel
     """
     if adapter.output_extension == ".xls":
         from excelbench.harness.adapters.xlrd_adapter import XlrdAdapter
+
         return XlrdAdapter()
     return get_write_verifier_for_feature(feature)
 
@@ -1188,14 +1191,14 @@ def _find_range(ranges: list[str], expected: str) -> str | None:
     return None
 
 
-def _find_by_key(items: list[dict], key: str, value: Any) -> dict | None:
+def _find_by_key(items: list[JSONDict], key: str, value: Any) -> JSONDict | None:
     for item in items:
         if item.get(key) == value:
             return item
     return None
 
 
-def _find_rule(rules: list[dict], expected: dict) -> dict | None:
+def _find_rule(rules: list[JSONDict], expected: JSONDict) -> JSONDict | None:
     for rule in rules:
         if expected.get("range") and _normalize_range(rule.get("range", "")) != _normalize_range(
             expected.get("range", "")
@@ -1210,7 +1213,7 @@ def _find_rule(rules: list[dict], expected: dict) -> dict | None:
     return None
 
 
-def _find_validation(validations: list[dict], expected: dict) -> dict | None:
+def _find_validation(validations: list[JSONDict], expected: JSONDict) -> JSONDict | None:
     for validation in validations:
         if expected.get("range") and _normalize_range(
             validation.get("range", "")
@@ -1229,8 +1232,8 @@ def _find_validation(validations: list[dict], expected: dict) -> dict | None:
     return None
 
 
-def _project_rule(actual: dict, expected: dict) -> dict:
-    projected: dict[str, Any] = {}
+def _project_rule(actual: JSONDict, expected: JSONDict) -> JSONDict:
+    projected: JSONDict = {}
     for key in expected.keys():
         value = actual.get(key)
         if key == "path" and value is None:
@@ -1258,7 +1261,7 @@ def _normalize_sheet_quotes(formula: str) -> str:
     """
     import re
 
-    def _quote_match(m: re.Match) -> str:
+    def _quote_match(m: re.Match[str]) -> str:
         name = m.group(1)
         cell_ref = m.group(2)
         return f"='{name}'!{cell_ref}"
@@ -1293,7 +1296,7 @@ def _extract_formula_sheet_names(formula: str) -> list[str]:
     return names
 
 
-def _cell_value_from_expected(expected: dict) -> CellValue:
+def _cell_value_from_expected(expected: JSONDict) -> CellValue:
     type_str = expected.get("type", "string")
     value = expected.get("value")
     if type_str == "blank":
@@ -1332,7 +1335,7 @@ def _cell_value_from_raw(value: Any) -> CellValue:
     return CellValue(type=CellType.STRING, value=value)
 
 
-def _cell_format_from_expected(expected: dict) -> CellFormat:
+def _cell_format_from_expected(expected: JSONDict) -> CellFormat:
     return CellFormat(
         bold=expected.get("bold"),
         italic=expected.get("italic"),
@@ -1351,17 +1354,14 @@ def _cell_format_from_expected(expected: dict) -> CellFormat:
     )
 
 
-def _border_from_expected(expected: dict) -> BorderInfo:
+def _border_from_expected(expected: JSONDict) -> BorderInfo:
     default_style = expected.get("border_style")
     default_color = expected.get("border_color")
     if default_color and not default_style:
         default_style = "thin"
 
     def make_edge(style_key: str, color_key: str) -> BorderEdge | None:
-        if style_key in expected:
-            style_val = expected[style_key]
-        else:
-            style_val = default_style
+        style_val = expected.get(style_key, default_style)
 
         # If a color is specified for this edge but no style, default to "thin"
         if style_val is None and color_key in expected:
@@ -1370,15 +1370,14 @@ def _border_from_expected(expected: dict) -> BorderInfo:
         if style_val is None:
             return None
 
-        if color_key in expected:
-            color_val = expected[color_key]
-        else:
-            color_val = default_color
+        color_val = expected.get(color_key, default_color)
 
         if color_val is None:
             color_val = "#000000"
 
-        return BorderEdge(style=BorderStyle(style_val), color=color_val)
+        style_str = style_val if isinstance(style_val, str) else str(style_val)
+        color_str = color_val if isinstance(color_val, str) else str(color_val)
+        return BorderEdge(style=BorderStyle(style_str), color=color_str)
 
     return BorderInfo(
         top=make_edge("border_top", "border_top_color"),
@@ -1399,7 +1398,7 @@ def _write_cell_value_case(
     workbook: Any,
     sheet: str,
     cell: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     cell_value = _cell_value_from_expected(expected)
     adapter.write_cell_value(workbook, sheet, cell, cell_value)
@@ -1414,7 +1413,7 @@ def _write_formula_case(
     workbook: Any,
     sheet: str,
     cell: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     formula = expected.get("formula")
     cell_value = CellValue(type=CellType.FORMULA, formula=formula, value=formula)
@@ -1442,7 +1441,7 @@ def _write_background_color_case(
     workbook: Any,
     sheet: str,
     cell: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     adapter.write_cell_value(workbook, sheet, cell, CellValue(type=CellType.STRING, value="Color"))
     adapter.write_cell_format(workbook, sheet, cell, _cell_format_from_expected(expected))
@@ -1453,10 +1452,10 @@ def _write_number_format_case(
     workbook: Any,
     sheet: str,
     cell: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     number_format = expected.get("number_format")
-    value = 1234.5
+    value: Any = 1234.5
     value_type = CellType.NUMBER
     if number_format and any(token in number_format for token in ["y", "m", "d"]):
         from datetime import date
@@ -1472,7 +1471,7 @@ def _write_alignment_case(
     workbook: Any,
     sheet: str,
     cell: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     adapter.write_cell_value(workbook, sheet, cell, CellValue(type=CellType.STRING, value="Align"))
     adapter.write_cell_format(workbook, sheet, cell, _cell_format_from_expected(expected))
@@ -1483,7 +1482,7 @@ def _write_border_case(
     workbook: Any,
     sheet: str,
     cell: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     adapter.write_cell_value(workbook, sheet, cell, CellValue(type=CellType.STRING, value="Border"))
     adapter.write_cell_border(workbook, sheet, cell, _border_from_expected(expected))
@@ -1508,7 +1507,7 @@ def _write_multi_sheet_case(
     workbook: Any,
     sheet: str,
     cell: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     if "sheet_names" in expected:
         return
@@ -1520,7 +1519,7 @@ def _write_merged_cells_case(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     cell_range = expected.get("merged_range")
     if cell_range:
@@ -1546,7 +1545,7 @@ def _write_conditional_format_case(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     adapter.add_conditional_format(workbook, sheet, expected)
 
@@ -1555,7 +1554,7 @@ def _write_data_validation_case(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     adapter.add_data_validation(workbook, sheet, expected)
 
@@ -1564,7 +1563,7 @@ def _write_hyperlink_case(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     adapter.add_hyperlink(workbook, sheet, expected)
 
@@ -1573,7 +1572,7 @@ def _write_image_case(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     adapter.add_image(workbook, sheet, expected)
 
@@ -1582,7 +1581,7 @@ def _write_pivot_case(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     adapter.add_pivot_table(workbook, sheet, expected)
 
@@ -1591,7 +1590,7 @@ def _write_comment_case(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     adapter.add_comment(workbook, sheet, expected)
 
@@ -1600,7 +1599,7 @@ def _write_freeze_panes_case(
     adapter: ExcelAdapter,
     workbook: Any,
     sheet: str,
-    expected: dict,
+    expected: JSONDict,
 ) -> None:
     adapter.set_freeze_panes(workbook, sheet, expected)
 

@@ -18,10 +18,13 @@ from excelbench.models import (
     LibraryInfo,
 )
 
+JSONDict = dict[str, Any]
+
 
 def _get_version() -> str:
     try:
         from importlib.metadata import version
+
         return version("xlwt")
     except Exception:
         return "unknown"
@@ -318,10 +321,11 @@ class XlwtAdapter(WriteOnlyAdapter):
         if border.right:
             borders.right = _BORDER_MAP.get(border.right.style, xlwt.Borders.THIN)
             borders.right_colour = _hex_to_xlwt_colour(border.right.color)
-        if border.diagonal_up or border.diagonal_down:
-            diag = border.diagonal_up or border.diagonal_down
-            borders.diag = _BORDER_MAP.get(diag.style, xlwt.Borders.THIN)
-            borders.diag_colour = _hex_to_xlwt_colour(diag.color)
+        if border.diagonal_up is not None or border.diagonal_down is not None:
+            diag = border.diagonal_up if border.diagonal_up is not None else border.diagonal_down
+            if diag is not None:
+                borders.diag = _BORDER_MAP.get(diag.style, xlwt.Borders.THIN)
+                borders.diag_colour = _hex_to_xlwt_colour(diag.color)
             if border.diagonal_up:
                 borders.need_diag1 = xlwt.Borders.NEED_DIAG1
             if border.diagonal_down:
@@ -428,25 +432,25 @@ class XlwtAdapter(WriteOnlyAdapter):
         r2, c2 = _parse_cell_ref(end)
         ws.write_merge(r1, r2, c1, c2, "")
 
-    def add_conditional_format(self, workbook: Any, sheet: str, rule: dict) -> None:
+    def add_conditional_format(self, workbook: Any, sheet: str, rule: JSONDict) -> None:
         pass  # xlwt does not support conditional formatting
 
-    def add_data_validation(self, workbook: Any, sheet: str, validation: dict) -> None:
+    def add_data_validation(self, workbook: Any, sheet: str, validation: JSONDict) -> None:
         pass  # xlwt does not support data validation
 
-    def add_hyperlink(self, workbook: Any, sheet: str, link: dict) -> None:
+    def add_hyperlink(self, workbook: Any, sheet: str, link: JSONDict) -> None:
         pass  # xlwt does not support hyperlinks via write_url
 
-    def add_image(self, workbook: Any, sheet: str, image: dict) -> None:
+    def add_image(self, workbook: Any, sheet: str, image: JSONDict) -> None:
         pass  # xlwt does not support images
 
-    def add_pivot_table(self, workbook: Any, sheet: str, pivot: dict) -> None:
+    def add_pivot_table(self, workbook: Any, sheet: str, pivot: JSONDict) -> None:
         pass  # xlwt does not support pivot tables
 
-    def add_comment(self, workbook: Any, sheet: str, comment: dict) -> None:
+    def add_comment(self, workbook: Any, sheet: str, comment: JSONDict) -> None:
         pass  # xlwt does not support comments
 
-    def set_freeze_panes(self, workbook: xlwt.Workbook, sheet: str, settings: dict) -> None:
+    def set_freeze_panes(self, workbook: xlwt.Workbook, sheet: str, settings: JSONDict) -> None:
         ws = self._get_sheet(workbook, sheet)
         cfg = settings.get("freeze", settings)
         mode = cfg.get("mode")

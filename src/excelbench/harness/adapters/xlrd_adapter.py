@@ -19,9 +19,11 @@ from excelbench.models import (
     LibraryInfo,
 )
 
+JSONDict = dict[str, Any]
+
 
 def _get_version() -> str:
-    return xlrd.__version__
+    return str(xlrd.__version__)
 
 
 def _parse_cell_ref(cell: str) -> tuple[int, int]:
@@ -120,7 +122,7 @@ class XlrdAdapter(ReadOnlyAdapter):
         workbook.release_resources()
 
     def get_sheet_names(self, workbook: Book) -> list[str]:
-        return workbook.sheet_names()
+        return [str(name) for name in workbook.sheet_names()]
 
     def read_cell_value(
         self,
@@ -307,8 +309,11 @@ class XlrdAdapter(ReadOnlyAdapter):
         if row_idx >= sh.nrows:
             return None
         rowinfo = sh.rowinfo_map.get(row_idx)
-        if rowinfo and rowinfo.height:
-            return rowinfo.height / 20.0
+        if not rowinfo:
+            return None
+        height = getattr(rowinfo, "height", None)
+        if isinstance(height, (int, float)) and height:
+            return float(height) / 20.0
         return None
 
     def read_column_width(
@@ -323,8 +328,11 @@ class XlrdAdapter(ReadOnlyAdapter):
             col_idx = col_idx * 26 + (ord(char) - ord("A") + 1)
         col_idx -= 1
         colinfo = sh.colinfo_map.get(col_idx)
-        if colinfo and colinfo.width:
-            return colinfo.width / 256.0
+        if not colinfo:
+            return None
+        width = getattr(colinfo, "width", None)
+        if isinstance(width, (int, float)) and width:
+            return float(width) / 256.0
         return None
 
     # =========================================================================
@@ -340,51 +348,55 @@ class XlrdAdapter(ReadOnlyAdapter):
             ranges.append(f"{start}:{end}")
         return ranges
 
-    def read_conditional_formats(self, workbook: Book, sheet: str) -> list[dict]:
+    def read_conditional_formats(self, workbook: Book, sheet: str) -> list[JSONDict]:
         return []  # xlrd has limited CF support
 
-    def read_data_validations(self, workbook: Book, sheet: str) -> list[dict]:
+    def read_data_validations(self, workbook: Book, sheet: str) -> list[JSONDict]:
         return []  # Not available in xlrd
 
-    def read_hyperlinks(self, workbook: Book, sheet: str) -> list[dict]:
+    def read_hyperlinks(self, workbook: Book, sheet: str) -> list[JSONDict]:
         sh = workbook.sheet_by_name(sheet)
-        links: list[dict] = []
+        links: list[JSONDict] = []
         for link in sh.hyperlink_list:
             cell = f"{_col_letter(link.fcolx + 1)}{link.frowx + 1}"
             target = link.url_or_path
             display = link.desc or sh.cell_value(link.frowx, link.fcolx)
-            links.append({
-                "cell": cell,
-                "target": target,
-                "display": display,
-                "tooltip": link.textmark if link.textmark else None,
-                "internal": bool(link.textmark and not link.url_or_path),
-            })
+            links.append(
+                {
+                    "cell": cell,
+                    "target": target,
+                    "display": display,
+                    "tooltip": link.textmark if link.textmark else None,
+                    "internal": bool(link.textmark and not link.url_or_path),
+                }
+            )
         return links
 
-    def read_images(self, workbook: Book, sheet: str) -> list[dict]:
+    def read_images(self, workbook: Book, sheet: str) -> list[JSONDict]:
         return []  # xlrd does not support image reading
 
-    def read_pivot_tables(self, workbook: Book, sheet: str) -> list[dict]:
+    def read_pivot_tables(self, workbook: Book, sheet: str) -> list[JSONDict]:
         return []  # xlrd does not support pivot table reading
 
-    def read_comments(self, workbook: Book, sheet: str) -> list[dict]:
+    def read_comments(self, workbook: Book, sheet: str) -> list[JSONDict]:
         sh = workbook.sheet_by_name(sheet)
-        comments: list[dict] = []
+        comments: list[JSONDict] = []
         note_map = getattr(sh, "cell_note_map", {})
         for (row_idx, col_idx), note in note_map.items():
             cell = f"{_col_letter(col_idx + 1)}{row_idx + 1}"
-            comments.append({
-                "cell": cell,
-                "text": note.text,
-                "author": note.author,
-                "threaded": False,
-            })
+            comments.append(
+                {
+                    "cell": cell,
+                    "text": note.text,
+                    "author": note.author,
+                    "threaded": False,
+                }
+            )
         return comments
 
-    def read_freeze_panes(self, workbook: Book, sheet: str) -> dict:
+    def read_freeze_panes(self, workbook: Book, sheet: str) -> JSONDict:
         sh = workbook.sheet_by_name(sheet)
-        result: dict[str, Any] = {}
+        result: JSONDict = {}
         if sh.frozen_row_count or sh.frozen_col_count:
             result["mode"] = "freeze"
             top_row = sh.frozen_row_count or 0

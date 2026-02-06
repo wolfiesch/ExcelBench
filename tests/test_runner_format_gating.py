@@ -5,7 +5,7 @@ import xlwt
 from openpyxl import Workbook
 
 from excelbench.generator.generate import write_manifest
-from excelbench.harness.adapters import XlrdAdapter
+from excelbench.harness.adapters.xlrd_adapter import XlrdAdapter
 from excelbench.harness.runner import run_benchmark
 from excelbench.models import Importance, Manifest
 from excelbench.models import TestCase as BenchCase
@@ -39,7 +39,7 @@ def _write_single_case_manifest(test_dir: Path, filename: str, file_format: str)
     write_manifest(manifest, test_dir / "manifest.json")
 
 
-def test_xlrd_xlsx_is_marked_not_applicable(tmp_path):
+def test_xlrd_xlsx_is_marked_not_applicable(tmp_path: Path) -> None:
     test_dir = tmp_path / "xlsx_suite"
     tier_dir = test_dir / "tier1"
     tier_dir.mkdir(parents=True)
@@ -60,7 +60,7 @@ def test_xlrd_xlsx_is_marked_not_applicable(tmp_path):
     assert score.notes == "Not applicable: xlrd does not support .xlsx input"
 
 
-def test_xlrd_xls_runs_read_tests(tmp_path):
+def test_xlrd_xls_runs_read_tests(tmp_path: Path) -> None:
     test_dir = tmp_path / "xls_suite"
     tier_dir = test_dir / "tier1"
     tier_dir.mkdir(parents=True)

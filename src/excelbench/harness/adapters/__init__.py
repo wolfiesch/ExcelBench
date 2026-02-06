@@ -1,41 +1,68 @@
 """Excel library adapters."""
 
+from typing import TypeAlias
+
 from excelbench.harness.adapters.base import ExcelAdapter, ReadOnlyAdapter, WriteOnlyAdapter
 from excelbench.harness.adapters.openpyxl_adapter import OpenpyxlAdapter
 
+AdapterClass: TypeAlias = type[ExcelAdapter]
+
 try:
-    from excelbench.harness.adapters.xlsxwriter_adapter import XlsxwriterAdapter
+    from excelbench.harness.adapters.xlsxwriter_adapter import (
+        XlsxwriterAdapter as _XlsxwriterAdapter,
+    )
 except ImportError:  # Optional dependency
-    XlsxwriterAdapter = None
+    XlsxwriterAdapter: AdapterClass | None = None
+else:
+    XlsxwriterAdapter = _XlsxwriterAdapter
 try:
-    from excelbench.harness.adapters.calamine_adapter import CalamineAdapter
+    from excelbench.harness.adapters.calamine_adapter import CalamineAdapter as _CalamineAdapter
 except ImportError:
-    CalamineAdapter = None
+    CalamineAdapter: AdapterClass | None = None
+else:
+    CalamineAdapter = _CalamineAdapter
 try:
-    from excelbench.harness.adapters.pylightxl_adapter import PylightxlAdapter
+    from excelbench.harness.adapters.pylightxl_adapter import PylightxlAdapter as _PylightxlAdapter
 except ImportError:
-    PylightxlAdapter = None
+    PylightxlAdapter: AdapterClass | None = None
+else:
+    PylightxlAdapter = _PylightxlAdapter
 try:
-    from excelbench.harness.adapters.xlrd_adapter import XlrdAdapter
+    from excelbench.harness.adapters.xlrd_adapter import XlrdAdapter as _XlrdAdapter
 except ImportError:
-    XlrdAdapter = None
+    XlrdAdapter: AdapterClass | None = None
+else:
+    XlrdAdapter = _XlrdAdapter
 try:
-    from excelbench.harness.adapters.pyexcel_adapter import PyexcelAdapter
+    from excelbench.harness.adapters.pyexcel_adapter import PyexcelAdapter as _PyexcelAdapter
 except ImportError:
-    PyexcelAdapter = None
+    PyexcelAdapter: AdapterClass | None = None
+else:
+    PyexcelAdapter = _PyexcelAdapter
 try:
-    from excelbench.harness.adapters.xlwt_adapter import XlwtAdapter
+    from excelbench.harness.adapters.xlwt_adapter import XlwtAdapter as _XlwtAdapter
 except ImportError:
-    XlwtAdapter = None
-from excelbench.harness.adapters.xlwings_oracle_adapter import ExcelOracleAdapter
+    XlwtAdapter: AdapterClass | None = None
+else:
+    XlwtAdapter = _XlwtAdapter
+
+try:
+    from excelbench.harness.adapters.xlwings_oracle_adapter import (
+        ExcelOracleAdapter as _ExcelOracleAdapter,
+    )
+except ImportError:
+    ExcelOracleAdapter: AdapterClass | None = None
+else:
+    ExcelOracleAdapter = _ExcelOracleAdapter
 
 __all__ = [
     "ExcelAdapter",
     "ReadOnlyAdapter",
     "WriteOnlyAdapter",
     "OpenpyxlAdapter",
-    "ExcelOracleAdapter",
 ]
+if ExcelOracleAdapter is not None:
+    __all__.append("ExcelOracleAdapter")
 if XlsxwriterAdapter is not None:
     __all__.append("XlsxwriterAdapter")
 if CalamineAdapter is not None:

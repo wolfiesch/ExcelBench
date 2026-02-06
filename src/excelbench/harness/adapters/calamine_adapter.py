@@ -16,11 +16,14 @@ from excelbench.models import (
     LibraryInfo,
 )
 
+JSONDict = dict[str, Any]
+
 
 def _get_version() -> str:
     """Get python-calamine version."""
     try:
         from importlib.metadata import version
+
         return version("python-calamine")
     except Exception:
         return "unknown"
@@ -111,8 +114,10 @@ class CalamineAdapter(ReadOnlyAdapter):
         # but calamine may return either)
         if isinstance(value, datetime):
             is_midnight = (
-                value.hour == 0 and value.minute == 0
-                and value.second == 0 and value.microsecond == 0
+                value.hour == 0
+                and value.minute == 0
+                and value.second == 0
+                and value.microsecond == 0
             )
             if is_midnight:
                 return CellValue(type=CellType.DATE, value=value.date())
@@ -180,23 +185,23 @@ class CalamineAdapter(ReadOnlyAdapter):
     def read_merged_ranges(self, workbook: Any, sheet: str) -> list[str]:
         return []
 
-    def read_conditional_formats(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_conditional_formats(self, workbook: Any, sheet: str) -> list[JSONDict]:
         return []
 
-    def read_data_validations(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_data_validations(self, workbook: Any, sheet: str) -> list[JSONDict]:
         return []
 
-    def read_hyperlinks(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_hyperlinks(self, workbook: Any, sheet: str) -> list[JSONDict]:
         return []
 
-    def read_images(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_images(self, workbook: Any, sheet: str) -> list[JSONDict]:
         return []
 
-    def read_pivot_tables(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_pivot_tables(self, workbook: Any, sheet: str) -> list[JSONDict]:
         return []
 
-    def read_comments(self, workbook: Any, sheet: str) -> list[dict]:
+    def read_comments(self, workbook: Any, sheet: str) -> list[JSONDict]:
         return []
 
-    def read_freeze_panes(self, workbook: Any, sheet: str) -> dict:
+    def read_freeze_panes(self, workbook: Any, sheet: str) -> JSONDict:
         return {}
