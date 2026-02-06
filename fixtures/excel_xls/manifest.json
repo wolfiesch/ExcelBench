@@ -1,0 +1,389 @@
+{
+  "generated_at": "2026-02-06T10:16:47.769600+00:00",
+  "excel_version": "xlwt",
+  "generator_version": "0.1.0-xls",
+  "file_format": "xls",
+  "files": [
+    {
+      "path": "tier1/01_cell_values.xls",
+      "feature": "cell_values",
+      "tier": 1,
+      "file_format": "xls",
+      "test_cases": [
+        {
+          "id": "string_simple",
+          "label": "String - simple",
+          "row": 2,
+          "expected": {
+            "type": "string",
+            "value": "Hello World"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "string_unicode",
+          "label": "String - unicode",
+          "row": 3,
+          "expected": {
+            "type": "string",
+            "value": "\u65e5\u672c\u8a9e\ud83c\udf89\u00e9mojis"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "string_empty",
+          "label": "String - empty",
+          "row": 4,
+          "expected": {
+            "type": "blank"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "string_long",
+          "label": "String - long (1000 chars)",
+          "row": 5,
+          "expected": {
+            "type": "string",
+            "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "string_newline",
+          "label": "String - with newlines",
+          "row": 6,
+          "expected": {
+            "type": "string",
+            "value": "Line 1\nLine 2\nLine 3"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "number_integer",
+          "label": "Number - integer",
+          "row": 7,
+          "expected": {
+            "type": "number",
+            "value": 42
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "number_float",
+          "label": "Number - float",
+          "row": 8,
+          "expected": {
+            "type": "number",
+            "value": 3.14159265358979
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "number_negative",
+          "label": "Number - negative",
+          "row": 9,
+          "expected": {
+            "type": "number",
+            "value": -100.5
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "number_large",
+          "label": "Number - large",
+          "row": 10,
+          "expected": {
+            "type": "number",
+            "value": 1234567890123456
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "number_scientific",
+          "label": "Number - scientific notation",
+          "row": 11,
+          "expected": {
+            "type": "number",
+            "value": 1.23e-10
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "date_standard",
+          "label": "Date - standard",
+          "row": 12,
+          "expected": {
+            "type": "date",
+            "value": "2026-02-04"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "datetime",
+          "label": "DateTime - with time",
+          "row": 13,
+          "expected": {
+            "type": "datetime",
+            "value": "2026-02-04T10:30:45"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "boolean_true",
+          "label": "Boolean - TRUE",
+          "row": 14,
+          "expected": {
+            "type": "boolean",
+            "value": true
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "boolean_false",
+          "label": "Boolean - FALSE",
+          "row": 15,
+          "expected": {
+            "type": "boolean",
+            "value": false
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "error_div0",
+          "label": "Error - #DIV/0!",
+          "row": 16,
+          "expected": {
+            "type": "error",
+            "value": "#DIV/0!"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "error_na",
+          "label": "Error - #N/A",
+          "row": 17,
+          "expected": {
+            "type": "error",
+            "value": "#N/A"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "error_value",
+          "label": "Error - #VALUE!",
+          "row": 18,
+          "expected": {
+            "type": "error",
+            "value": "#VALUE!"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "blank",
+          "label": "Blank cell",
+          "row": 19,
+          "expected": {
+            "type": "blank"
+          },
+          "importance": "basic"
+        }
+      ]
+    },
+    {
+      "path": "tier1/06_alignment.xls",
+      "feature": "alignment",
+      "tier": 1,
+      "file_format": "xls",
+      "test_cases": [
+        {
+          "id": "h_left",
+          "label": "Align - left",
+          "row": 2,
+          "expected": {
+            "h_align": "left"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "h_center",
+          "label": "Align - center",
+          "row": 3,
+          "expected": {
+            "h_align": "center"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "h_right",
+          "label": "Align - right",
+          "row": 4,
+          "expected": {
+            "h_align": "right"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "v_top",
+          "label": "Align - top",
+          "row": 5,
+          "expected": {
+            "v_align": "top"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "v_center",
+          "label": "Align - center",
+          "row": 6,
+          "expected": {
+            "v_align": "center"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "v_bottom",
+          "label": "Align - bottom",
+          "row": 7,
+          "expected": {
+            "v_align": "bottom"
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "wrap_text",
+          "label": "Align - wrap text",
+          "row": 8,
+          "expected": {
+            "wrap": true
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "rotation_45",
+          "label": "Align - rotation 45",
+          "row": 9,
+          "expected": {
+            "rotation": 45
+          },
+          "importance": "basic"
+        },
+        {
+          "id": "indent_2",
+          "label": "Align - indent 2",
+          "row": 10,
+          "expected": {
+            "indent": 2
+          },
+          "importance": "basic"
+        }
+      ]
+    },
+    {
+      "path": "tier1/08_dimensions.xls",
+      "feature": "dimensions",
+      "tier": 1,
+      "file_format": "xls",
+      "test_cases": [
+        {
+          "id": "row_height_30",
+          "label": "Row height - 30",
+          "row": 2,
+          "expected": {
+            "row_height": 30
+          },
+          "cell": "B2",
+          "importance": "basic"
+        },
+        {
+          "id": "row_height_45",
+          "label": "Row height - 45",
+          "row": 3,
+          "expected": {
+            "row_height": 45
+          },
+          "cell": "B3",
+          "importance": "basic"
+        },
+        {
+          "id": "col_width_20",
+          "label": "Column width - D = 20",
+          "row": 4,
+          "expected": {
+            "column_width": 20
+          },
+          "cell": "D4",
+          "importance": "basic"
+        },
+        {
+          "id": "col_width_8",
+          "label": "Column width - E = 8",
+          "row": 5,
+          "expected": {
+            "column_width": 8
+          },
+          "cell": "E5",
+          "importance": "basic"
+        }
+      ]
+    },
+    {
+      "path": "tier1/09_multiple_sheets.xls",
+      "feature": "multiple_sheets",
+      "tier": 1,
+      "file_format": "xls",
+      "test_cases": [
+        {
+          "id": "sheet_names",
+          "label": "Sheet names",
+          "row": 2,
+          "expected": {
+            "sheet_names": [
+              "Alpha",
+              "Beta",
+              "Gamma"
+            ]
+          },
+          "sheet": "Alpha",
+          "importance": "basic"
+        },
+        {
+          "id": "value_alpha",
+          "label": "Alpha value",
+          "row": 3,
+          "expected": {
+            "type": "string",
+            "value": "Alpha"
+          },
+          "sheet": "Alpha",
+          "cell": "B3",
+          "importance": "basic"
+        },
+        {
+          "id": "value_beta",
+          "label": "Beta value",
+          "row": 3,
+          "expected": {
+            "type": "string",
+            "value": "Beta"
+          },
+          "sheet": "Beta",
+          "cell": "B3",
+          "importance": "basic"
+        },
+        {
+          "id": "value_gamma",
+          "label": "Gamma value",
+          "row": 3,
+          "expected": {
+            "type": "string",
+            "value": "Gamma"
+          },
+          "sheet": "Gamma",
+          "cell": "B3",
+          "importance": "basic"
+        }
+      ]
+    }
+  ]
+}

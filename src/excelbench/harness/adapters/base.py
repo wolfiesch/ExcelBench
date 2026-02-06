@@ -38,6 +38,16 @@ class ExcelAdapter(ABC):
         """Check if this adapter supports writing."""
         return "write" in self.capabilities
 
+    @property
+    def supported_read_extensions(self) -> set[str]:
+        """File extensions this adapter can consume as benchmark inputs."""
+        return {".xlsx"}
+
+    def supports_read_path(self, path: Path) -> bool:
+        """Return whether this adapter supports reading the given file path."""
+        suffix = path.suffix.lower()
+        return suffix in self.supported_read_extensions
+
     # =========================================================================
     # Read Operations
     # =========================================================================

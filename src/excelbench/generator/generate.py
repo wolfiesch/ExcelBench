@@ -117,6 +117,7 @@ def generate_test_file(
             path=str(output_path.relative_to(output_dir)),
             feature=generator.feature_name,
             tier=generator.tier,
+            file_format=output_path.suffix.lstrip(".").lower(),
             test_cases=test_cases,
         )
 
@@ -168,6 +169,7 @@ def generate_all(
         generated_at=datetime.now(UTC),
         excel_version=excel_version,
         generator_version=GENERATOR_VERSION,
+        file_format="xlsx",
         files=test_files,
     )
 
@@ -185,11 +187,13 @@ def write_manifest(manifest: Manifest, path: Path) -> None:
         "generated_at": manifest.generated_at.isoformat(),
         "excel_version": manifest.excel_version,
         "generator_version": manifest.generator_version,
+        "file_format": manifest.file_format,
         "files": [
             {
                 "path": f.path,
                 "feature": f.feature,
                 "tier": f.tier,
+                **({"file_format": f.file_format} if f.file_format is not None else {}),
                 "test_cases": [
                     {
                         "id": tc.id,
@@ -222,11 +226,18 @@ def load_manifest(path: Path) -> Manifest:
         generated_at=datetime.fromisoformat(data["generated_at"]),
         excel_version=data["excel_version"],
         generator_version=data["generator_version"],
+        file_format=data.get("file_format", "xlsx"),
         files=[
             TestFile(
                 path=f["path"],
                 feature=f["feature"],
                 tier=f["tier"],
+                file_format=(
+                    f.get("file_format")
+                    or data.get("file_format")
+                    or Path(f["path"]).suffix.lstrip(".").lower()
+                    or "xlsx"
+                ),
                 test_cases=[
                     TestCase(
                         id=tc["id"],

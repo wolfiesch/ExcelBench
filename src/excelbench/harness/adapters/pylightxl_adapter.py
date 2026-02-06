@@ -56,6 +56,10 @@ class PylightxlAdapter(ExcelAdapter):
             capabilities={"read", "write"},
         )
 
+    @property
+    def supported_read_extensions(self) -> set[str]:
+        return {".xlsx"}
+
     # =========================================================================
     # Read Operations
     # =========================================================================
