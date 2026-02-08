@@ -52,6 +52,22 @@ def _parse_cell_ref(cell: str) -> tuple[int, int]:
     return row, col
 
 
+def _parse_cell_range(cell_range: str) -> tuple[int, int, int, int]:
+    """Parse A1:B2 into (r0, c0, r1, c1) inclusive, 0-based."""
+    clean = cell_range.replace("$", "").upper()
+    if ":" in clean:
+        a, b = clean.split(":", 1)
+    else:
+        a, b = clean, clean
+    r0, c0 = _parse_cell_ref(a)
+    r1, c1 = _parse_cell_ref(b)
+    if r1 < r0:
+        r0, r1 = r1, r0
+    if c1 < c0:
+        c0, c1 = c1, c0
+    return r0, c0, r1, c1
+
+
 class PolarsAdapter(ReadOnlyAdapter):
     """Adapter for polars library (read-only, value-only).
 
@@ -95,6 +111,33 @@ class PolarsAdapter(ReadOnlyAdapter):
 
     def get_sheet_names(self, workbook: Any) -> list[str]:
         return list(workbook["frames"].keys())
+
+    def read_sheet_values(
+        self,
+        workbook: Any,
+        sheet: str,
+        cell_range: str | None = None,
+    ) -> Any:
+        """Bulk read a rectangular range as a polars DataFrame.
+
+        Optional helper used by performance workloads.
+        """
+        frames: dict[str, pl.DataFrame] = workbook["frames"]
+        if sheet not in frames:
+            return pl.DataFrame()
+
+        df = frames[sheet]
+        if not cell_range:
+            return df
+
+        r0, c0, r1, c1 = _parse_cell_range(cell_range)
+        if r0 >= df.height or c0 >= df.width:
+            return pl.DataFrame()
+
+        r1 = min(r1, df.height - 1)
+        c1 = min(c1, df.width - 1)
+        cols = df.columns[c0 : c1 + 1]
+        return df.slice(r0, r1 - r0 + 1).select(cols)
 
     def read_cell_value(
         self,
@@ -172,12 +215,7 @@ class PolarsAdapter(ReadOnlyAdapter):
             # Datetime (polars stringifies as "YYYY-MM-DD HH:MM:SS")
             try:
                 dt = datetime.fromisoformat(value)
-                if (
-                    dt.hour == 0
-                    and dt.minute == 0
-                    and dt.second == 0
-                    and dt.microsecond == 0
-                ):
+                if dt.hour == 0 and dt.minute == 0 and dt.second == 0 and dt.microsecond == 0:
                     return CellValue(type=CellType.DATE, value=dt.date())
                 return CellValue(type=CellType.DATETIME, value=dt)
             except ValueError:

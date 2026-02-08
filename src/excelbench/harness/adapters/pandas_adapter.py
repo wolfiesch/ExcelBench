@@ -50,6 +50,22 @@ def _parse_cell_ref(cell: str) -> tuple[int, int]:
     return row, col
 
 
+def _parse_cell_range(cell_range: str) -> tuple[int, int, int, int]:
+    """Parse A1:B2 into (r0, c0, r1, c1) inclusive, 0-based."""
+    clean = cell_range.replace("$", "").upper()
+    if ":" in clean:
+        a, b = clean.split(":", 1)
+    else:
+        a, b = clean, clean
+    r0, c0 = _parse_cell_ref(a)
+    r1, c1 = _parse_cell_ref(b)
+    if r1 < r0:
+        r0, r1 = r1, r0
+    if c1 < c0:
+        c0, c1 = c1, c0
+    return r0, c0, r1, c1
+
+
 class PandasAdapter(ExcelAdapter):
     """Adapter for pandas library (read+write, value-only).
 
@@ -86,6 +102,31 @@ class PandasAdapter(ExcelAdapter):
     def get_sheet_names(self, workbook: Any) -> list[str]:
         return list(workbook["frames"].keys())
 
+    def read_sheet_values(
+        self,
+        workbook: Any,
+        sheet: str,
+        cell_range: str | None = None,
+    ) -> Any:
+        """Bulk read a rectangular range as a DataFrame.
+
+        This is an optional helper used by performance workloads.
+        """
+        frames: dict[str, pd.DataFrame] = workbook["frames"]
+        if sheet not in frames:
+            return pd.DataFrame()
+
+        df = frames[sheet]
+        if not cell_range:
+            return df
+
+        r0, c0, r1, c1 = _parse_cell_range(cell_range)
+        r1 = min(r1, len(df) - 1)
+        c1 = min(c1, len(df.columns) - 1)
+        if r1 < 0 or c1 < 0:
+            return df.iloc[0:0, 0:0]
+        return df.iloc[r0 : r1 + 1, c0 : c1 + 1]
+
     def read_cell_value(
         self,
         workbook: Any,
@@ -116,9 +157,7 @@ class PandasAdapter(ExcelAdapter):
 
         if isinstance(value, pd.Timestamp):
             dt = value.to_pydatetime()
-            is_midnight = (
-                dt.hour == 0 and dt.minute == 0 and dt.second == 0 and dt.microsecond == 0
-            )
+            is_midnight = dt.hour == 0 and dt.minute == 0 and dt.second == 0 and dt.microsecond == 0
             if is_midnight:
                 return CellValue(type=CellType.DATE, value=dt.date())
             return CellValue(type=CellType.DATETIME, value=dt)

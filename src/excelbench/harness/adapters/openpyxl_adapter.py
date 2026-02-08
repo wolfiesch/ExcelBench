@@ -87,6 +87,52 @@ def _get_version() -> str:
     return str(openpyxl.__version__)
 
 
+def _cell_value_from_openpyxl_cell(c: Any) -> CellValue:
+    """Convert an openpyxl Cell into a typed CellValue."""
+    value = getattr(c, "value", None)
+
+    if value is None:
+        return CellValue(type=CellType.BLANK)
+
+    if isinstance(value, bool):
+        return CellValue(type=CellType.BOOLEAN, value=value)
+
+    if isinstance(value, (int, float)):
+        return CellValue(type=CellType.NUMBER, value=value)
+
+    # Check date BEFORE datetime since datetime is a subclass of date
+    if isinstance(value, date) and not isinstance(value, datetime):
+        return CellValue(type=CellType.DATE, value=value)
+
+    if isinstance(value, datetime):
+        if value.hour == 0 and value.minute == 0 and value.second == 0 and value.microsecond == 0:
+            return CellValue(type=CellType.DATE, value=value.date())
+        return CellValue(type=CellType.DATETIME, value=value)
+
+    if isinstance(value, str):
+        if value in ("#N/A", "#NULL!", "#NAME?", "#REF!"):
+            return CellValue(type=CellType.ERROR, value=value)
+        if value.startswith("#") and value.endswith("!"):
+            return CellValue(type=CellType.ERROR, value=value)
+
+        data_type = getattr(c, "data_type", None)
+        if data_type == "f" or (
+            hasattr(c, "value") and str(getattr(c, "value", "")).startswith("=")
+        ):
+            formula_str = str(getattr(c, "value", ""))
+            if formula_str and not formula_str.startswith("="):
+                formula_str = f"={formula_str}"
+            if not formula_str.startswith("=") and value:
+                formula_str = str(value)
+            if formula_str in ERROR_FORMULA_MAP:
+                return CellValue(type=CellType.ERROR, value=ERROR_FORMULA_MAP[formula_str])
+            return CellValue(type=CellType.FORMULA, value=value, formula=formula_str)
+
+        return CellValue(type=CellType.STRING, value=value)
+
+    return CellValue(type=CellType.STRING, value=str(value))
+
+
 class OpenpyxlAdapter(ExcelAdapter):
     """Adapter for openpyxl library (read/write support)."""
 
@@ -119,6 +165,32 @@ class OpenpyxlAdapter(ExcelAdapter):
         """Get list of sheet names in a workbook."""
         return [str(name) for name in workbook.sheetnames]
 
+    def read_sheet_values(
+        self,
+        workbook: Workbook,
+        sheet: str,
+        cell_range: str | None = None,
+    ) -> list[list[CellValue]]:
+        """Bulk read a rectangular range of cell values.
+
+        This is an optional helper used by performance workloads.
+        """
+        ws = workbook[sheet]
+
+        if cell_range:
+            rows = ws[cell_range]
+        else:
+            # Use the worksheet's used range.
+            rows = ws.iter_rows()
+
+        out: list[list[CellValue]] = []
+        for row in rows:
+            out_row: list[CellValue] = []
+            for c in row:
+                out_row.append(_cell_value_from_openpyxl_cell(c))
+            out.append(out_row)
+        return out
+
     def read_cell_value(
         self,
         workbook: Workbook,
@@ -128,62 +200,7 @@ class OpenpyxlAdapter(ExcelAdapter):
         """Read the value of a cell."""
         ws = workbook[sheet]
         c: Cell = ws[cell]
-
-        # Handle different value types
-        value = c.value
-
-        if value is None:
-            return CellValue(type=CellType.BLANK)
-
-        if isinstance(value, bool):
-            return CellValue(type=CellType.BOOLEAN, value=value)
-
-        if isinstance(value, (int, float)):
-            return CellValue(type=CellType.NUMBER, value=value)
-
-        # Check date BEFORE datetime since datetime is a subclass of date
-        if isinstance(value, date) and not isinstance(value, datetime):
-            return CellValue(type=CellType.DATE, value=value)
-
-        if isinstance(value, datetime):
-            # Check if this is a "date" (time component is midnight)
-            # Excel stores dates as datetimes with 00:00:00 time
-            if (
-                value.hour == 0
-                and value.minute == 0
-                and value.second == 0
-                and value.microsecond == 0
-            ):
-                return CellValue(type=CellType.DATE, value=value.date())
-            return CellValue(type=CellType.DATETIME, value=value)
-
-        if isinstance(value, str):
-            # Check if it's an error value
-            if value in ("#N/A", "#NULL!", "#NAME?", "#REF!"):
-                return CellValue(type=CellType.ERROR, value=value)
-            if value.startswith("#") and value.endswith("!"):
-                return CellValue(type=CellType.ERROR, value=value)
-
-            # Check if there's a formula
-            if c.data_type == "f" or (hasattr(c, "value") and str(c.value).startswith("=")):
-                # Check if this formula produces a known error value
-                formula_str = str(c.value)
-                if formula_str and not formula_str.startswith("="):
-                    formula_str = f"={formula_str}"
-                if not formula_str.startswith("=") and value:
-                    formula_str = str(value)
-                if formula_str in ERROR_FORMULA_MAP:
-                    return CellValue(type=CellType.ERROR, value=ERROR_FORMULA_MAP[formula_str])
-                return CellValue(
-                    type=CellType.FORMULA,
-                    value=value,
-                    formula=formula_str,
-                )
-
-            return CellValue(type=CellType.STRING, value=value)
-
-        # Fallback to string
-        return CellValue(type=CellType.STRING, value=str(value))
+        return _cell_value_from_openpyxl_cell(c)
 
     def read_cell_format(
         self,

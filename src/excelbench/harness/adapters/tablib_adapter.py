@@ -49,6 +49,22 @@ def _parse_cell_ref(cell: str) -> tuple[int, int]:
     return row, col
 
 
+def _parse_cell_range(cell_range: str) -> tuple[int, int, int, int]:
+    """Parse A1:B2 into (r0, c0, r1, c1) inclusive, 0-based."""
+    clean = cell_range.replace("$", "").upper()
+    if ":" in clean:
+        a, b = clean.split(":", 1)
+    else:
+        a, b = clean, clean
+    r0, c0 = _parse_cell_ref(a)
+    r1, c1 = _parse_cell_ref(b)
+    if r1 < r0:
+        r0, r1 = r1, r0
+    if c1 < c0:
+        c0, c1 = c1, c0
+    return r0, c0, r1, c1
+
+
 class TablibAdapter(ExcelAdapter):
     """Adapter for tablib library (read+write, value-only).
 
@@ -89,6 +105,34 @@ class TablibAdapter(ExcelAdapter):
 
     def get_sheet_names(self, workbook: Any) -> list[str]:
         return [ds.title for ds in workbook.sheets()]
+
+    def read_sheet_values(
+        self,
+        workbook: Any,
+        sheet: str,
+        cell_range: str | None = None,
+    ) -> list[list[Any]]:
+        """Bulk read a rectangular range of values.
+
+        Optional helper used by performance workloads.
+        """
+        ds = None
+        for dataset in workbook.sheets():
+            if dataset.title == sheet:
+                ds = dataset
+                break
+        if ds is None:
+            return []
+
+        if not cell_range:
+            return [list(ds[r]) for r in range(ds.height)]
+
+        r0, c0, r1, c1 = _parse_cell_range(cell_range)
+        out: list[list[Any]] = []
+        for r in range(r0, min(r1, ds.height - 1) + 1):
+            row = ds[r]
+            out.append(list(row[c0 : c1 + 1]))
+        return out
 
     def read_cell_value(
         self,
@@ -237,14 +281,10 @@ class TablibAdapter(ExcelAdapter):
 
         workbook["sheets"][sheet][(row_idx, col_idx)] = raw_value
 
-    def write_cell_format(
-        self, workbook: Any, sheet: str, cell: str, format: CellFormat
-    ) -> None:
+    def write_cell_format(self, workbook: Any, sheet: str, cell: str, format: CellFormat) -> None:
         pass
 
-    def write_cell_border(
-        self, workbook: Any, sheet: str, cell: str, border: BorderInfo
-    ) -> None:
+    def write_cell_border(self, workbook: Any, sheet: str, cell: str, border: BorderInfo) -> None:
         pass
 
     def set_row_height(self, workbook: Any, sheet: str, row: int, height: float) -> None:
