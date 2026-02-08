@@ -17,6 +17,7 @@ from excelbench.harness.adapters.calamine_adapter import CalamineAdapter
 from excelbench.harness.adapters.openpyxl_adapter import OpenpyxlAdapter
 from excelbench.harness.adapters.pyexcel_adapter import PyexcelAdapter
 from excelbench.harness.adapters.pylightxl_adapter import PylightxlAdapter
+from excelbench.harness.adapters.xlsxwriter_adapter import XlsxwriterAdapter
 from excelbench.models import CellType, CellValue
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures" / "excel"
@@ -79,6 +80,11 @@ def pylightxl_adapter() -> PylightxlAdapter:
 @pytest.fixture
 def pyexcel_adapter() -> PyexcelAdapter:
     return PyexcelAdapter()
+
+
+@pytest.fixture
+def xlsxwriter_adapter() -> XlsxwriterAdapter:
+    return XlsxwriterAdapter()
 
 
 # ═════════════════════════════════════════════════
@@ -679,3 +685,504 @@ class TestOpenpyxlWriteRoundtrip:
         assert len(rules) >= 1
         assert rules[0]["rule_type"] == "cellIs"
         openpyxl_adapter.close_workbook(wb2)
+
+
+# ═════════════════════════════════════════════════
+# Tier 1: Alignment (openpyxl)
+# ═════════════════════════════════════════════════
+
+ALIGNMENT_PATH = "tier1/06_alignment.xlsx"
+
+
+class TestAlignmentOpenpyxl:
+    def test_h_left(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(ALIGNMENT_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "alignment", "B2")
+        assert fmt.h_align == "left"
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_h_center(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(ALIGNMENT_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "alignment", "B3")
+        assert fmt.h_align == "center"
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_h_right(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(ALIGNMENT_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "alignment", "B4")
+        assert fmt.h_align == "right"
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_v_top(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(ALIGNMENT_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "alignment", "B5")
+        assert fmt.v_align == "top"
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_v_center(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(ALIGNMENT_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "alignment", "B6")
+        assert fmt.v_align == "center"
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_wrap_text(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(ALIGNMENT_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "alignment", "B8")
+        assert fmt.wrap is True
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_rotation(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(ALIGNMENT_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "alignment", "B9")
+        assert fmt.rotation == 45
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_indent(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(ALIGNMENT_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "alignment", "B10")
+        assert fmt.indent == 2
+        openpyxl_adapter.close_workbook(wb)
+
+
+# ═════════════════════════════════════════════════
+# Tier 1: Number Formats (openpyxl)
+# ═════════════════════════════════════════════════
+
+NUMBER_FORMATS_PATH = "tier1/05_number_formats.xlsx"
+
+
+class TestNumberFormatsOpenpyxl:
+    def test_currency(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(NUMBER_FORMATS_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "number_formats", "B2")
+        assert fmt.number_format is not None
+        assert "$" in fmt.number_format
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_percent(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(NUMBER_FORMATS_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "number_formats", "B3")
+        assert fmt.number_format is not None
+        assert "%" in fmt.number_format
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_date(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(NUMBER_FORMATS_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "number_formats", "B4")
+        assert fmt.number_format is not None
+        assert "yy" in fmt.number_format.lower()
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_scientific(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(NUMBER_FORMATS_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "number_formats", "B5")
+        assert fmt.number_format is not None
+        assert "E" in fmt.number_format
+        openpyxl_adapter.close_workbook(wb)
+
+
+# ═════════════════════════════════════════════════
+# Tier 1: Text Formatting — extended (openpyxl)
+# ═════════════════════════════════════════════════
+
+
+class TestTextFormattingExtendedOpenpyxl:
+    """Extended text formatting tests: underline, strikethrough, font size, font name."""
+
+    def test_underline_single(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(TEXT_FORMATTING_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "text_formatting", "B4")
+        assert fmt.underline == "single"
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_underline_double(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(TEXT_FORMATTING_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "text_formatting", "B5")
+        assert fmt.underline == "double"
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_strikethrough(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(TEXT_FORMATTING_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "text_formatting", "B6")
+        assert fmt.strikethrough is True
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_bold_italic_combined(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(TEXT_FORMATTING_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "text_formatting", "B7")
+        assert fmt.bold is True
+        assert fmt.italic is True
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_font_size_8(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(TEXT_FORMATTING_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "text_formatting", "B8")
+        assert fmt.font_size == 8
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_font_size_24(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(TEXT_FORMATTING_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "text_formatting", "B10")
+        assert fmt.font_size == 24
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_font_arial(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(TEXT_FORMATTING_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "text_formatting", "B12")
+        assert fmt.font_name == "Arial"
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_font_times(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(TEXT_FORMATTING_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "text_formatting", "B13")
+        assert fmt.font_name == "Times New Roman"
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_combined_format(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        """Row 19: bold + size 16 + red color combined."""
+        wb = openpyxl_adapter.open_workbook(fixture_path(TEXT_FORMATTING_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "text_formatting", "B19")
+        assert fmt.bold is True
+        assert fmt.font_size == 16
+        assert fmt.font_color == "#FF0000"
+        openpyxl_adapter.close_workbook(wb)
+
+
+# ═════════════════════════════════════════════════
+# Tier 1: Background Colors — extended (openpyxl)
+# ═════════════════════════════════════════════════
+
+
+class TestBackgroundColorsExtendedOpenpyxl:
+    def test_bg_red(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(BG_COLORS_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "background_colors", "B2")
+        assert fmt.bg_color == "#FF0000"
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_bg_blue(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(BG_COLORS_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "background_colors", "B3")
+        assert fmt.bg_color == "#0000FF"
+        openpyxl_adapter.close_workbook(wb)
+
+    def test_bg_custom(self, openpyxl_adapter: OpenpyxlAdapter) -> None:
+        wb = openpyxl_adapter.open_workbook(fixture_path(BG_COLORS_PATH))
+        fmt = openpyxl_adapter.read_cell_format(wb, "background_colors", "B5")
+        assert fmt.bg_color is not None
+        assert fmt.bg_color.startswith("#")
+        openpyxl_adapter.close_workbook(wb)
+
+
+# ═════════════════════════════════════════════════
+# Pylightxl — Tier 2 empty verification
+# ═════════════════════════════════════════════════
+
+
+class TestPylightxlTier2Empty:
+    """pylightxl doesn't support Tier 2 features — verify graceful empty returns.
+
+    Note: pylightxl has a bug parsing some Tier 2 .xlsx files (TypeError on rId).
+    We test the files it CAN open and xfail the ones it cannot.
+    """
+
+    def test_merged_cells_empty(self, pylightxl_adapter: PylightxlAdapter) -> None:
+        wb = pylightxl_adapter.open_workbook(fixture_path(MERGED_CELLS_PATH))
+        assert pylightxl_adapter.read_merged_ranges(wb, "merged_cells") == []
+        pylightxl_adapter.close_workbook(wb)
+
+    @pytest.mark.xfail(reason="pylightxl rId parsing bug on this fixture", strict=False)
+    def test_conditional_formatting_empty(self, pylightxl_adapter: PylightxlAdapter) -> None:
+        wb = pylightxl_adapter.open_workbook(fixture_path(COND_FORMAT_PATH))
+        result = pylightxl_adapter.read_conditional_formats(wb, "conditional_formatting")
+        assert result == []
+        pylightxl_adapter.close_workbook(wb)
+
+    @pytest.mark.xfail(reason="pylightxl rId parsing bug on this fixture", strict=False)
+    def test_data_validation_empty(self, pylightxl_adapter: PylightxlAdapter) -> None:
+        wb = pylightxl_adapter.open_workbook(fixture_path(DATA_VALIDATION_PATH))
+        assert pylightxl_adapter.read_data_validations(wb, "data_validation") == []
+        pylightxl_adapter.close_workbook(wb)
+
+    @pytest.mark.xfail(reason="pylightxl rId parsing bug on this fixture", strict=False)
+    def test_hyperlinks_empty(self, pylightxl_adapter: PylightxlAdapter) -> None:
+        wb = pylightxl_adapter.open_workbook(fixture_path(HYPERLINKS_PATH))
+        assert pylightxl_adapter.read_hyperlinks(wb, "hyperlinks") == []
+        pylightxl_adapter.close_workbook(wb)
+
+    def test_comments_empty(self, pylightxl_adapter: PylightxlAdapter) -> None:
+        wb = pylightxl_adapter.open_workbook(fixture_path(COMMENTS_PATH))
+        assert pylightxl_adapter.read_comments(wb, "comments") == []
+        pylightxl_adapter.close_workbook(wb)
+
+    @pytest.mark.xfail(reason="pylightxl rId parsing bug on this fixture", strict=False)
+    def test_freeze_panes_empty(self, pylightxl_adapter: PylightxlAdapter) -> None:
+        wb = pylightxl_adapter.open_workbook(fixture_path(FREEZE_PANES_PATH))
+        names = pylightxl_adapter.get_sheet_names(wb)
+        for name in names:
+            assert pylightxl_adapter.read_freeze_panes(wb, name) == {}
+        pylightxl_adapter.close_workbook(wb)
+
+
+# ═════════════════════════════════════════════════
+# Pyexcel — Tier 2 empty verification
+# ═════════════════════════════════════════════════
+
+
+class TestPyexcelTier2Empty:
+    """pyexcel doesn't support Tier 2 features — verify graceful empty returns."""
+
+    def test_merged_cells_empty(self, pyexcel_adapter: PyexcelAdapter) -> None:
+        wb = pyexcel_adapter.open_workbook(fixture_path(MERGED_CELLS_PATH))
+        assert pyexcel_adapter.read_merged_ranges(wb, "merged_cells") == []
+        pyexcel_adapter.close_workbook(wb)
+
+    def test_conditional_formatting_empty(self, pyexcel_adapter: PyexcelAdapter) -> None:
+        wb = pyexcel_adapter.open_workbook(fixture_path(COND_FORMAT_PATH))
+        result = pyexcel_adapter.read_conditional_formats(wb, "conditional_formatting")
+        assert result == []
+        pyexcel_adapter.close_workbook(wb)
+
+    def test_data_validation_empty(self, pyexcel_adapter: PyexcelAdapter) -> None:
+        wb = pyexcel_adapter.open_workbook(fixture_path(DATA_VALIDATION_PATH))
+        assert pyexcel_adapter.read_data_validations(wb, "data_validation") == []
+        pyexcel_adapter.close_workbook(wb)
+
+    def test_hyperlinks_empty(self, pyexcel_adapter: PyexcelAdapter) -> None:
+        wb = pyexcel_adapter.open_workbook(fixture_path(HYPERLINKS_PATH))
+        assert pyexcel_adapter.read_hyperlinks(wb, "hyperlinks") == []
+        pyexcel_adapter.close_workbook(wb)
+
+    def test_comments_empty(self, pyexcel_adapter: PyexcelAdapter) -> None:
+        wb = pyexcel_adapter.open_workbook(fixture_path(COMMENTS_PATH))
+        assert pyexcel_adapter.read_comments(wb, "comments") == []
+        pyexcel_adapter.close_workbook(wb)
+
+    def test_freeze_panes_empty(self, pyexcel_adapter: PyexcelAdapter) -> None:
+        wb = pyexcel_adapter.open_workbook(fixture_path(FREEZE_PANES_PATH))
+        names = pyexcel_adapter.get_sheet_names(wb)
+        for name in names:
+            assert pyexcel_adapter.read_freeze_panes(wb, name) == {}
+        pyexcel_adapter.close_workbook(wb)
+
+
+# ═════════════════════════════════════════════════
+# Calamine — additional Tier 2 verification
+# ═════════════════════════════════════════════════
+
+
+class TestCalamineTier2Additional:
+    """Cover calamine Tier 2 methods not already in CalamineTier2Empty."""
+
+    def test_data_validation_empty(self, calamine_adapter: CalamineAdapter) -> None:
+        wb = calamine_adapter.open_workbook(fixture_path(DATA_VALIDATION_PATH))
+        assert calamine_adapter.read_data_validations(wb, "data_validation") == []
+        calamine_adapter.close_workbook(wb)
+
+    def test_images_empty(self, calamine_adapter: CalamineAdapter) -> None:
+        wb = calamine_adapter.open_workbook(fixture_path(IMAGES_PATH))
+        assert calamine_adapter.read_images(wb, "images") == []
+        calamine_adapter.close_workbook(wb)
+
+
+# ═════════════════════════════════════════════════
+# XlsxWriter — Write → Read Roundtrips
+# ═════════════════════════════════════════════════
+
+
+class TestXlsxwriterWriteRoundtrip:
+    """Test xlsxwriter write → openpyxl read roundtrip."""
+
+    def test_cell_value_roundtrip(
+        self,
+        xlsxwriter_adapter: XlsxwriterAdapter,
+        openpyxl_adapter: OpenpyxlAdapter,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "values.xlsx"
+        wb = xlsxwriter_adapter.create_workbook()
+        xlsxwriter_adapter.add_sheet(wb, "S1")
+        xlsxwriter_adapter.write_cell_value(
+            wb, "S1", "A1", CellValue(type=CellType.STRING, value="Hello xlsxwriter")
+        )
+        xlsxwriter_adapter.write_cell_value(
+            wb, "S1", "A2", CellValue(type=CellType.NUMBER, value=42)
+        )
+        xlsxwriter_adapter.save_workbook(wb, path)
+
+        wb2 = openpyxl_adapter.open_workbook(path)
+        v1 = openpyxl_adapter.read_cell_value(wb2, "S1", "A1")
+        assert v1.type == CellType.STRING
+        assert v1.value == "Hello xlsxwriter"
+        v2 = openpyxl_adapter.read_cell_value(wb2, "S1", "A2")
+        assert v2.type == CellType.NUMBER
+        assert v2.value == 42
+        openpyxl_adapter.close_workbook(wb2)
+
+    def test_merged_cells_roundtrip(
+        self,
+        xlsxwriter_adapter: XlsxwriterAdapter,
+        openpyxl_adapter: OpenpyxlAdapter,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "merged.xlsx"
+        wb = xlsxwriter_adapter.create_workbook()
+        xlsxwriter_adapter.add_sheet(wb, "S1")
+        xlsxwriter_adapter.write_cell_value(
+            wb, "S1", "A1", CellValue(type=CellType.STRING, value="merged")
+        )
+        xlsxwriter_adapter.merge_cells(wb, "S1", "A1:C1")
+        xlsxwriter_adapter.save_workbook(wb, path)
+
+        wb2 = openpyxl_adapter.open_workbook(path)
+        ranges = openpyxl_adapter.read_merged_ranges(wb2, "S1")
+        assert any("A1" in r and "C1" in r for r in ranges)
+        openpyxl_adapter.close_workbook(wb2)
+
+    def test_comment_roundtrip(
+        self,
+        xlsxwriter_adapter: XlsxwriterAdapter,
+        openpyxl_adapter: OpenpyxlAdapter,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "comments.xlsx"
+        wb = xlsxwriter_adapter.create_workbook()
+        xlsxwriter_adapter.add_sheet(wb, "S1")
+        xlsxwriter_adapter.add_comment(
+            wb, "S1", {"cell": "A1", "text": "XlsxWriter note", "author": "Bot"}
+        )
+        xlsxwriter_adapter.save_workbook(wb, path)
+
+        wb2 = openpyxl_adapter.open_workbook(path)
+        comments = openpyxl_adapter.read_comments(wb2, "S1")
+        assert len(comments) >= 1
+        assert comments[0]["text"] == "XlsxWriter note"
+        openpyxl_adapter.close_workbook(wb2)
+
+    def test_hyperlink_roundtrip(
+        self,
+        xlsxwriter_adapter: XlsxwriterAdapter,
+        openpyxl_adapter: OpenpyxlAdapter,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "links.xlsx"
+        wb = xlsxwriter_adapter.create_workbook()
+        xlsxwriter_adapter.add_sheet(wb, "S1")
+        xlsxwriter_adapter.add_hyperlink(
+            wb, "S1", {"cell": "A1", "target": "https://example.com", "display": "Ex"}
+        )
+        xlsxwriter_adapter.save_workbook(wb, path)
+
+        wb2 = openpyxl_adapter.open_workbook(path)
+        links = openpyxl_adapter.read_hyperlinks(wb2, "S1")
+        assert len(links) >= 1
+        assert links[0]["target"] == "https://example.com"
+        openpyxl_adapter.close_workbook(wb2)
+
+    def test_row_height_roundtrip(
+        self,
+        xlsxwriter_adapter: XlsxwriterAdapter,
+        openpyxl_adapter: OpenpyxlAdapter,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "dims.xlsx"
+        wb = xlsxwriter_adapter.create_workbook()
+        xlsxwriter_adapter.add_sheet(wb, "S1")
+        xlsxwriter_adapter.set_row_height(wb, "S1", 2, 30.0)
+        xlsxwriter_adapter.save_workbook(wb, path)
+
+        wb2 = openpyxl_adapter.open_workbook(path)
+        height = openpyxl_adapter.read_row_height(wb2, "S1", 2)
+        assert height is not None
+        assert abs(height - 30.0) < 1.0
+        openpyxl_adapter.close_workbook(wb2)
+
+    def test_column_width_roundtrip(
+        self,
+        xlsxwriter_adapter: XlsxwriterAdapter,
+        openpyxl_adapter: OpenpyxlAdapter,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "colw.xlsx"
+        wb = xlsxwriter_adapter.create_workbook()
+        xlsxwriter_adapter.add_sheet(wb, "S1")
+        xlsxwriter_adapter.set_column_width(wb, "S1", "B", 20.0)
+        xlsxwriter_adapter.save_workbook(wb, path)
+
+        wb2 = openpyxl_adapter.open_workbook(path)
+        width = openpyxl_adapter.read_column_width(wb2, "S1", "B")
+        assert width is not None
+        assert width > 15.0
+        openpyxl_adapter.close_workbook(wb2)
+
+    def test_data_validation_roundtrip(
+        self,
+        xlsxwriter_adapter: XlsxwriterAdapter,
+        openpyxl_adapter: OpenpyxlAdapter,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "dv.xlsx"
+        wb = xlsxwriter_adapter.create_workbook()
+        xlsxwriter_adapter.add_sheet(wb, "S1")
+        xlsxwriter_adapter.add_data_validation(
+            wb,
+            "S1",
+            {
+                "range": "A1:A10",
+                "validation_type": "list",
+                "formula1": '"Yes,No,Maybe"',
+            },
+        )
+        xlsxwriter_adapter.save_workbook(wb, path)
+
+        wb2 = openpyxl_adapter.open_workbook(path)
+        validations = openpyxl_adapter.read_data_validations(wb2, "S1")
+        assert len(validations) >= 1
+        assert validations[0]["validation_type"] == "list"
+        openpyxl_adapter.close_workbook(wb2)
+
+    def test_freeze_panes_roundtrip(
+        self,
+        xlsxwriter_adapter: XlsxwriterAdapter,
+        openpyxl_adapter: OpenpyxlAdapter,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "freeze.xlsx"
+        wb = xlsxwriter_adapter.create_workbook()
+        xlsxwriter_adapter.add_sheet(wb, "S1")
+        xlsxwriter_adapter.set_freeze_panes(
+            wb, "S1", {"mode": "freeze", "top_left_cell": "B2"}
+        )
+        xlsxwriter_adapter.save_workbook(wb, path)
+
+        wb2 = openpyxl_adapter.open_workbook(path)
+        result = openpyxl_adapter.read_freeze_panes(wb2, "S1")
+        assert result.get("mode") == "freeze"
+        assert result.get("top_left_cell") == "B2"
+        openpyxl_adapter.close_workbook(wb2)
+
+
+# ═════════════════════════════════════════════════
+# End-to-end: benchmark pipeline with fixtures
+# ═════════════════════════════════════════════════
+
+
+class TestBenchmarkPipeline:
+    """End-to-end test: load manifest → run benchmark on canonical fixtures."""
+
+    def test_benchmark_produces_scores(self) -> None:
+        """Run a benchmark using openpyxl on canonical fixtures."""
+        from excelbench.harness.runner import run_benchmark
+
+        adapter = OpenpyxlAdapter()
+        results = run_benchmark(
+            test_dir=FIXTURES_DIR,
+            adapters=[adapter],
+            features=["cell_values"],
+        )
+        assert len(results.scores) >= 1
+        score = results.scores[0]
+        assert score.feature == "cell_values"
+        assert score.library == "openpyxl"
+        assert score.read_score is not None
+        assert score.read_score >= 2  # openpyxl should handle basics well
