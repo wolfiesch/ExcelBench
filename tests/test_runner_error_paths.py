@@ -6,11 +6,23 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
 
-from excelbench.harness.runner import _annotate_known_limitations
+from excelbench.harness.runner import (
+    _annotate_known_limitations,
+    read_alignment_actual,
+    read_border_actual,
+    read_formula_actual,
+    read_text_format_actual,
+)
 from excelbench.harness.runner import test_read as _test_read
 from excelbench.harness.runner import test_read_case as _test_read_case
 from excelbench.harness.runner import test_write as _test_write
 from excelbench.models import (
+    BorderEdge,
+    BorderInfo,
+    BorderStyle,
+    CellFormat,
+    CellType,
+    CellValue,
     FeatureScore,
     OperationType,
     TestCase,
@@ -241,3 +253,60 @@ class TestWriteExceptionPaths:
         assert len(results) == 1
         assert results[0].passed is False
         assert "Failed to open workbook" in (results[0].notes or "")
+
+
+# ═════════════════════════════════════════════════
+# read_*_actual functions — branch coverage
+# ═════════════════════════════════════════════════
+
+
+class TestReadFormulaActual:
+    def test_non_formula_cell(self) -> None:
+        """When cell is not a formula, should return error dict."""
+        adapter = _mock_adapter()
+        adapter.read_cell_value.return_value = CellValue(
+            type=CellType.STRING, value="hello"
+        )
+        result = read_formula_actual(adapter, MagicMock(), "Sheet1", "B2")
+        assert "error" in result
+        assert "formula" in result["error"]
+
+
+class TestReadTextFormatActual:
+    def test_underline_and_strikethrough(self) -> None:
+        """Underline and strikethrough branches should be included."""
+        adapter = _mock_adapter()
+        adapter.read_cell_format.return_value = CellFormat(
+            underline="single", strikethrough=True
+        )
+        result = read_text_format_actual(adapter, MagicMock(), "Sheet1", "B2")
+        assert result["underline"] == "single"
+        assert result["strikethrough"] is True
+
+
+class TestReadAlignmentActual:
+    def test_wrap_rotation_indent(self) -> None:
+        """Wrap, rotation, and indent branches should all appear."""
+        adapter = _mock_adapter()
+        adapter.read_cell_format.return_value = CellFormat(
+            h_align="center", v_align="top", wrap=True, rotation=45, indent=2
+        )
+        result = read_alignment_actual(adapter, MagicMock(), "Sheet1", "B2")
+        assert result["h_align"] == "center"
+        assert result["v_align"] == "top"
+        assert result["wrap"] is True
+        assert result["rotation"] == 45
+        assert result["indent"] == 2
+
+
+class TestReadBorderActualDiagonal:
+    def test_diagonal_borders(self) -> None:
+        """Diagonal up/down border branches should be included."""
+        adapter = _mock_adapter()
+        adapter.read_cell_border.return_value = BorderInfo(
+            diagonal_up=BorderEdge(style=BorderStyle.THIN, color="#000000"),
+            diagonal_down=BorderEdge(style=BorderStyle.MEDIUM, color="#FF0000"),
+        )
+        result = read_border_actual(adapter, MagicMock(), "Sheet1", "B2")
+        assert result["border_diagonal_up"] == "thin"
+        assert result["border_diagonal_down"] == "medium"
