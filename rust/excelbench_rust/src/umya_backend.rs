@@ -1,6 +1,6 @@
 use pyo3::exceptions::{PyIOError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::types::PyDict;
+use pyo3::types::{PyDict, PyList};
 
 use std::collections::HashMap;
 use std::io::{Read, Write};
@@ -52,6 +52,92 @@ fn strip_leading_equal(s: &str) -> &str {
     s.strip_prefix('=').unwrap_or(s)
 }
 
+fn argb_to_hex_rgb(argb: &str) -> Option<String> {
+    let s = argb.trim();
+    if s.len() == 8 {
+        return Some(format!("#{}", &s[2..]));
+    }
+    if s.len() == 6 {
+        return Some(format!("#{s}"));
+    }
+    None
+}
+
+fn cf_type_to_str(t: &ConditionalFormatValues) -> &'static str {
+    match t {
+        ConditionalFormatValues::CellIs => "cellIs",
+        ConditionalFormatValues::Expression => "expression",
+        ConditionalFormatValues::DataBar => "dataBar",
+        ConditionalFormatValues::ColorScale => "colorScale",
+        ConditionalFormatValues::ContainsText => "containsText",
+        ConditionalFormatValues::BeginsWith => "beginsWith",
+        ConditionalFormatValues::EndsWith => "endsWith",
+        ConditionalFormatValues::NotContainsText => "notContainsText",
+        ConditionalFormatValues::DuplicateValues => "duplicateValues",
+        ConditionalFormatValues::UniqueValues => "uniqueValues",
+        ConditionalFormatValues::AboveAverage => "aboveAverage",
+        ConditionalFormatValues::Top10 => "top10",
+        ConditionalFormatValues::TimePeriod => "timePeriod",
+        ConditionalFormatValues::IconSet => "iconSet",
+        ConditionalFormatValues::ContainsBlanks => "containsBlanks",
+        ConditionalFormatValues::NotContainsBlanks => "notContainsBlanks",
+        ConditionalFormatValues::ContainsErrors => "containsErrors",
+        ConditionalFormatValues::NotContainsErrors => "notContainsErrors",
+    }
+}
+
+fn cf_operator_to_str(op: &ConditionalFormattingOperatorValues) -> &'static str {
+    match op {
+        ConditionalFormattingOperatorValues::BeginsWith => "beginsWith",
+        ConditionalFormattingOperatorValues::Between => "between",
+        ConditionalFormattingOperatorValues::ContainsText => "containsText",
+        ConditionalFormattingOperatorValues::EndsWith => "endsWith",
+        ConditionalFormattingOperatorValues::Equal => "equal",
+        ConditionalFormattingOperatorValues::GreaterThan => "greaterThan",
+        ConditionalFormattingOperatorValues::GreaterThanOrEqual => "greaterThanOrEqual",
+        ConditionalFormattingOperatorValues::LessThan => "lessThan",
+        ConditionalFormattingOperatorValues::LessThanOrEqual => "lessThanOrEqual",
+        ConditionalFormattingOperatorValues::NotBetween => "notBetween",
+        ConditionalFormattingOperatorValues::NotContains => "notContains",
+        ConditionalFormattingOperatorValues::NotEqual => "notEqual",
+    }
+}
+
+fn dv_type_to_str(t: &DataValidationValues) -> &'static str {
+    match t {
+        DataValidationValues::Custom => "custom",
+        DataValidationValues::Date => "date",
+        DataValidationValues::Decimal => "decimal",
+        DataValidationValues::List => "list",
+        DataValidationValues::None => "none",
+        DataValidationValues::TextLength => "textLength",
+        DataValidationValues::Time => "time",
+        DataValidationValues::Whole => "whole",
+    }
+}
+
+fn dv_operator_to_str(op: &DataValidationOperatorValues) -> &'static str {
+    match op {
+        DataValidationOperatorValues::Between => "between",
+        DataValidationOperatorValues::Equal => "equal",
+        DataValidationOperatorValues::GreaterThan => "greaterThan",
+        DataValidationOperatorValues::GreaterThanOrEqual => "greaterThanOrEqual",
+        DataValidationOperatorValues::LessThan => "lessThan",
+        DataValidationOperatorValues::LessThanOrEqual => "lessThanOrEqual",
+        DataValidationOperatorValues::NotBetween => "notBetween",
+        DataValidationOperatorValues::NotEqual => "notEqual",
+    }
+}
+
+fn none_if_empty(s: &str) -> Option<String> {
+    let trimmed = s.trim();
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed.to_string())
+    }
+}
+
 fn border_style_to_umya(style: &str) -> Option<&'static str> {
     match style {
         "none" => None,
@@ -94,6 +180,7 @@ fn naive_datetime_to_excel_serial(dt: NaiveDateTime) -> Option<f64> {
 pub struct UmyaBook {
     book: Spreadsheet,
     saved: bool,
+    source_path: Option<String>,
     hyperlink_tooltips: HashMap<String, HashMap<String, String>>, // sheet -> cell -> tooltip
 }
 
@@ -107,6 +194,7 @@ impl UmyaBook {
         Self {
             book,
             saved: false,
+            source_path: None,
             hyperlink_tooltips: HashMap::new(),
         }
     }
@@ -119,6 +207,7 @@ impl UmyaBook {
         Ok(Self {
             book,
             saved: false,
+            source_path: Some(path.to_string()),
             hyperlink_tooltips: HashMap::new(),
         })
     }
@@ -222,6 +311,272 @@ impl UmyaBook {
         }
 
         cell_with_value(py, "string", raw)
+    }
+
+    pub fn read_cell_format(&self, py: Python<'_>, sheet: &str, a1: &str) -> PyResult<PyObject> {
+        // Keep this minimal for now: background fill color is needed by Tier2 merged cell tests.
+        if self.book.get_sheet_by_name(sheet).is_none() {
+            return Err(PyErr::new::<PyValueError, _>(format!(
+                "Unknown sheet: {sheet}"
+            )));
+        }
+
+        let d = PyDict::new_bound(py);
+        let a1 = normalize_a1(a1);
+
+        if let Some(path_str) = &self.source_path {
+            if let Some(bg) = read_bg_color_from_xlsx(Path::new(path_str), sheet, a1.as_str())? {
+                d.set_item("bg_color", bg)?;
+            }
+        }
+
+        Ok(d.into())
+    }
+
+    // =========================================================================
+    // Tier 2 Read Operations
+    // =========================================================================
+
+    pub fn read_merged_ranges(&self, sheet: &str) -> PyResult<Vec<String>> {
+        let ws = self
+            .book
+            .get_sheet_by_name(sheet)
+            .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
+        Ok(ws.get_merge_cells().iter().map(|r| r.get_range()).collect())
+    }
+
+    pub fn read_conditional_formats(&self, py: Python<'_>, sheet: &str) -> PyResult<PyObject> {
+        let ws = self
+            .book
+            .get_sheet_by_name(sheet)
+            .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
+
+        let out = PyList::empty_bound(py);
+        let theme = self.book.get_theme();
+
+        for group in ws.get_conditional_formatting_collection() {
+            let range_value = group.get_sequence_of_references().get_sqref();
+            for rule in group.get_conditional_collection() {
+                let entry = PyDict::new_bound(py);
+                entry.set_item("range", range_value.clone())?;
+                entry.set_item("rule_type", cf_type_to_str(rule.get_type()))?;
+
+                // Only include operator for cellIs rules (matches OpenpyxlAdapter).
+                if *rule.get_type() == ConditionalFormatValues::CellIs {
+                    entry.set_item("operator", cf_operator_to_str(rule.get_operator()))?;
+                } else {
+                    entry.set_item("operator", py.None())?;
+                }
+
+                let formula = rule
+                    .get_formula()
+                    .map(|f| f.get_address_str())
+                    .unwrap_or_default();
+                if formula.is_empty() {
+                    entry.set_item("formula", py.None())?;
+                } else if *rule.get_type() == ConditionalFormatValues::Expression
+                    && !formula.starts_with('=')
+                {
+                    entry.set_item("formula", format!("={formula}"))?;
+                } else {
+                    entry.set_item("formula", formula)?;
+                }
+
+                entry.set_item("priority", *rule.get_priority())?;
+                entry.set_item("stop_if_true", *rule.get_stop_if_true())?;
+
+                let fmt = PyDict::new_bound(py);
+                if let Some(style) = rule.get_style() {
+                    if let Some(color) = style.get_background_color() {
+                        let argb = color.get_argb_with_theme(theme);
+                        if let Some(hex) = argb_to_hex_rgb(&argb) {
+                            fmt.set_item("bg_color", hex)?;
+                        }
+                    }
+                    if let Some(font) = style.get_font() {
+                        let c = font.get_color();
+                        let argb = c.get_argb_with_theme(theme);
+                        if let Some(hex) = argb_to_hex_rgb(&argb) {
+                            fmt.set_item("font_color", hex)?;
+                        }
+                    }
+                }
+                entry.set_item("format", fmt)?;
+
+                out.append(entry)?;
+            }
+        }
+
+        Ok(out.into())
+    }
+
+    pub fn read_data_validations(&self, py: Python<'_>, sheet: &str) -> PyResult<PyObject> {
+        let ws = self
+            .book
+            .get_sheet_by_name(sheet)
+            .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
+
+        let out = PyList::empty_bound(py);
+        let Some(dvs) = ws.get_data_validations() else {
+            return Ok(out.into());
+        };
+
+        for dv in dvs.get_data_validation_list() {
+            let entry = PyDict::new_bound(py);
+            entry.set_item("range", dv.get_sequence_of_references().get_sqref())?;
+            entry.set_item("validation_type", dv_type_to_str(dv.get_type()))?;
+
+            // Default operator in xlsx is "between"; keep None when absent.
+            let op = dv_operator_to_str(dv.get_operator());
+            entry.set_item("operator", op)?;
+
+            entry.set_item("formula1", none_if_empty(dv.get_formula1()))?;
+            entry.set_item("formula2", none_if_empty(dv.get_formula2()))?;
+            entry.set_item("allow_blank", *dv.get_allow_blank())?;
+            entry.set_item("show_input", *dv.get_show_input_message())?;
+            entry.set_item("show_error", *dv.get_show_error_message())?;
+            entry.set_item("prompt_title", none_if_empty(dv.get_prompt_title()))?;
+            entry.set_item("prompt", none_if_empty(dv.get_prompt()))?;
+            entry.set_item("error_title", none_if_empty(dv.get_error_title()))?;
+            entry.set_item("error", none_if_empty(dv.get_error_message()))?;
+            out.append(entry)?;
+        }
+
+        Ok(out.into())
+    }
+
+    pub fn read_images(&self, py: Python<'_>, sheet: &str) -> PyResult<PyObject> {
+        let out = PyList::empty_bound(py);
+
+        // umya-spreadsheet doesn't reliably surface images when reading existing files.
+        // Parse the xlsx zip directly when we have a source path.
+        if let Some(path_str) = &self.source_path {
+            let specs = read_images_from_xlsx(Path::new(path_str), sheet)?;
+            for spec in specs {
+                let entry = PyDict::new_bound(py);
+                entry.set_item("cell", spec.cell)?;
+                entry.set_item("path", spec.path)?;
+                entry.set_item("anchor", spec.anchor)?;
+                entry.set_item("offset", py.None())?;
+                entry.set_item("alt_text", py.None())?;
+                out.append(entry)?;
+            }
+            return Ok(out.into());
+        }
+
+        let ws = self
+            .book
+            .get_sheet_by_name(sheet)
+            .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
+
+        for img in ws.get_image_collection() {
+            let entry = PyDict::new_bound(py);
+            entry.set_item("cell", img.get_coordinate())?;
+            entry.set_item(
+                "anchor",
+                if img.get_to_marker_type().is_some() {
+                    "twoCell"
+                } else {
+                    "oneCell"
+                },
+            )?;
+            entry.set_item("path", py.None())?;
+            entry.set_item("offset", py.None())?;
+            entry.set_item("alt_text", py.None())?;
+            out.append(entry)?;
+        }
+
+        Ok(out.into())
+    }
+
+    pub fn read_freeze_panes(&self, py: Python<'_>, sheet: &str) -> PyResult<PyObject> {
+        let ws = self
+            .book
+            .get_sheet_by_name(sheet)
+            .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
+
+        let d = PyDict::new_bound(py);
+
+        let views = ws.get_sheets_views().get_sheet_view_list();
+        if let Some(view) = views.get(0) {
+            if let Some(pane) = view.get_pane() {
+                match pane.get_state() {
+                    PaneStateValues::Frozen | PaneStateValues::FrozenSplit => {
+                        d.set_item("mode", "freeze")?;
+                        d.set_item("top_left_cell", pane.get_top_left_cell().to_string())?;
+                    }
+                    PaneStateValues::Split => {
+                        d.set_item("mode", "split")?;
+                        let x = *pane.get_horizontal_split();
+                        let y = *pane.get_vertical_split();
+                        d.set_item("x_split", x.round() as i64)?;
+                        d.set_item("y_split", y.round() as i64)?;
+                    }
+                }
+            }
+        }
+
+        Ok(d.into())
+    }
+
+    pub fn read_hyperlinks(&self, py: Python<'_>, sheet: &str) -> PyResult<PyObject> {
+        let ws = self
+            .book
+            .get_sheet_by_name(sheet)
+            .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
+
+        let out = PyList::empty_bound(py);
+
+        let Some(path_str) = &self.source_path else {
+            return Ok(out.into());
+        };
+        let specs = read_hyperlinks_from_xlsx(Path::new(path_str), sheet)?;
+        for spec in specs {
+            let entry = PyDict::new_bound(py);
+            entry.set_item("cell", spec.cell.clone())?;
+            entry.set_item("target", spec.target)?;
+            let display = ws
+                .get_cell(spec.cell.as_str())
+                .map(|c| c.get_value().into_owned())
+                .unwrap_or_default();
+            if display.is_empty() {
+                entry.set_item("display", py.None())?;
+            } else {
+                entry.set_item("display", display)?;
+            }
+            if let Some(tip) = spec.tooltip {
+                entry.set_item("tooltip", tip)?;
+            } else {
+                entry.set_item("tooltip", py.None())?;
+            }
+            entry.set_item("internal", spec.internal)?;
+            out.append(entry)?;
+        }
+
+        Ok(out.into())
+    }
+
+    pub fn read_comments(&self, py: Python<'_>, sheet: &str) -> PyResult<PyObject> {
+        let out = PyList::empty_bound(py);
+
+        let Some(path_str) = &self.source_path else {
+            return Ok(out.into());
+        };
+        let comments = read_comments_from_xlsx(Path::new(path_str), sheet)?;
+        for c in comments {
+            let entry = PyDict::new_bound(py);
+            entry.set_item("cell", c.cell)?;
+            entry.set_item("text", c.text)?;
+            if let Some(author) = c.author {
+                entry.set_item("author", author)?;
+            } else {
+                entry.set_item("author", py.None())?;
+            }
+            entry.set_item("threaded", false)?;
+            out.append(entry)?;
+        }
+
+        Ok(out.into())
     }
 
     pub fn write_cell_value(
@@ -1065,7 +1420,7 @@ fn parse_attr(tag: &str, name: &str) -> Option<String> {
     let start = tag.find(&needle)? + needle.len();
     let rest = &tag[start..];
     let end = rest.find('"')?;
-    Some(rest[..end].to_string())
+    Some(xml_unescape(&rest[..end]))
 }
 
 fn patch_sheet_xml_tooltips(xml: &str, tooltips: &HashMap<String, String>) -> String {
@@ -1188,6 +1543,19 @@ fn parse_workbook_rels_map(rels_xml: &str) -> HashMap<String, String> {
     out
 }
 
+fn workbook_rel_target_to_part(target: &str) -> String {
+    // workbook.xml.rels targets may be like:
+    // - worksheets/sheet1.xml
+    // - /xl/worksheets/sheet1.xml
+    // - xl/worksheets/sheet1.xml
+    let t = target.trim_start_matches('/');
+    if t.starts_with("xl/") {
+        t.to_string()
+    } else {
+        format!("xl/{t}")
+    }
+}
+
 fn patch_xlsx_hyperlink_tooltips(
     path: &Path,
     tooltips: &HashMap<String, HashMap<String, String>>,
@@ -1229,7 +1597,7 @@ fn patch_xlsx_hyperlink_tooltips(
         let Some(target) = rid_to_target.get(rid) else {
             continue;
         };
-        targets.insert(format!("xl/{target}"), cells.clone());
+        targets.insert(workbook_rel_target_to_part(target), cells.clone());
     }
 
     if targets.is_empty() {
@@ -1291,4 +1659,646 @@ fn patch_xlsx_hyperlink_tooltips(
     })?;
 
     Ok(())
+}
+
+#[derive(Clone, Debug)]
+struct HyperlinkReadSpec {
+    cell: String,
+    target: String,
+    tooltip: Option<String>,
+    internal: bool,
+}
+
+#[derive(Clone, Debug)]
+struct CommentReadSpec {
+    cell: String,
+    text: String,
+    author: Option<String>,
+}
+
+#[derive(Clone, Debug)]
+struct RelationshipEntry {
+    id: String,
+    r#type: String,
+    target: String,
+}
+
+#[derive(Clone, Debug)]
+struct ImageReadSpec {
+    cell: String,
+    path: String,
+    anchor: String,
+}
+
+fn zip_read_to_string(zip: &mut ZipArchive<std::fs::File>, name: &str) -> PyResult<String> {
+    let mut s = String::new();
+    let mut entry = zip
+        .by_name(name)
+        .map_err(|e| PyErr::new::<PyIOError, _>(format!("Missing {name} in xlsx: {e}")))?;
+    entry
+        .read_to_string(&mut s)
+        .map_err(|e| PyErr::new::<PyIOError, _>(format!("Read {name} failed: {e}")))?;
+    Ok(s)
+}
+
+fn parse_rels_entries(rels_xml: &str) -> Vec<RelationshipEntry> {
+    let mut out: Vec<RelationshipEntry> = Vec::new();
+    let mut i: usize = 0;
+    while let Some(rel) = rels_xml[i..].find("<Relationship ") {
+        let start = i + rel;
+        let end_rel = rels_xml[start..]
+            .find("/>")
+            .or_else(|| rels_xml[start..].find('>'));
+        let Some(tag_end_rel) = end_rel else {
+            break;
+        };
+        let tag_end = start + tag_end_rel;
+        let close_len = if rels_xml[tag_end..].starts_with("/>") {
+            2
+        } else {
+            1
+        };
+        let tag = &rels_xml[start..tag_end + close_len];
+        let id = parse_attr(tag, "Id");
+        let ty = parse_attr(tag, "Type");
+        let target = parse_attr(tag, "Target");
+        if let (Some(id), Some(ty), Some(target)) = (id, ty, target) {
+            out.push(RelationshipEntry {
+                id,
+                r#type: ty,
+                target,
+            });
+        }
+        i = tag_end + close_len;
+    }
+    out
+}
+
+fn sheet_target_to_rels_entry(sheet_entry: &str) -> String {
+    // xl/worksheets/sheet1.xml -> xl/worksheets/_rels/sheet1.xml.rels
+    if let Some((dir, file)) = sheet_entry.rsplit_once('/') {
+        return format!("{dir}/_rels/{file}.rels");
+    }
+    format!("xl/worksheets/_rels/{sheet_entry}.rels")
+}
+
+fn resolve_sheet_rel_target(target: &str) -> String {
+    // Relationships in sheet rels are relative to xl/worksheets/
+    let t = target.trim_start_matches('/');
+    if t.starts_with("xl/") {
+        return t.to_string();
+    }
+    if let Some(rest) = t.strip_prefix("../") {
+        format!("xl/{rest}")
+    } else {
+        format!("xl/worksheets/{t}")
+    }
+}
+
+fn resolve_drawing_rel_target(target: &str) -> String {
+    // Relationships in drawing rels are relative to xl/drawings/
+    let t = target.trim_start_matches('/');
+    if t.starts_with("xl/") {
+        return t.to_string();
+    }
+    if let Some(rest) = t.strip_prefix("../") {
+        format!("xl/{rest}")
+    } else {
+        format!("xl/drawings/{t}")
+    }
+}
+
+fn extract_simple_tag_value(xml: &str, tag: &str) -> Option<String> {
+    let open = format!("<{tag}>");
+    let close = format!("</{tag}>");
+    let start = xml.find(&open)? + open.len();
+    let rest = &xml[start..];
+    let end_rel = rest.find(&close)?;
+    Some(rest[..end_rel].trim().to_string())
+}
+
+fn col_to_letters(col0: u32) -> String {
+    let mut n = col0 + 1;
+    let mut out = String::new();
+    while n > 0 {
+        let rem = ((n - 1) % 26) as u8;
+        out.insert(0, (b'A' + rem) as char);
+        n = (n - 1) / 26;
+    }
+    out
+}
+
+fn extract_drawing_rids(sheet_xml: &str) -> Vec<String> {
+    let mut out: Vec<String> = Vec::new();
+    let mut i: usize = 0;
+    while let Some(pos) = sheet_xml[i..].find("<drawing") {
+        let start = i + pos;
+        let end_rel = sheet_xml[start..]
+            .find("/>")
+            .or_else(|| sheet_xml[start..].find('>'));
+        let Some(tag_end_rel) = end_rel else {
+            break;
+        };
+        let tag_end = start + tag_end_rel;
+        let close_len = if sheet_xml[tag_end..].starts_with("/>") {
+            2
+        } else {
+            1
+        };
+        let tag = &sheet_xml[start..tag_end + close_len];
+        if let Some(rid) = parse_attr(tag, "r:id") {
+            out.push(rid);
+        }
+        i = tag_end + close_len;
+    }
+    out
+}
+
+fn extract_anchors(drawing_xml: &str) -> Vec<(u32, u32, Option<String>)> {
+    // Returns (col0, row0, embedRid)
+    let mut out: Vec<(u32, u32, Option<String>)> = Vec::new();
+
+    for (open_tag, close_tag) in [
+        ("<xdr:oneCellAnchor", "</xdr:oneCellAnchor>"),
+        ("<oneCellAnchor", "</oneCellAnchor>"),
+        ("<xdr:twoCellAnchor", "</xdr:twoCellAnchor>"),
+        ("<twoCellAnchor", "</twoCellAnchor>"),
+    ] {
+        let mut i: usize = 0;
+        while let Some(pos) = drawing_xml[i..].find(open_tag) {
+            let start = i + pos;
+            let Some(end_rel) = drawing_xml[start..].find(close_tag) else {
+                break;
+            };
+            let end = start + end_rel + close_tag.len();
+            let block = &drawing_xml[start..end];
+
+            // Find <from> ... </from> (prefix may be absent)
+            let from_start = block.find("<xdr:from>").or_else(|| block.find("<from>"));
+            let from_end = block.find("</xdr:from>").or_else(|| block.find("</from>"));
+            let (col0, row0) = if let (Some(fs), Some(fe)) = (from_start, from_end) {
+                let from_block = &block[fs..fe];
+                let col = extract_simple_tag_value(from_block, "xdr:col")
+                    .or_else(|| extract_simple_tag_value(from_block, "col"))
+                    .and_then(|s| s.parse::<u32>().ok());
+                let row = extract_simple_tag_value(from_block, "xdr:row")
+                    .or_else(|| extract_simple_tag_value(from_block, "row"))
+                    .and_then(|s| s.parse::<u32>().ok());
+                match (col, row) {
+                    (Some(c), Some(r)) => (c, r),
+                    _ => {
+                        i = end;
+                        continue;
+                    }
+                }
+            } else {
+                i = end;
+                continue;
+            };
+
+            // Find embedded image relationship id.
+            let embed_rid = if let Some(blip_pos) = block.find("<a:blip") {
+                let abs = blip_pos;
+                let end_rel = block[abs..].find("/>").or_else(|| block[abs..].find('>'));
+                if let Some(tag_end_rel) = end_rel {
+                    let tag_end = abs + tag_end_rel;
+                    let close_len = if block[tag_end..].starts_with("/>") {
+                        2
+                    } else {
+                        1
+                    };
+                    let tag = &block[abs..tag_end + close_len];
+                    parse_attr(tag, "r:embed")
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+
+            out.push((col0, row0, embed_rid));
+            i = end;
+        }
+    }
+
+    out
+}
+
+fn read_images_from_xlsx(path: &Path, sheet: &str) -> PyResult<Vec<ImageReadSpec>> {
+    let f = std::fs::File::open(path)
+        .map_err(|e| PyErr::new::<PyIOError, _>(format!("Failed to open workbook: {e}")))?;
+    let mut zip = ZipArchive::new(f)
+        .map_err(|e| PyErr::new::<PyIOError, _>(format!("Invalid xlsx zip: {e}")))?;
+
+    let workbook_xml = zip_read_to_string(&mut zip, "xl/workbook.xml")?;
+    let rels_xml = zip_read_to_string(&mut zip, "xl/_rels/workbook.xml.rels")?;
+    let sheet_to_rid = parse_workbook_sheet_map(&workbook_xml);
+    let rid_to_target = parse_workbook_rels_map(&rels_xml);
+
+    let Some(rid) = sheet_to_rid.get(sheet) else {
+        return Ok(Vec::new());
+    };
+    let Some(target) = rid_to_target.get(rid) else {
+        return Ok(Vec::new());
+    };
+    let sheet_entry = workbook_rel_target_to_part(target);
+    let sheet_xml = zip_read_to_string(&mut zip, &sheet_entry)?;
+
+    let drawing_rids = extract_drawing_rids(&sheet_xml);
+    if drawing_rids.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let sheet_rels_entry = sheet_target_to_rels_entry(&sheet_entry);
+    let sheet_rels_xml = zip_read_to_string(&mut zip, &sheet_rels_entry).unwrap_or_default();
+    let sheet_rel_map = parse_workbook_rels_map(&sheet_rels_xml);
+
+    let mut out: Vec<ImageReadSpec> = Vec::new();
+    for drawing_rid in drawing_rids {
+        let Some(drawing_target) = sheet_rel_map.get(&drawing_rid) else {
+            continue;
+        };
+        let drawing_entry = resolve_sheet_rel_target(drawing_target);
+        let drawing_xml = zip_read_to_string(&mut zip, &drawing_entry).unwrap_or_default();
+        if drawing_xml.is_empty() {
+            continue;
+        }
+
+        let drawing_rels_entry = sheet_target_to_rels_entry(&drawing_entry);
+        let drawing_rels_xml =
+            zip_read_to_string(&mut zip, &drawing_rels_entry).unwrap_or_default();
+        let drawing_rel_map = parse_workbook_rels_map(&drawing_rels_xml);
+
+        for (col0, row0, embed_rid) in extract_anchors(&drawing_xml) {
+            let Some(embed_rid) = embed_rid else {
+                continue;
+            };
+            let Some(img_target) = drawing_rel_map.get(&embed_rid) else {
+                continue;
+            };
+            let part = resolve_drawing_rel_target(img_target);
+            let path = format!("/{part}");
+            let cell = format!("{}{}", col_to_letters(col0), row0 + 1);
+            out.push(ImageReadSpec {
+                cell,
+                path,
+                anchor: "oneCell".to_string(),
+            });
+        }
+    }
+
+    Ok(out)
+}
+
+fn extract_section<'a>(xml: &'a str, open_tag: &str, close_tag: &str) -> Option<&'a str> {
+    let start = xml.find(open_tag)?;
+    let end_rel = xml[start..].find(close_tag)?;
+    let end = start + end_rel + close_tag.len();
+    Some(&xml[start..end])
+}
+
+fn extract_nth_start_tag(xml: &str, tag_prefix: &str, idx: usize) -> Option<String> {
+    let mut i: usize = 0;
+    let mut count: usize = 0;
+    while let Some(pos) = xml[i..].find(tag_prefix) {
+        let start = i + pos;
+        let after = xml.get(start + tag_prefix.len()..start + tag_prefix.len() + 1);
+        if after != Some(" ") && after != Some(">") && after != Some("/") {
+            i = start + tag_prefix.len();
+            continue;
+        }
+        let end_rel = xml[start..].find("/>").or_else(|| xml[start..].find('>'));
+        let Some(tag_end_rel) = end_rel else {
+            return None;
+        };
+        let tag_end = start + tag_end_rel;
+        let close_len = if xml[tag_end..].starts_with("/>") {
+            2
+        } else {
+            1
+        };
+        let tag = &xml[start..tag_end + close_len];
+
+        if count == idx {
+            return Some(tag.to_string());
+        }
+        count += 1;
+        i = tag_end + close_len;
+    }
+    None
+}
+
+fn extract_nth_block(xml: &str, open_prefix: &str, close_tag: &str, idx: usize) -> Option<String> {
+    let mut i: usize = 0;
+    let mut count: usize = 0;
+    while let Some(pos) = xml[i..].find(open_prefix) {
+        let start = i + pos;
+        let after = xml.get(start + open_prefix.len()..start + open_prefix.len() + 1);
+        if after != Some(" ") && after != Some(">") {
+            i = start + open_prefix.len();
+            continue;
+        }
+        let Some(end_rel) = xml[start..].find(close_tag) else {
+            return None;
+        };
+        let end = start + end_rel + close_tag.len();
+        if count == idx {
+            return Some(xml[start..end].to_string());
+        }
+        count += 1;
+        i = end;
+    }
+    None
+}
+
+fn find_cell_style_index(sheet_xml: &str, cell_ref: &str) -> Option<usize> {
+    let needle = format!("r=\"{cell_ref}\"");
+    let pos = sheet_xml.find(&needle)?;
+    let start = sheet_xml[..pos].rfind("<c ")?;
+    let end_rel = sheet_xml[start..].find('>')?;
+    let tag = &sheet_xml[start..start + end_rel + 1];
+    parse_attr(tag, "s").and_then(|s| s.parse::<usize>().ok())
+}
+
+fn read_bg_color_from_xlsx(path: &Path, sheet: &str, cell_ref: &str) -> PyResult<Option<String>> {
+    let f = std::fs::File::open(path)
+        .map_err(|e| PyErr::new::<PyIOError, _>(format!("Failed to open workbook: {e}")))?;
+    let mut zip = ZipArchive::new(f)
+        .map_err(|e| PyErr::new::<PyIOError, _>(format!("Invalid xlsx zip: {e}")))?;
+
+    let workbook_xml = zip_read_to_string(&mut zip, "xl/workbook.xml")?;
+    let rels_xml = zip_read_to_string(&mut zip, "xl/_rels/workbook.xml.rels")?;
+    let sheet_to_rid = parse_workbook_sheet_map(&workbook_xml);
+    let rid_to_target = parse_workbook_rels_map(&rels_xml);
+
+    let Some(rid) = sheet_to_rid.get(sheet) else {
+        return Ok(None);
+    };
+    let Some(target) = rid_to_target.get(rid) else {
+        return Ok(None);
+    };
+    let sheet_entry = workbook_rel_target_to_part(target);
+    let sheet_xml = zip_read_to_string(&mut zip, &sheet_entry)?;
+    let Some(style_idx) = find_cell_style_index(&sheet_xml, cell_ref) else {
+        return Ok(None);
+    };
+
+    let styles_xml = zip_read_to_string(&mut zip, "xl/styles.xml")?;
+    let Some(cellxfs) = extract_section(&styles_xml, "<cellXfs", "</cellXfs>") else {
+        return Ok(None);
+    };
+    let Some(xf_tag) = extract_nth_start_tag(cellxfs, "<xf", style_idx) else {
+        return Ok(None);
+    };
+    let Some(fill_id) = parse_attr(&xf_tag, "fillId").and_then(|s| s.parse::<usize>().ok()) else {
+        return Ok(None);
+    };
+    let Some(fills) = extract_section(&styles_xml, "<fills", "</fills>") else {
+        return Ok(None);
+    };
+    let Some(fill_block) = extract_nth_block(fills, "<fill", "</fill>", fill_id) else {
+        return Ok(None);
+    };
+
+    if let Some(pos) = fill_block.find("<fgColor") {
+        let start = pos;
+        let end_rel = fill_block[start..]
+            .find("/>")
+            .or_else(|| fill_block[start..].find('>'));
+        if let Some(tag_end_rel) = end_rel {
+            let tag_end = start + tag_end_rel;
+            let close_len = if fill_block[tag_end..].starts_with("/>") {
+                2
+            } else {
+                1
+            };
+            let tag = &fill_block[start..tag_end + close_len];
+            if let Some(rgb) = parse_attr(tag, "rgb") {
+                return Ok(argb_to_hex_rgb(&rgb));
+            }
+        }
+    }
+
+    Ok(None)
+}
+
+fn extract_hyperlink_tags(
+    xml: &str,
+) -> Vec<(String, Option<String>, Option<String>, Option<String>)> {
+    // Returns (ref, location, tooltip, r:id)
+    let mut out: Vec<(String, Option<String>, Option<String>, Option<String>)> = Vec::new();
+    let mut i: usize = 0;
+    while let Some(rel) = xml[i..].find("<hyperlink") {
+        let start = i + rel;
+        let after = xml.get(start + "<hyperlink".len()..start + "<hyperlink".len() + 1);
+        if after != Some(" ") && after != Some(">") {
+            i = start + "<hyperlink".len();
+            continue;
+        }
+        let end_rel = xml[start..].find("/>").or_else(|| xml[start..].find('>'));
+        let Some(tag_end_rel) = end_rel else {
+            break;
+        };
+        let tag_end = start + tag_end_rel;
+        let close_len = if xml[tag_end..].starts_with("/>") {
+            2
+        } else {
+            1
+        };
+        let tag = &xml[start..tag_end + close_len];
+        let r = parse_attr(tag, "ref");
+        if let Some(r) = r {
+            let location = parse_attr(tag, "location");
+            let tooltip = parse_attr(tag, "tooltip");
+            let rid = parse_attr(tag, "r:id");
+            out.push((r, location, tooltip, rid));
+        }
+        i = tag_end + close_len;
+    }
+    out
+}
+
+fn read_hyperlinks_from_xlsx(path: &Path, sheet: &str) -> PyResult<Vec<HyperlinkReadSpec>> {
+    let f = std::fs::File::open(path)
+        .map_err(|e| PyErr::new::<PyIOError, _>(format!("Failed to open workbook: {e}")))?;
+    let mut zip = ZipArchive::new(f)
+        .map_err(|e| PyErr::new::<PyIOError, _>(format!("Invalid xlsx zip: {e}")))?;
+
+    let workbook_xml = zip_read_to_string(&mut zip, "xl/workbook.xml")?;
+    let rels_xml = zip_read_to_string(&mut zip, "xl/_rels/workbook.xml.rels")?;
+
+    let sheet_to_rid = parse_workbook_sheet_map(&workbook_xml);
+    let rid_to_target = parse_workbook_rels_map(&rels_xml);
+
+    let Some(rid) = sheet_to_rid.get(sheet) else {
+        return Ok(Vec::new());
+    };
+    let Some(target) = rid_to_target.get(rid) else {
+        return Ok(Vec::new());
+    };
+    let sheet_entry = workbook_rel_target_to_part(target);
+
+    let sheet_xml = zip_read_to_string(&mut zip, &sheet_entry)?;
+    let tags = extract_hyperlink_tags(&sheet_xml);
+
+    // Load sheet relationships so we can resolve r:id for external links.
+    let sheet_rels_entry = sheet_target_to_rels_entry(&sheet_entry);
+    let sheet_rels_xml = zip_read_to_string(&mut zip, &sheet_rels_entry).unwrap_or_default();
+    let rel_map = parse_workbook_rels_map(&sheet_rels_xml);
+
+    let mut out: Vec<HyperlinkReadSpec> = Vec::new();
+    for (cell, location, tooltip, rid) in tags {
+        if rid.is_none() {
+            let loc = location.unwrap_or_default();
+            if loc.is_empty() {
+                continue;
+            }
+            let target = loc.trim_start_matches('#').replace("'", "");
+            out.push(HyperlinkReadSpec {
+                cell,
+                target,
+                tooltip,
+                internal: true,
+            });
+            continue;
+        }
+
+        let rid = rid.unwrap();
+        let Some(mut base) = rel_map.get(&rid).cloned() else {
+            continue;
+        };
+        if let Some(loc) = location {
+            let loc = loc.trim();
+            if !loc.is_empty() {
+                base = format!("{base}#{loc}");
+            }
+        }
+
+        out.push(HyperlinkReadSpec {
+            cell,
+            target: base,
+            tooltip,
+            internal: false,
+        });
+    }
+
+    Ok(out)
+}
+
+fn xml_unescape(value: &str) -> String {
+    // Minimal entity decoding for our fixtures.
+    let mut s = value
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", "\"")
+        .replace("&apos;", "'")
+        .replace("&amp;", "&");
+    s = s.replace("&#10;", "\n").replace("&#xA;", "\n");
+    s
+}
+
+fn extract_tag_texts(xml: &str, tag_name: &str) -> Vec<String> {
+    let mut out: Vec<String> = Vec::new();
+    let open = format!("<{tag_name}>");
+    let close = format!("</{tag_name}>");
+    let mut i: usize = 0;
+    while let Some(pos) = xml[i..].find(&open) {
+        let start = i + pos + open.len();
+        if let Some(end_rel) = xml[start..].find(&close) {
+            let end = start + end_rel;
+            out.push(xml_unescape(&xml[start..end]));
+            i = end + close.len();
+        } else {
+            break;
+        }
+    }
+    out
+}
+
+fn extract_comment_text(comment_xml: &str) -> String {
+    // Extract all <t ...>...</t> nodes inside a comment.
+    let mut out = String::new();
+    let mut i: usize = 0;
+    while let Some(pos) = comment_xml[i..].find("<t") {
+        let start = i + pos;
+        // Avoid matching the <text> container tag.
+        let after = comment_xml.get(start + 2..start + 3);
+        if after != Some(" ") && after != Some(">") {
+            i = start + 2;
+            continue;
+        }
+        let gt_rel = comment_xml[start..].find('>');
+        let Some(gt_rel) = gt_rel else { break };
+        let content_start = start + gt_rel + 1;
+        let Some(end_rel) = comment_xml[content_start..].find("</t>") else {
+            break;
+        };
+        let content_end = content_start + end_rel;
+        out.push_str(&xml_unescape(&comment_xml[content_start..content_end]));
+        i = content_end + 4;
+    }
+    out
+}
+
+fn read_comments_from_xlsx(path: &Path, sheet: &str) -> PyResult<Vec<CommentReadSpec>> {
+    let f = std::fs::File::open(path)
+        .map_err(|e| PyErr::new::<PyIOError, _>(format!("Failed to open workbook: {e}")))?;
+    let mut zip = ZipArchive::new(f)
+        .map_err(|e| PyErr::new::<PyIOError, _>(format!("Invalid xlsx zip: {e}")))?;
+
+    let workbook_xml = zip_read_to_string(&mut zip, "xl/workbook.xml")?;
+    let rels_xml = zip_read_to_string(&mut zip, "xl/_rels/workbook.xml.rels")?;
+    let sheet_to_rid = parse_workbook_sheet_map(&workbook_xml);
+    let rid_to_target = parse_workbook_rels_map(&rels_xml);
+
+    let Some(rid) = sheet_to_rid.get(sheet) else {
+        return Ok(Vec::new());
+    };
+    let Some(target) = rid_to_target.get(rid) else {
+        return Ok(Vec::new());
+    };
+    let sheet_entry = workbook_rel_target_to_part(target);
+    let sheet_rels_entry = sheet_target_to_rels_entry(&sheet_entry);
+    let sheet_rels_xml = zip_read_to_string(&mut zip, &sheet_rels_entry).unwrap_or_default();
+
+    let entries = parse_rels_entries(&sheet_rels_xml);
+    let comments_rel = entries.iter().find(|e| e.r#type.ends_with("/comments"));
+    let Some(comments_rel) = comments_rel else {
+        return Ok(Vec::new());
+    };
+
+    let comments_entry = resolve_sheet_rel_target(&comments_rel.target);
+    let comments_xml = zip_read_to_string(&mut zip, &comments_entry)?;
+
+    // Parse authors.
+    let authors = extract_tag_texts(&comments_xml, "author");
+
+    let mut out: Vec<CommentReadSpec> = Vec::new();
+    let mut i: usize = 0;
+    while let Some(pos) = comments_xml[i..].find("<comment ") {
+        let start = i + pos;
+        let Some(tag_end_rel) = comments_xml[start..].find('>') else {
+            break;
+        };
+        let tag_end = start + tag_end_rel;
+        let tag = &comments_xml[start..=tag_end];
+        let cell = parse_attr(tag, "ref").unwrap_or_default();
+        let author_id = parse_attr(tag, "authorId").and_then(|s| s.parse::<usize>().ok());
+
+        let Some(close_rel) = comments_xml[tag_end..].find("</comment>") else {
+            break;
+        };
+        let close_end = tag_end + close_rel + "</comment>".len();
+        let body = &comments_xml[tag_end..close_end];
+        let text = extract_comment_text(body);
+
+        if !cell.is_empty() {
+            let author = author_id.and_then(|idx| authors.get(idx).cloned());
+            out.push(CommentReadSpec { cell, text, author });
+        }
+
+        i = close_end;
+    }
+
+    Ok(out)
 }

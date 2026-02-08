@@ -75,7 +75,25 @@ class UmyaAdapter(ExcelAdapter):
         return cell_value_from_payload(payload)
 
     def read_cell_format(self, workbook: Any, sheet: str, cell: str) -> CellFormat:
-        return CellFormat()
+        payload = workbook.read_cell_format(sheet, cell)
+        if not isinstance(payload, dict):
+            return CellFormat()
+        return CellFormat(
+            bold=payload.get("bold"),
+            italic=payload.get("italic"),
+            underline=payload.get("underline"),
+            strikethrough=payload.get("strikethrough"),
+            font_name=payload.get("font_name"),
+            font_size=payload.get("font_size"),
+            font_color=payload.get("font_color"),
+            bg_color=payload.get("bg_color"),
+            number_format=payload.get("number_format"),
+            h_align=payload.get("h_align"),
+            v_align=payload.get("v_align"),
+            wrap=payload.get("wrap"),
+            rotation=payload.get("rotation"),
+            indent=payload.get("indent"),
+        )
 
     def read_cell_border(self, workbook: Any, sheet: str, cell: str) -> BorderInfo:
         return BorderInfo()
@@ -87,28 +105,34 @@ class UmyaAdapter(ExcelAdapter):
         return None
 
     def read_merged_ranges(self, workbook: Any, sheet: str) -> list[str]:
-        return []
+        return [str(r) for r in workbook.read_merged_ranges(sheet)]
 
     def read_conditional_formats(self, workbook: Any, sheet: str) -> list[JSONDict]:
-        return []
+        rules = workbook.read_conditional_formats(sheet)
+        return list(rules) if isinstance(rules, list) else []
 
     def read_data_validations(self, workbook: Any, sheet: str) -> list[JSONDict]:
-        return []
+        vals = workbook.read_data_validations(sheet)
+        return list(vals) if isinstance(vals, list) else []
 
     def read_hyperlinks(self, workbook: Any, sheet: str) -> list[JSONDict]:
-        return []
+        links = workbook.read_hyperlinks(sheet)
+        return list(links) if isinstance(links, list) else []
 
     def read_images(self, workbook: Any, sheet: str) -> list[JSONDict]:
-        return []
+        images = workbook.read_images(sheet)
+        return list(images) if isinstance(images, list) else []
 
     def read_pivot_tables(self, workbook: Any, sheet: str) -> list[JSONDict]:
         return []
 
     def read_comments(self, workbook: Any, sheet: str) -> list[JSONDict]:
-        return []
+        comments = workbook.read_comments(sheet)
+        return list(comments) if isinstance(comments, list) else []
 
     def read_freeze_panes(self, workbook: Any, sheet: str) -> JSONDict:
-        return {}
+        cfg = workbook.read_freeze_panes(sheet)
+        return dict(cfg) if isinstance(cfg, dict) else {}
 
     # =========================================================================
     # Write
@@ -143,24 +167,36 @@ class UmyaAdapter(ExcelAdapter):
         workbook.merge_cells(sheet, cell_range)
 
     def add_conditional_format(self, workbook: Any, sheet: str, rule: JSONDict) -> None:
+        if not rule:
+            return
         workbook.add_conditional_format(sheet, rule)
 
     def add_data_validation(self, workbook: Any, sheet: str, validation: JSONDict) -> None:
+        if not validation:
+            return
         workbook.add_data_validation(sheet, validation)
 
     def add_hyperlink(self, workbook: Any, sheet: str, link: JSONDict) -> None:
+        if not link:
+            return
         workbook.add_hyperlink(sheet, link)
 
     def add_image(self, workbook: Any, sheet: str, image: JSONDict) -> None:
+        if not image:
+            return
         workbook.add_image(sheet, image)
 
     def add_pivot_table(self, workbook: Any, sheet: str, pivot: JSONDict) -> None:
         raise NotImplementedError("umya pivot tables not implemented")
 
     def add_comment(self, workbook: Any, sheet: str, comment: JSONDict) -> None:
+        if not comment:
+            return
         workbook.add_comment(sheet, comment)
 
     def set_freeze_panes(self, workbook: Any, sheet: str, settings: JSONDict) -> None:
+        if not settings:
+            return
         workbook.set_freeze_panes(sheet, settings)
 
     def save_workbook(self, workbook: Any, path: Path) -> None:
