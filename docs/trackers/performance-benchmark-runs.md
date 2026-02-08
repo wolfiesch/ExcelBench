@@ -241,3 +241,81 @@ Outputs:
 - Markdown: `results_dev_perf_throughput_openpyxl/perf/README.md`
 - CSV: `results_dev_perf_throughput_openpyxl/perf/matrix.csv`
 - History: `results_dev_perf_throughput_openpyxl/perf/history.jsonl`
+
+### 02/08/2026 02:36 PM PST (via pst-timestamp)
+
+Git:
+- commit: 4704676
+- branch: master
+
+Environment:
+- OS: macOS 26.2 (25C5031i)
+- CPU: Apple M4 Pro
+- RAM: 24 GB
+- Python (uv): 3.12.3
+- Power: (not recorded)
+- Notes: Throughput fixtures expanded with `borders_200`; openpyxl only; warmup=0 iters=1.
+
+Command:
+- `uv run python scripts/generate_throughput_fixtures.py`
+- `uv run excelbench perf --tests test_files/throughput_xlsx --output results_dev_perf_throughput_openpyxl --warmup 0 --iters 1 --adapter openpyxl`
+
+Outputs:
+- JSON: `results_dev_perf_throughput_openpyxl/perf/results.json`
+- Markdown: `results_dev_perf_throughput_openpyxl/perf/README.md`
+- CSV: `results_dev_perf_throughput_openpyxl/perf/matrix.csv`
+- History: `results_dev_perf_throughput_openpyxl/perf/history.jsonl`
+
+Observations:
+- Workload op_count now includes `borders_200` (200 border ops) in addition to existing scenarios.
+
+### 02/08/2026 02:39 PM PST (via pst-timestamp)
+
+Git:
+- commit: 4704676
+- branch: master
+
+Environment:
+- OS: macOS 26.2 (25C5031i)
+- CPU: Apple M4 Pro
+- RAM: 24 GB
+- Python (uv): 3.12.3
+- Power: (not recorded)
+- Notes: Throughput fixtures expanded with small variants (`cell_values_1k`, `formulas_1k`); python-calamine only; warmup=0 iters=1.
+
+Command:
+- `uv run python scripts/generate_throughput_fixtures.py`
+- `uv run excelbench perf --tests test_files/throughput_xlsx --output results_dev_perf_throughput_small_calamine --warmup 0 --iters 1 --adapter python-calamine --feature cell_values_1k --feature formulas_1k`
+
+Outputs:
+- JSON: `results_dev_perf_throughput_small_calamine/perf/results.json`
+- Markdown: `results_dev_perf_throughput_small_calamine/perf/README.md`
+- CSV: `results_dev_perf_throughput_small_calamine/perf/matrix.csv`
+- History: `results_dev_perf_throughput_small_calamine/perf/history.jsonl`
+
+Observations:
+- python-calamine per-cell reads: ~400ms for 1k cells (~2.5K cells/sec).
+
+### 02/08/2026 02:40 PM PST (via pst-timestamp)
+
+Git:
+- commit: 4704676
+- branch: master
+
+Environment:
+- OS: macOS 26.2 (25C5031i)
+- CPU: Apple M4 Pro
+- RAM: 24 GB
+- Python (uv): 3.12.3
+- Power: (not recorded)
+- Notes: Throughput fixtures (8 scenarios including 1k + 10k variants); fast batch excluding python-calamine; warmup=0 iters=1.
+
+Command:
+- `uv run python scripts/generate_throughput_fixtures.py`
+- `uv run excelbench perf --tests test_files/throughput_xlsx --output results_dev_perf_throughput_batch_fast --warmup 0 --iters 1 --adapter openpyxl --adapter xlsxwriter --adapter pylightxl --adapter pyexcel`
+
+Outputs:
+- JSON: `results_dev_perf_throughput_batch_fast/perf/results.json`
+- Markdown: `results_dev_perf_throughput_batch_fast/perf/README.md`
+- CSV: `results_dev_perf_throughput_batch_fast/perf/matrix.csv`
+- History: `results_dev_perf_throughput_batch_fast/perf/history.jsonl`

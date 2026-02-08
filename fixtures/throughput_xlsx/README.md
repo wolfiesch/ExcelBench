@@ -15,7 +15,9 @@ uv run excelbench perf --tests test_files/throughput_xlsx --output results_dev_p
 
 Currently generated scenarios:
 
+- `cell_values_1k`
 - `cell_values_10k`
+- `formulas_1k`
 - `formulas_10k`
 - `background_colors_1k`
 - `number_formats_1k`

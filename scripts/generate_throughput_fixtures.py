@@ -225,6 +225,41 @@ def main() -> None:
         )
     )
 
+    # 1k = 40x25 (useful for very slow per-cell readers)
+    scenario = "cell_values_1k"
+    sheet = "S1"
+    rows, cols = 40, 25
+    end_cell = _coord_to_cell(rows, cols)
+    rng = f"A1:{end_cell}"
+    filename = "00_cell_values_1k.xlsx"
+    _generate_cell_values_grid(path=tier_dir / filename, sheet=sheet, rows=rows, cols=cols)
+    files.append(
+        TestFile(
+            path=f"tier0/{filename}",
+            feature=scenario,
+            tier=0,
+            file_format="xlsx",
+            test_cases=[
+                TestCase(
+                    id=scenario,
+                    label="Throughput: cell values (1k cells)",
+                    row=1,
+                    expected={
+                        "workload": {
+                            "scenario": scenario,
+                            "op": "cell_value",
+                            "sheet": sheet,
+                            "range": rng,
+                            "start": 1,
+                            "step": 1,
+                        }
+                    },
+                    importance=Importance.BASIC,
+                )
+            ],
+        )
+    )
+
     # 10k formulas = 100x100
     scenario = "formulas_10k"
     sheet = "S1"
@@ -250,6 +285,47 @@ def main() -> None:
                 TestCase(
                     id=scenario,
                     label="Throughput: formulas (10k cells)",
+                    row=1,
+                    expected={
+                        "workload": {
+                            "scenario": scenario,
+                            "op": "formula",
+                            "sheet": sheet,
+                            "range": rng,
+                            "formula": formula,
+                        }
+                    },
+                    importance=Importance.BASIC,
+                )
+            ],
+        )
+    )
+
+    # 1k formulas = 40x25
+    scenario = "formulas_1k"
+    sheet = "S1"
+    rows, cols = 40, 25
+    end_cell = _coord_to_cell(rows, cols)
+    rng = f"A1:{end_cell}"
+    filename = "00_formulas_1k.xlsx"
+    formula = "=1+1"
+    _generate_formulas_grid(
+        path=tier_dir / filename,
+        sheet=sheet,
+        rows=rows,
+        cols=cols,
+        formula=formula,
+    )
+    files.append(
+        TestFile(
+            path=f"tier0/{filename}",
+            feature=scenario,
+            tier=0,
+            file_format="xlsx",
+            test_cases=[
+                TestCase(
+                    id=scenario,
+                    label="Throughput: formulas (1k cells)",
                     row=1,
                     expected={
                         "workload": {

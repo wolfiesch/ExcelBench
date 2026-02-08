@@ -112,3 +112,18 @@ Template:
 - Worked on: PB-030 (more workloads)
 - Notes: added `number_formats_1k` + `alignment_1k` workloads; regenerated throughput suite now has 5 scenarios.
 - Next: consider a `borders_200` workload (borders are expensive and bloat XLSX styles quickly).
+
+### 02/08/2026 02:36 PM PST (via pst-timestamp)
+- Worked on: PB-030 (borders workload)
+- Notes: added `borders_200` throughput scenario; updated perf runner to support border read/write workloads; refreshed openpyxl throughput baseline.
+- Next: run a multi-adapter throughput batch without the very slow per-cell readers, and decide if we want a separate "bulk read" scenario.
+
+### 02/08/2026 02:39 PM PST (via pst-timestamp)
+- Worked on: PB-030 (slow-adapter-friendly workloads)
+- Notes: added `cell_values_1k` + `formulas_1k` to keep throughput runs tractable for per-cell APIs like python-calamine.
+- Next: run a full throughput batch with both the 1k and 10k scenarios and record per-adapter guidance (when to use 1k vs 10k).
+
+### 02/08/2026 02:40 PM PST (via pst-timestamp)
+- Worked on: PB-030 (fast batch baseline)
+- Notes: ran a fast multi-adapter throughput baseline (openpyxl/xlsxwriter/pylightxl/pyexcel) across the full throughput suite.
+- Next: decide whether to include pandas/polars/tablib adapters in throughput runs or keep throughput focused on Excel-native libs.
