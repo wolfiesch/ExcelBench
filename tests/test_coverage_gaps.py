@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from datetime import date
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
 import openpyxl as _openpyxl
@@ -83,7 +83,10 @@ class TestCalamineCellRefAndTypes:
             calamine_parse_cell_ref("!!!")
 
     def test_col_out_of_bounds(
-        self, calamine: CalamineAdapter, opxl: OpenpyxlAdapter, tmp_path: Path,
+        self,
+        calamine: CalamineAdapter,
+        opxl: OpenpyxlAdapter,
+        tmp_path: Path,
     ) -> None:
         """Line 95: col_idx >= len(row) returns BLANK."""
         path = tmp_path / "sparse.xlsx"
@@ -98,7 +101,10 @@ class TestCalamineCellRefAndTypes:
         assert v.type == CellType.BLANK
 
     def test_none_value(
-        self, calamine: CalamineAdapter, opxl: OpenpyxlAdapter, tmp_path: Path,
+        self,
+        calamine: CalamineAdapter,
+        opxl: OpenpyxlAdapter,
+        tmp_path: Path,
     ) -> None:
         """Line 100: calamine returns None for cells that exist but are empty."""
         path = tmp_path / "none_val.xlsx"
@@ -121,7 +127,9 @@ class TestCalamineCellRefAndTypes:
         wb = opxl.create_workbook()
         opxl.add_sheet(wb, "S1")
         opxl.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.DATE, value=date(2024, 3, 15)),
         )
         opxl.save_workbook(wb, path)
@@ -139,7 +147,9 @@ class TestCalamineCellRefAndTypes:
         wb = opxl.create_workbook()
         opxl.add_sheet(wb, "S1")
         opxl.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.STRING, value="#N/A"),
         )
         opxl.save_workbook(wb, path)
@@ -158,7 +168,9 @@ class TestCalamineCellRefAndTypes:
         wb = opxl.create_workbook()
         opxl.add_sheet(wb, "S1")
         opxl.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.STRING, value="#DIV/0!"),
         )
         opxl.save_workbook(wb, path)
@@ -207,7 +219,9 @@ class TestPyexcelCellRefAndTypes:
         wb = opxl.create_workbook()
         opxl.add_sheet(wb, "S1")
         opxl.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.DATE, value=date(2024, 6, 15)),
         )
         opxl.save_workbook(wb, path)
@@ -226,7 +240,9 @@ class TestPyexcelCellRefAndTypes:
         wb = opxl.create_workbook()
         opxl.add_sheet(wb, "S1")
         opxl.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.STRING, value="#N/A"),
         )
         opxl.save_workbook(wb, path)
@@ -245,7 +261,9 @@ class TestPyexcelCellRefAndTypes:
         wb = opxl.create_workbook()
         opxl.add_sheet(wb, "S1")
         opxl.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.STRING, value="#DIV/0!"),
         )
         opxl.save_workbook(wb, path)
@@ -264,7 +282,9 @@ class TestPyexcelCellRefAndTypes:
         wb = opxl.create_workbook()
         opxl.add_sheet(wb, "S1")
         opxl.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.FORMULA, value="=1+1", formula="=1+1"),
         )
         opxl.save_workbook(wb, path)
@@ -273,7 +293,10 @@ class TestPyexcelCellRefAndTypes:
         v = pyexcel_adapter.read_cell_value(pwb, "S1", "A1")
         # pyexcel may read formula, computed value, or BLANK (no cached value)
         assert v.type in (
-            CellType.FORMULA, CellType.STRING, CellType.NUMBER, CellType.BLANK,
+            CellType.FORMULA,
+            CellType.STRING,
+            CellType.NUMBER,
+            CellType.BLANK,
         )
         pyexcel_adapter.close_workbook(pwb)
 
@@ -294,14 +317,14 @@ class TestPyexcelCellRefAndTypes:
         fmt = pyexcel_adapter.read_cell_format(MagicMock(), "S1", "A1")
         assert isinstance(fmt, CellFormat)
 
-    def test_roundtrip_boolean(
-        self, pyexcel_adapter: PyexcelAdapter, tmp_path: Path
-    ) -> None:
+    def test_roundtrip_boolean(self, pyexcel_adapter: PyexcelAdapter, tmp_path: Path) -> None:
         """Roundtrip boolean through pyexcel write/read."""
         wb = pyexcel_adapter.create_workbook()
         pyexcel_adapter.add_sheet(wb, "S1")
         pyexcel_adapter.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.BOOLEAN, value=True),
         )
         path = tmp_path / "pe_bool.xlsx"
@@ -313,14 +336,14 @@ class TestPyexcelCellRefAndTypes:
         assert v.value is True
         pyexcel_adapter.close_workbook(wb2)
 
-    def test_write_error_value(
-        self, pyexcel_adapter: PyexcelAdapter, tmp_path: Path
-    ) -> None:
+    def test_write_error_value(self, pyexcel_adapter: PyexcelAdapter, tmp_path: Path) -> None:
         """write_cell_value with ERROR type."""
         wb = pyexcel_adapter.create_workbook()
         pyexcel_adapter.add_sheet(wb, "S1")
         pyexcel_adapter.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.ERROR, value="#REF!"),
         )
         path = tmp_path / "pe_err_write.xlsx"
@@ -336,7 +359,9 @@ class TestPyexcelCellRefAndTypes:
         wb = pyexcel_adapter.create_workbook()
         pyexcel_adapter.add_sheet(wb, "S1")
         pyexcel_adapter.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.STRING, value=None),
         )
         assert wb["sheets"]["S1"][(0, 0)] == ""
@@ -369,7 +394,9 @@ class TestXlsxwriterEdgeCases:
         wb = xlsxw.create_workbook()
         xlsxw.add_sheet(wb, "S1")
         xlsxw.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.STRING, value="test"),
         )
         # Add a hyperlink missing "cell"
@@ -386,15 +413,21 @@ class TestXlsxwriterEdgeCases:
         xlsxw.add_sheet(wb, "S1")
         xlsxw.add_sheet(wb, "S2")
         xlsxw.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.STRING, value="Go to S2"),
         )
-        xlsxw.add_hyperlink(wb, "S1", {
-            "cell": "A1",
-            "target": "#S2!A1",
-            "internal": True,
-            "display": "Go to S2",
-        })
+        xlsxw.add_hyperlink(
+            wb,
+            "S1",
+            {
+                "cell": "A1",
+                "target": "#S2!A1",
+                "internal": True,
+                "display": "Go to S2",
+            },
+        )
         path = tmp_path / "xlsxw_internal.xlsx"
         xlsxw.save_workbook(wb, path)
         assert path.exists()
@@ -404,15 +437,21 @@ class TestXlsxwriterEdgeCases:
         wb = xlsxw.create_workbook()
         xlsxw.add_sheet(wb, "S1")
         xlsxw.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.STRING, value="Hover me"),
         )
-        xlsxw.add_hyperlink(wb, "S1", {
-            "cell": "A1",
-            "target": "https://example.com",
-            "tooltip": "Click for details",
-            "display": "Hover me",
-        })
+        xlsxw.add_hyperlink(
+            wb,
+            "S1",
+            {
+                "cell": "A1",
+                "target": "https://example.com",
+                "tooltip": "Click for details",
+                "display": "Hover me",
+            },
+        )
         path = tmp_path / "xlsxw_tooltip.xlsx"
         xlsxw.save_workbook(wb, path)
         assert path.exists()
@@ -422,7 +461,9 @@ class TestXlsxwriterEdgeCases:
         wb = xlsxw.create_workbook()
         xlsxw.add_sheet(wb, "S1")
         xlsxw.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.STRING, value="test"),
         )
         # Add image with missing path
@@ -438,7 +479,9 @@ class TestXlsxwriterEdgeCases:
         wb = xlsxw.create_workbook()
         xlsxw.add_sheet(wb, "S1")
         xlsxw.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.STRING, value="test"),
         )
         # Add comment without cell
@@ -466,9 +509,7 @@ class TestOpenpyxlRemainingEdges:
     """Cover openpyxl_adapter.py lines 107, 133, 135, 147, 169, 180, 263,
     295, 298-299, 330-332, 352-353, 358-359, 373, 430-431, 437."""
 
-    def test_pure_date_isinstance(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_pure_date_isinstance(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Line 107: pure date (not datetime) isinstance branch."""
         path = tmp_path / "pure_date.xlsx"
         wb = _openpyxl.Workbook()
@@ -484,9 +525,7 @@ class TestOpenpyxlRemainingEdges:
         # openpyxl may return date or datetime at midnight
         assert v.type in (CellType.DATE, CellType.DATETIME)
 
-    def test_six_char_rgb_font_color(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_six_char_rgb_font_color(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Line 169: 6-character RGB font color."""
         from openpyxl.styles import Font
         from openpyxl.styles.colors import Color
@@ -507,9 +546,7 @@ class TestOpenpyxlRemainingEdges:
         # it doesn't crash either way
         assert isinstance(fmt, CellFormat)
 
-    def test_six_char_rgb_bg_color(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_six_char_rgb_bg_color(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Line 180: 6-character RGB background color."""
         from openpyxl.styles import PatternFill
         from openpyxl.styles.colors import Color
@@ -530,9 +567,7 @@ class TestOpenpyxlRemainingEdges:
         fmt = opxl.read_cell_format(wb2, "S1", "A1")
         assert isinstance(fmt, CellFormat)
 
-    def test_six_char_rgb_border_color(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_six_char_rgb_border_color(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Line 263: 6-character RGB border color."""
         from openpyxl.styles import Border, Side
         from openpyxl.styles.colors import Color
@@ -552,9 +587,7 @@ class TestOpenpyxlRemainingEdges:
         border = opxl.read_cell_border(wb2, "S1", "A1")
         assert isinstance(border, BorderInfo)
 
-    def test_column_width_non_numeric(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_column_width_non_numeric(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Lines 298-299: column width TypeError/ValueError fallback."""
         path = tmp_path / "bad_width.xlsx"
         wb = _openpyxl.Workbook()
@@ -568,13 +601,11 @@ class TestOpenpyxlRemainingEdges:
         ws2 = wb2["S1"]
         dim = ws2.column_dimensions["A"]
         # Bypass openpyxl's Float descriptor by writing to __dict__ directly
-        dim.__dict__["width"] = "invalid"
+        cast(dict[str, Any], dim.__dict__)["width"] = "invalid"
         result = opxl.read_column_width(wb2, "S1", "A")
         assert result is None
 
-    def test_data_validation_between_inference(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_data_validation_between_inference(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Line 373: operator=None with formula2 → 'between' inference."""
         from openpyxl.worksheet.datavalidation import DataValidation
 
@@ -597,9 +628,7 @@ class TestOpenpyxlRemainingEdges:
         # The adapter should infer "between" when operator is None but formula2 is present
         assert dvs[0]["operator"] in ("between", None)
 
-    def test_image_string_anchor(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_image_string_anchor(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Lines 430-431: string anchor for image."""
         from openpyxl.drawing.image import Image
 
@@ -630,9 +659,7 @@ class TestOpenpyxlRemainingEdges:
         # String anchors are detected as oneCell
         assert len(images) >= 1
 
-    def test_cf_string_range_fallback(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_cf_string_range_fallback(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Lines 330-332: conditional format with string sqref (no .sqref attr)."""
         from openpyxl.formatting.rule import FormulaRule
 
@@ -652,9 +679,7 @@ class TestOpenpyxlRemainingEdges:
         # Just verify it doesn't crash on the string sqref path
         assert isinstance(cfs, list)
 
-    def test_cf_six_char_fill_color(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_cf_six_char_fill_color(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Lines 352-353: conditional format DXF fill with 6-char RGB."""
         from openpyxl.formatting.rule import CellIsRule
         from openpyxl.styles import PatternFill
@@ -679,9 +704,7 @@ class TestOpenpyxlRemainingEdges:
         cfs = opxl.read_conditional_formats(wb2, "S1")
         assert isinstance(cfs, list)
 
-    def test_cf_six_char_font_color(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_cf_six_char_font_color(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Lines 358-359: conditional format DXF font with 6-char RGB."""
         from openpyxl.formatting.rule import CellIsRule
         from openpyxl.styles import Font
@@ -704,9 +727,7 @@ class TestOpenpyxlRemainingEdges:
         cfs = opxl.read_conditional_formats(wb2, "S1")
         assert isinstance(cfs, list)
 
-    def test_formula_data_type_f(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_formula_data_type_f(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Lines 129-142: cell with data_type 'f' (formula)."""
         path = tmp_path / "formula_f.xlsx"
         wb = _openpyxl.Workbook()
@@ -722,9 +743,7 @@ class TestOpenpyxlRemainingEdges:
         assert v.formula is not None
         assert "SUM" in v.formula
 
-    def test_non_standard_type_fallback(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_non_standard_type_fallback(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Line 147: fallback to STRING for unrecognized types."""
         path = tmp_path / "fallback.xlsx"
         wb = _openpyxl.Workbook()
@@ -738,7 +757,7 @@ class TestOpenpyxlRemainingEdges:
         ws2 = wb2["S1"]
         # Monkey-patch cell value to a custom type
         cell = ws2["A1"]
-        cell._value = complex(1, 2)  # type: ignore[assignment]
+        cell._value = complex(1, 2)
         v = opxl.read_cell_value(wb2, "S1", "A1")
         assert v.type == CellType.STRING
         assert "(1+2j)" in str(v.value)
@@ -757,10 +776,15 @@ class TestRustAdapterUtilsFallbacks:
         from excelbench.harness.adapters.rust_adapter_utils import get_rust_backend_version
 
         # Patch the import inside the function to raise
-        with patch.dict("sys.modules", {"excelbench_rust": MagicMock(
-            build_info=MagicMock(side_effect=RuntimeError("broken")),
-            __version__="1.2.3",
-        )}):
+        with patch.dict(
+            "sys.modules",
+            {
+                "excelbench_rust": MagicMock(
+                    build_info=MagicMock(side_effect=RuntimeError("broken")),
+                    __version__="1.2.3",
+                )
+            },
+        ):
             result = get_rust_backend_version("umya-spreadsheet")
             # The broad except catches RuntimeError and returns "unknown"
             assert result == "unknown"
@@ -851,7 +875,9 @@ class TestPyexcelWritePaths:
         wb = pyexcel_adapter.create_workbook()
         pyexcel_adapter.add_sheet(wb, "S1")
         pyexcel_adapter.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.FORMULA, value="=SUM(1,2)", formula="=SUM(1,2)"),
         )
         assert wb["sheets"]["S1"][(0, 0)] == "=SUM(1,2)"
@@ -862,7 +888,9 @@ class TestPyexcelWritePaths:
         pyexcel_adapter.add_sheet(wb, "S1")
         d = date(2024, 1, 15)
         pyexcel_adapter.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.DATE, value=d),
         )
         assert wb["sheets"]["S1"][(0, 0)] == d
@@ -872,7 +900,9 @@ class TestPyexcelWritePaths:
         wb = pyexcel_adapter.create_workbook()
         pyexcel_adapter.add_sheet(wb, "S1")
         pyexcel_adapter.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.BLANK),
         )
         assert wb["sheets"]["S1"][(0, 0)] == ""
@@ -882,14 +912,16 @@ class TestPyexcelWritePaths:
         wb = pyexcel_adapter.create_workbook()
         # Don't call add_sheet; write directly
         pyexcel_adapter.write_cell_value(
-            wb, "NewSheet", "A1",
+            wb,
+            "NewSheet",
+            "A1",
             CellValue(type=CellType.STRING, value="auto"),
         )
         assert "NewSheet" in wb["sheets"]
         assert "NewSheet" in wb["_order"]
 
     def test_save_empty_sheet(self, pyexcel_adapter: PyexcelAdapter, tmp_path: Path) -> None:
-        """Line 276: save an empty sheet with [[""]]. """
+        """Line 276: save an empty sheet with [[""]]."""
         wb = pyexcel_adapter.create_workbook()
         pyexcel_adapter.add_sheet(wb, "Empty")
         path = tmp_path / "pe_empty.xlsx"
@@ -1040,7 +1072,9 @@ class TestXlsxwriterWritePaths:
         wb = xlsxw.create_workbook()
         xlsxw.add_sheet(wb, "S1")
         xlsxw.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.FORMULA, value="=SUM(1,2)", formula="=SUM(1,2)"),
         )
         path = tmp_path / "xlsxw_formula.xlsx"
@@ -1052,7 +1086,9 @@ class TestXlsxwriterWritePaths:
         wb = xlsxw.create_workbook()
         xlsxw.add_sheet(wb, "S1")
         xlsxw.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.ERROR, value="#N/A"),
         )
         path = tmp_path / "xlsxw_error.xlsx"
@@ -1064,7 +1100,9 @@ class TestXlsxwriterWritePaths:
         wb = xlsxw.create_workbook()
         xlsxw.add_sheet(wb, "S1")
         xlsxw.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.DATE, value=date(2024, 6, 15)),
         )
         path = tmp_path / "xlsxw_date.xlsx"
@@ -1076,14 +1114,20 @@ class TestXlsxwriterWritePaths:
         wb = xlsxw.create_workbook()
         xlsxw.add_sheet(wb, "S1")
         xlsxw.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.STRING, value="test"),
         )
-        xlsxw.add_comment(wb, "S1", {
-            "cell": "A1",
-            "text": "This is a comment",
-            "author": "Test Author",
-        })
+        xlsxw.add_comment(
+            wb,
+            "S1",
+            {
+                "cell": "A1",
+                "text": "This is a comment",
+                "author": "Test Author",
+            },
+        )
         path = tmp_path / "xlsxw_comment_author.xlsx"
         xlsxw.save_workbook(wb, path)
         assert path.exists()
@@ -1104,14 +1148,20 @@ class TestXlsxwriterWritePaths:
         wb = xlsxw.create_workbook()
         xlsxw.add_sheet(wb, "S1")
         xlsxw.write_cell_value(
-            wb, "S1", "A1",
+            wb,
+            "S1",
+            "A1",
             CellValue(type=CellType.STRING, value="test"),
         )
-        xlsxw.add_image(wb, "S1", {
-            "cell": "A1",
-            "path": str(png_path),
-            "offset": [10, 20],
-        })
+        xlsxw.add_image(
+            wb,
+            "S1",
+            {
+                "cell": "A1",
+                "path": str(png_path),
+                "offset": [10, 20],
+            },
+        )
         path = tmp_path / "xlsxw_img_offset.xlsx"
         xlsxw.save_workbook(wb, path)
         assert path.exists()
@@ -1549,9 +1599,7 @@ class TestOpenpyxlPivotTableReading:
         pivot.cache.cacheSource.worksheetSource.ref = None
         pivot.cache.cacheSource.worksheetSource.sheet = None
         pivot.cache.cacheSource.ref = None
-        pivot.cache.cacheSource.__str__ = MagicMock(
-            return_value="<CacheSource>"
-        )
+        pivot.cache.cacheSource.__str__ = MagicMock(return_value="<CacheSource>")
         pivot.location = None  # No location
 
         wb = MagicMock()
@@ -1649,7 +1697,8 @@ class TestOpenpyxlMockedEdges:
         assert v.formula == "=SUM(1,2)"
 
     def test_formula_empty_value_with_string(
-        self, opxl: OpenpyxlAdapter,
+        self,
+        opxl: OpenpyxlAdapter,
     ) -> None:
         """Line 135: c.value is '' but value is truthy."""
         wb = MagicMock()
@@ -1728,7 +1777,8 @@ class TestOpenpyxlMockedEdges:
         assert fmt.bg_color == "#00FF00"
 
     def test_six_char_border_color_mock(
-        self, opxl: OpenpyxlAdapter,
+        self,
+        opxl: OpenpyxlAdapter,
     ) -> None:
         """Line 263: 6-char RGB border color via mock."""
         wb = MagicMock()
@@ -1751,16 +1801,15 @@ class TestOpenpyxlMockedEdges:
         """Line 295: column width is None → returns None."""
         wb = MagicMock()
         ws = MagicMock()
-        ws.column_dimensions.__getitem__ = MagicMock(
-            return_value=MagicMock(width=None)
-        )
+        ws.column_dimensions.__getitem__ = MagicMock(return_value=MagicMock(width=None))
         wb.__getitem__ = MagicMock(return_value=ws)
 
         result = opxl.read_column_width(wb, "S1", "A")
         assert result is None
 
     def test_cf_string_sqref_without_attr(
-        self, opxl: OpenpyxlAdapter,
+        self,
+        opxl: OpenpyxlAdapter,
     ) -> None:
         """Lines 330-332: CF with string sqref (no .sqref attribute)."""
         wb = MagicMock()
@@ -1783,7 +1832,8 @@ class TestOpenpyxlMockedEdges:
         assert cfs[0]["range"] == "A1:A10"
 
     def test_image_string_anchor_mock(
-        self, opxl: OpenpyxlAdapter,
+        self,
+        opxl: OpenpyxlAdapter,
     ) -> None:
         """Lines 430-431: image with string anchor."""
         wb = MagicMock()

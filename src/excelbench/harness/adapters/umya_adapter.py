@@ -9,18 +9,17 @@ from pathlib import Path
 from typing import Any
 
 from excelbench.harness.adapters.base import ExcelAdapter
+from excelbench.harness.adapters.rust_adapter_utils import (
+    cell_value_from_payload,
+    get_rust_backend_version,
+    payload_from_cell_value,
+)
 from excelbench.models import (
     BorderInfo,
     CellFormat,
     CellType,
     CellValue,
     LibraryInfo,
-)
-
-from excelbench.harness.adapters.rust_adapter_utils import (
-    cell_value_from_payload,
-    get_rust_backend_version,
-    payload_from_cell_value,
 )
 
 JSONDict = dict[str, Any]
