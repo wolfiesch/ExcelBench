@@ -20,6 +20,8 @@ from excelbench.models import (
 from excelbench.harness.adapters.rust_adapter_utils import (
     cell_value_from_payload,
     get_rust_backend_version,
+    payload_from_border_info,
+    payload_from_cell_format,
     payload_from_cell_value,
 )
 
@@ -126,40 +128,40 @@ class UmyaAdapter(ExcelAdapter):
         workbook.write_cell_value(sheet, cell, payload_from_cell_value(value))
 
     def write_cell_format(self, workbook: Any, sheet: str, cell: str, format: CellFormat) -> None:
-        return
+        workbook.write_cell_format(sheet, cell, payload_from_cell_format(format))
 
     def write_cell_border(self, workbook: Any, sheet: str, cell: str, border: BorderInfo) -> None:
-        return
+        workbook.write_cell_border(sheet, cell, payload_from_border_info(border))
 
     def set_row_height(self, workbook: Any, sheet: str, row: int, height: float) -> None:
-        return
+        workbook.set_row_height(sheet, row, height)
 
     def set_column_width(self, workbook: Any, sheet: str, column: str, width: float) -> None:
-        return
+        workbook.set_column_width(sheet, column, width)
 
     def merge_cells(self, workbook: Any, sheet: str, cell_range: str) -> None:
-        return
+        workbook.merge_cells(sheet, cell_range)
 
     def add_conditional_format(self, workbook: Any, sheet: str, rule: JSONDict) -> None:
-        return
+        workbook.add_conditional_format(sheet, rule)
 
     def add_data_validation(self, workbook: Any, sheet: str, validation: JSONDict) -> None:
-        return
+        workbook.add_data_validation(sheet, validation)
 
     def add_hyperlink(self, workbook: Any, sheet: str, link: JSONDict) -> None:
-        return
+        workbook.add_hyperlink(sheet, link)
 
     def add_image(self, workbook: Any, sheet: str, image: JSONDict) -> None:
-        return
+        workbook.add_image(sheet, image)
 
     def add_pivot_table(self, workbook: Any, sheet: str, pivot: JSONDict) -> None:
         raise NotImplementedError("umya pivot tables not implemented")
 
     def add_comment(self, workbook: Any, sheet: str, comment: JSONDict) -> None:
-        return
+        workbook.add_comment(sheet, comment)
 
     def set_freeze_panes(self, workbook: Any, sheet: str, settings: JSONDict) -> None:
-        return
+        workbook.set_freeze_panes(sheet, settings)
 
     def save_workbook(self, workbook: Any, path: Path) -> None:
         workbook.save(str(path))
