@@ -2,27 +2,28 @@
 
 This adapter is read/write (xlsx).
 
-Current scope: Tier 1 cell values + formulas.
+Current scope: Tier 1 cell values + formulas, plus Tier 2 read/write operations
+including merged cells, conditional formatting, data validation, hyperlinks,
+images, comments, and freeze panes.
 """
 
 from pathlib import Path
 from typing import Any
 
 from excelbench.harness.adapters.base import ExcelAdapter
-from excelbench.models import (
-    BorderInfo,
-    CellFormat,
-    CellType,
-    CellValue,
-    LibraryInfo,
-)
-
 from excelbench.harness.adapters.rust_adapter_utils import (
     cell_value_from_payload,
     get_rust_backend_version,
     payload_from_border_info,
     payload_from_cell_format,
     payload_from_cell_value,
+)
+from excelbench.models import (
+    BorderInfo,
+    CellFormat,
+    CellType,
+    CellValue,
+    LibraryInfo,
 )
 
 JSONDict = dict[str, Any]

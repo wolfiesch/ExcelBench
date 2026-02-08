@@ -346,6 +346,7 @@ dependencies = [
  "chrono",
  "indexmap",
  "pyo3",
+ "quick-xml 0.37.5",
  "rust_xlsxwriter",
  "umya-spreadsheet",
  "zip 0.6.6",

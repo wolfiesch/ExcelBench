@@ -10,6 +10,9 @@ use chrono::{Duration, NaiveDate, NaiveDateTime, NaiveTime};
 
 use std::str::FromStr;
 
+use quick_xml::events::Event;
+use quick_xml::{Reader, Writer};
+
 use umya_spreadsheet::{
     new_file, reader, writer, Border, Color, ColorScale, ConditionalFormatValueObject,
     ConditionalFormatValueObjectValues, ConditionalFormatValues, ConditionalFormatting,
@@ -173,7 +176,14 @@ fn naive_datetime_to_excel_serial(dt: NaiveDateTime) -> Option<f64> {
     let epoch = NaiveDate::from_ymd_opt(1899, 12, 30)?.and_time(NaiveTime::MIN);
     let delta = dt - epoch;
     let total_ms = delta.num_milliseconds();
-    Some(total_ms as f64 / 86_400_000.0)
+    let days = total_ms as f64 / 86_400_000.0;
+    // Invert the 1900 leap-year bug adjustment used in `excel_serial_to_naive_datetime`.
+    // There, for serials < 60, an extra day is added (serial -> days: days = serial + 1).
+    // The inverse mapping is:
+    //   if days < 61 then serial = days - 1 (so serial < 60)
+    //   else               serial = days
+    let serial = if days < 61.0 { days - 1.0 } else { days };
+    Some(serial)
 }
 
 #[pyclass(unsendable)]
@@ -1428,6 +1438,115 @@ fn patch_sheet_xml_tooltips(xml: &str, tooltips: &HashMap<String, String>) -> St
         return xml.to_string();
     }
 
+    // Prefer a real XML parse/transform to avoid brittle string manipulation.
+    if let Some(patched) = patch_sheet_xml_tooltips_quickxml(xml, tooltips) {
+        return patched;
+    }
+
+    // Fallback to the legacy string-based patcher.
+    patch_sheet_xml_tooltips_manual(xml, tooltips)
+}
+
+fn patch_sheet_xml_tooltips_quickxml(
+    xml: &str,
+    tooltips: &HashMap<String, String>,
+) -> Option<String> {
+    let mut reader = Reader::from_str(xml);
+    // Preserve text nodes/whitespace as-is.
+    reader.config_mut().trim_text(false);
+    let mut writer = Writer::new(Vec::with_capacity(xml.len() + 128));
+
+    let mut buf: Vec<u8> = Vec::new();
+    loop {
+        match reader.read_event_into(&mut buf) {
+            Ok(Event::Start(e)) => {
+                if e.local_name().as_ref() != b"hyperlink" {
+                    if writer.write_event(Event::Start(e)).is_err() {
+                        return None;
+                    }
+                    buf.clear();
+                    continue;
+                }
+
+                let mut cell_ref: Option<String> = None;
+                let mut has_tooltip: bool = false;
+                for attr_res in e.attributes() {
+                    let attr = attr_res.ok()?;
+                    let k = attr.key.as_ref();
+                    if k == b"tooltip" {
+                        has_tooltip = true;
+                    } else if k == b"ref" {
+                        cell_ref = attr.unescape_value().ok().map(|v| v.to_string());
+                    }
+                }
+
+                let mut out_e = e.to_owned();
+                if !has_tooltip {
+                    if let Some(r) = cell_ref {
+                        if let Some(tip) = tooltips.get(&r) {
+                            out_e.push_attribute(("tooltip", tip.as_str()));
+                        }
+                    }
+                }
+
+                if writer.write_event(Event::Start(out_e)).is_err() {
+                    return None;
+                }
+            }
+            Ok(Event::Empty(e)) => {
+                if e.local_name().as_ref() != b"hyperlink" {
+                    if writer.write_event(Event::Empty(e)).is_err() {
+                        return None;
+                    }
+                    buf.clear();
+                    continue;
+                }
+
+                let mut cell_ref: Option<String> = None;
+                let mut has_tooltip: bool = false;
+                for attr_res in e.attributes() {
+                    let attr = attr_res.ok()?;
+                    let k = attr.key.as_ref();
+                    if k == b"tooltip" {
+                        has_tooltip = true;
+                    } else if k == b"ref" {
+                        cell_ref = attr.unescape_value().ok().map(|v| v.to_string());
+                    }
+                }
+
+                let mut out_e = e.to_owned();
+                if !has_tooltip {
+                    if let Some(r) = cell_ref {
+                        if let Some(tip) = tooltips.get(&r) {
+                            out_e.push_attribute(("tooltip", tip.as_str()));
+                        }
+                    }
+                }
+
+                if writer.write_event(Event::Empty(out_e)).is_err() {
+                    return None;
+                }
+            }
+            Ok(Event::Eof) => break,
+            Ok(e) => {
+                if writer.write_event(e).is_err() {
+                    return None;
+                }
+            }
+            Err(_) => return None,
+        }
+
+        buf.clear();
+    }
+
+    String::from_utf8(writer.into_inner()).ok()
+}
+
+fn patch_sheet_xml_tooltips_manual(xml: &str, tooltips: &HashMap<String, String>) -> String {
+    if tooltips.is_empty() {
+        return xml.to_string();
+    }
+
     let mut out = String::with_capacity(xml.len() + 128);
     let mut i: usize = 0;
 
@@ -1485,6 +1604,24 @@ fn patch_sheet_xml_tooltips(xml: &str, tooltips: &HashMap<String, String>) -> St
 
     out.push_str(&xml[i..]);
     out
+}
+
+fn replace_file(tmp_path: &Path, dest_path: &Path) -> PyResult<()> {
+    if std::fs::rename(tmp_path, dest_path).is_ok() {
+        return Ok(());
+    }
+
+    // On Windows, rename() cannot overwrite an existing destination.
+    let _ = std::fs::remove_file(dest_path);
+    if std::fs::rename(tmp_path, dest_path).is_ok() {
+        return Ok(());
+    }
+
+    std::fs::copy(tmp_path, dest_path).map_err(|e| {
+        PyErr::new::<PyIOError, _>(format!("Failed to replace xlsx with patched version: {e}"))
+    })?;
+    let _ = std::fs::remove_file(tmp_path);
+    Ok(())
 }
 
 fn parse_workbook_sheet_map(workbook_xml: &str) -> HashMap<String, String> {
@@ -1654,9 +1791,7 @@ fn patch_xlsx_hyperlink_tooltips(
     out.finish()
         .map_err(|e| PyErr::new::<PyIOError, _>(format!("Zip finalize failed: {e}")))?;
 
-    std::fs::rename(&tmp_path, path).map_err(|e| {
-        PyErr::new::<PyIOError, _>(format!("Failed to replace xlsx with patched version: {e}"))
-    })?;
+    replace_file(&tmp_path, path)?;
 
     Ok(())
 }

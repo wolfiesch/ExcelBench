@@ -1247,7 +1247,9 @@ impl RustXlsxWriterBook {
                         font_color,
                         stop_if_true,
                     } => {
-                        let mut cf = ConditionalFormatFormula::new().set_rule(formula.as_str());
+                        let rule = formula.trim();
+                        let rule = rule.strip_prefix('=').unwrap_or(rule);
+                        let mut cf = ConditionalFormatFormula::new().set_rule(rule);
                         if *stop_if_true {
                             cf = cf.set_stop_if_true(true);
                         }
