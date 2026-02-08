@@ -11,8 +11,18 @@ import pytest
 
 from excelbench.harness.adapters.openpyxl_adapter import OpenpyxlAdapter
 from excelbench.harness.runner import (
+    _cell_to_coord,
+    _cells_in_range,
     _collect_sheet_names,
+    _coord_to_cell,
+    _deep_compare,
+    _extract_column,
+    _find_by_key,
+    _find_range,
+    _first_non_top_left_cell,
+    _normalize_range,
     _read_cell_scalar,
+    _split_range,
     _strip_cf_priority,
     _write_alignment_case,
     _write_background_color_case,
@@ -25,14 +35,18 @@ from excelbench.harness.runner import (
     _write_formula_case,
     _write_freeze_panes_case,
     _write_hyperlink_case,
+    _write_image_case,
     _write_merged_cells_case,
     _write_multi_sheet_case,
     _write_number_format_case,
+    _write_pivot_case,
     _write_text_format_case,
     calculate_score,
+    compare_results,
     get_write_verifier,
     get_write_verifier_for_adapter,
     get_write_verifier_for_feature,
+    read_alignment_actual,
     read_background_color_actual,
     read_border_actual,
     read_cell_value_actual,
@@ -51,6 +65,9 @@ from excelbench.harness.runner import (
 )
 from excelbench.harness.runner import (
     test_read_case as _test_read_case,
+)
+from excelbench.harness.runner import (
+    test_write as _test_write,
 )
 from excelbench.models import (
     CellType,
@@ -917,3 +934,542 @@ class TestWriteCaseFunctions:
         settings = adapter.read_freeze_panes(wb2, "S1")
         assert settings.get("mode") == "freeze" or settings.get("top_left_cell") is not None
         adapter.close_workbook(wb2)
+
+    def test_write_image_case(
+        self, adapter: OpenpyxlAdapter, tmp_path: Path
+    ) -> None:
+        # Create a minimal PNG so openpyxl can embed it
+        import struct
+        import zlib
+
+        png_path = tmp_path / "test.png"
+        # Minimal 1x1 white PNG
+        raw_data = b"\x00\xff\xff\xff"
+        compressed = zlib.compress(raw_data)
+
+        def _chunk(name: bytes, data: bytes) -> bytes:
+            c = name + data
+            return struct.pack(">I", len(data)) + c + struct.pack(">I", zlib.crc32(c) & 0xFFFFFFFF)
+
+        png_bytes = b"\x89PNG\r\n\x1a\n"
+        png_bytes += _chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0))
+        png_bytes += _chunk(b"IDAT", compressed)
+        png_bytes += _chunk(b"IEND", b"")
+        png_path.write_bytes(png_bytes)
+
+        wb = adapter.create_workbook()
+        adapter.add_sheet(wb, "S1")
+        _write_image_case(
+            adapter, wb, "S1", {"image": {"cell": "A1", "path": str(png_path)}}
+        )
+        adapter.save_workbook(wb, tmp_path / "out.xlsx")
+
+    def test_write_pivot_case_raises(self, adapter: OpenpyxlAdapter) -> None:
+        wb = adapter.create_workbook()
+        adapter.add_sheet(wb, "S1")
+        # pivot_tables are unsupported by most adapters
+        with pytest.raises(NotImplementedError):
+            _write_pivot_case(
+                adapter,
+                wb,
+                "S1",
+                {"pivot": {"data_range": "A1:C10"}},
+            )
+
+
+# ═════════════════════════════════════════════════
+# compare_results / _deep_compare
+# ═════════════════════════════════════════════════
+
+
+class TestCompareResults:
+    def test_exact_match(self) -> None:
+        assert compare_results({"a": 1}, {"a": 1}) is True
+
+    def test_error_in_actual(self) -> None:
+        assert compare_results({"a": 1}, {"error": "fail"}) is False
+
+    def test_extra_keys_ok(self) -> None:
+        assert compare_results({"a": 1}, {"a": 1, "b": 2}) is True
+
+    def test_missing_key(self) -> None:
+        assert compare_results({"a": 1}, {}) is False
+
+    def test_missing_key_with_none_expected(self) -> None:
+        assert compare_results({"a": None}, {}) is True
+
+    def test_nested_dict(self) -> None:
+        assert compare_results({"d": {"x": 1}}, {"d": {"x": 1}}) is True
+        assert compare_results({"d": {"x": 1}}, {"d": {"x": 2}}) is False
+
+    def test_list_match(self) -> None:
+        assert compare_results({"a": [1, 2]}, {"a": [2, 1, 3]}) is True
+        assert compare_results({"a": [1, 4]}, {"a": [1, 2]}) is False
+
+    def test_color_case_insensitive(self) -> None:
+        assert _deep_compare("#ff0000", "#FF0000") is True
+        assert _deep_compare("#ff0000", "#00ff00") is False
+
+    def test_numeric_tolerance(self) -> None:
+        assert _deep_compare(1.0, 1.00009) is True
+        assert _deep_compare(1.0, 1.001) is False
+
+    def test_tuple_vs_list(self) -> None:
+        assert _deep_compare((1, 2), [1, 2]) is True
+
+    def test_tuple_vs_nonsequence(self) -> None:
+        assert _deep_compare((1, 2), "nope") is False
+
+    def test_dict_vs_nondict(self) -> None:
+        assert _deep_compare({"a": 1}, "string") is False
+
+    def test_list_vs_nonlist(self) -> None:
+        assert _deep_compare([1, 2], "string") is False
+
+    def test_string_match(self) -> None:
+        assert _deep_compare("hello", "hello") is True
+        assert _deep_compare("hello", "world") is False
+
+
+# ═════════════════════════════════════════════════
+# Utility functions
+# ═════════════════════════════════════════════════
+
+
+class TestExtractColumn:
+    def test_simple(self) -> None:
+        assert _extract_column("B2") == "B"
+
+    def test_multi_letter(self) -> None:
+        assert _extract_column("AA1") == "AA"
+
+    def test_lowercase(self) -> None:
+        assert _extract_column("c3") == "C"
+
+    def test_no_letters(self) -> None:
+        assert _extract_column("123") == "B"
+
+
+class TestCellToCoord:
+    def test_a1(self) -> None:
+        assert _cell_to_coord("A1") == (1, 1)
+
+    def test_b3(self) -> None:
+        assert _cell_to_coord("B3") == (3, 2)
+
+    def test_aa1(self) -> None:
+        assert _cell_to_coord("AA1") == (1, 27)
+
+    def test_invalid(self) -> None:
+        assert _cell_to_coord("123") == (1, 1)
+
+
+class TestCoordToCell:
+    def test_a1(self) -> None:
+        assert _coord_to_cell(1, 1) == "A1"
+
+    def test_b3(self) -> None:
+        assert _coord_to_cell(3, 2) == "B3"
+
+    def test_aa1(self) -> None:
+        assert _coord_to_cell(1, 27) == "AA1"
+
+
+class TestSplitRange:
+    def test_range(self) -> None:
+        assert _split_range("A1:C3") == ("A1", "C3")
+
+    def test_single_cell(self) -> None:
+        assert _split_range("B2") == ("B2", "B2")
+
+    def test_dollar_signs(self) -> None:
+        assert _split_range("$A$1:$C$3") == ("A1", "C3")
+
+
+class TestCellsInRange:
+    def test_single_cell(self) -> None:
+        assert _cells_in_range("A1", "A1") == ["A1"]
+
+    def test_row(self) -> None:
+        assert _cells_in_range("A1", "C1") == ["A1", "B1", "C1"]
+
+    def test_block(self) -> None:
+        cells = _cells_in_range("A1", "B2")
+        assert cells == ["A1", "B1", "A2", "B2"]
+
+
+class TestFirstNonTopLeftCell:
+    def test_multi(self) -> None:
+        assert _first_non_top_left_cell("A1", "B2") == "B1"
+
+    def test_single(self) -> None:
+        assert _first_non_top_left_cell("A1", "A1") is None
+
+
+class TestNormalizeRange:
+    def test_strips_dollars(self) -> None:
+        assert _normalize_range("$A$1:$B$2") == "A1:B2"
+
+    def test_uppercase(self) -> None:
+        assert _normalize_range("a1:b2") == "A1:B2"
+
+
+class TestFindRange:
+    def test_found(self) -> None:
+        assert _find_range(["A1:B2", "C3:D4"], "A1:B2") == "A1:B2"
+
+    def test_with_dollars(self) -> None:
+        assert _find_range(["$A$1:$B$2"], "A1:B2") == "$A$1:$B$2"
+
+    def test_not_found(self) -> None:
+        assert _find_range(["A1:B2"], "X1:Y2") is None
+
+
+class TestFindByKey:
+    def test_found(self) -> None:
+        items: list[JSONDict] = [{"cell": "A1", "v": 1}, {"cell": "B2", "v": 2}]
+        assert _find_by_key(items, "cell", "B2") == {"cell": "B2", "v": 2}
+
+    def test_not_found(self) -> None:
+        items: list[JSONDict] = [{"cell": "A1"}]
+        assert _find_by_key(items, "cell", "Z9") is None
+
+
+# ═════════════════════════════════════════════════
+# read_alignment_actual
+# ═════════════════════════════════════════════════
+
+
+class TestReadAlignmentActual:
+    def test_defaults_injected(self, adapter: OpenpyxlAdapter) -> None:
+        wb = adapter.open_workbook(FIXTURES_DIR / "tier1/01_cell_values.xlsx")
+        result = read_alignment_actual(adapter, wb, "cell_values", "B2")
+        assert result["h_align"] == "general"
+        assert result["v_align"] == "bottom"
+        adapter.close_workbook(wb)
+
+
+# ═════════════════════════════════════════════════
+# test_write integration
+# ═════════════════════════════════════════════════
+
+
+class TestTestWrite:
+    def test_roundtrip_cell_value(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="cell_values.xlsx",
+            feature="cell_values",
+            tier=1,
+            test_cases=[
+                TestCase(
+                    id="cv_str",
+                    label="string roundtrip",
+                    row=2,
+                    expected={"type": "string", "value": "Roundtrip"},
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier1/01_cell_values.xlsx")
+        assert len(results) == 1
+        assert results[0].test_case_id == "cv_str"
+        assert results[0].operation == OperationType.WRITE
+        assert results[0].passed is True
+
+    def test_roundtrip_formula(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="formulas.xlsx",
+            feature="formulas",
+            tier=1,
+            test_cases=[
+                TestCase(
+                    id="f_simple",
+                    label="",
+                    row=2,
+                    expected={"formula": "=1+1"},
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier1/02_formulas.xlsx")
+        assert len(results) == 1
+
+    def test_roundtrip_text_format(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="text_formatting.xlsx",
+            feature="text_formatting",
+            tier=1,
+            test_cases=[
+                TestCase(
+                    id="bold",
+                    label="bold text",
+                    row=2,
+                    expected={"bold": True},
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier1/03_text_formatting.xlsx")
+        assert len(results) == 1
+        assert results[0].passed is True
+
+    def test_roundtrip_background_color(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="bg.xlsx",
+            feature="background_colors",
+            tier=1,
+            test_cases=[
+                TestCase(
+                    id="bg_red",
+                    label="",
+                    row=2,
+                    expected={"bg_color": "#FF0000"},
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier1/04_background_colors.xlsx")
+        assert len(results) == 1
+
+    def test_roundtrip_number_format(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="nf.xlsx",
+            feature="number_formats",
+            tier=1,
+            test_cases=[
+                TestCase(
+                    id="nf_pct",
+                    label="",
+                    row=2,
+                    expected={"number_format": "#,##0.00"},
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier1/05_number_formats.xlsx")
+        assert len(results) == 1
+
+    def test_roundtrip_alignment(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="align.xlsx",
+            feature="alignment",
+            tier=1,
+            test_cases=[
+                TestCase(
+                    id="align_c",
+                    label="",
+                    row=2,
+                    expected={"h_align": "center"},
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier1/06_alignment.xlsx")
+        assert len(results) == 1
+
+    def test_roundtrip_borders(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="brd.xlsx",
+            feature="borders",
+            tier=1,
+            test_cases=[
+                TestCase(
+                    id="brd_thin",
+                    label="",
+                    row=2,
+                    expected={"border_style": "thin"},
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier1/07_borders.xlsx")
+        assert len(results) == 1
+
+    def test_roundtrip_dimensions(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="dim.xlsx",
+            feature="dimensions",
+            tier=1,
+            test_cases=[
+                TestCase(
+                    id="dim_rh",
+                    label="",
+                    row=2,
+                    expected={"row_height": 30.0},
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier1/08_dimensions.xlsx")
+        assert len(results) == 1
+
+    def test_roundtrip_multiple_sheets(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="ms.xlsx",
+            feature="multiple_sheets",
+            tier=1,
+            test_cases=[
+                TestCase(
+                    id="ms_val",
+                    label="",
+                    row=2,
+                    expected={"type": "string", "value": "Multi"},
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier1/09_multiple_sheets.xlsx")
+        assert len(results) == 1
+
+    def test_roundtrip_merged_cells(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="mc.xlsx",
+            feature="merged_cells",
+            tier=2,
+            test_cases=[
+                TestCase(
+                    id="mc_1",
+                    label="",
+                    row=2,
+                    expected={"merged_range": "A2:C2"},
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier2/10_merged_cells.xlsx")
+        assert len(results) == 1
+
+    def test_roundtrip_conditional_format(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="cf.xlsx",
+            feature="conditional_formatting",
+            tier=2,
+            test_cases=[
+                TestCase(
+                    id="cf_1",
+                    label="",
+                    row=2,
+                    expected={
+                        "cf_rule": {
+                            "range": "A1:A5",
+                            "rule_type": "cellIs",
+                        }
+                    },
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(
+            adapter, tf, FIXTURES_DIR / "tier2/11_conditional_formatting.xlsx"
+        )
+        assert len(results) == 1
+
+    def test_roundtrip_data_validation(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="dv.xlsx",
+            feature="data_validation",
+            tier=2,
+            test_cases=[
+                TestCase(
+                    id="dv_1",
+                    label="",
+                    row=2,
+                    expected={
+                        "validation": {
+                            "range": "B2",
+                            "validation_type": "list",
+                        }
+                    },
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(
+            adapter, tf, FIXTURES_DIR / "tier2/12_data_validation.xlsx"
+        )
+        assert len(results) == 1
+
+    def test_roundtrip_hyperlinks(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="hl.xlsx",
+            feature="hyperlinks",
+            tier=2,
+            test_cases=[
+                TestCase(
+                    id="hl_1",
+                    label="",
+                    row=2,
+                    expected={
+                        "hyperlink": {
+                            "cell": "B2",
+                            "target": "https://example.com",
+                        }
+                    },
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier2/13_hyperlinks.xlsx")
+        assert len(results) == 1
+
+    def test_roundtrip_comments(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="cmt.xlsx",
+            feature="comments",
+            tier=2,
+            test_cases=[
+                TestCase(
+                    id="cmt_1",
+                    label="",
+                    row=2,
+                    expected={
+                        "comment": {"cell": "B2", "text": "Note", "author": "Bot"}
+                    },
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier2/16_comments.xlsx")
+        assert len(results) == 1
+
+    def test_roundtrip_freeze_panes(self, adapter: OpenpyxlAdapter) -> None:
+        tf = TestFile(
+            path="fp.xlsx",
+            feature="freeze_panes",
+            tier=2,
+            test_cases=[
+                TestCase(
+                    id="fp_1",
+                    label="",
+                    row=2,
+                    expected={
+                        "freeze": {"mode": "freeze", "top_left_cell": "B2"}
+                    },
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier2/17_freeze_panes.xlsx")
+        assert len(results) == 1
+
+    def test_sheet_names_skipped(self, adapter: OpenpyxlAdapter) -> None:
+        """Test cases with sheet_names in expected are skipped during write."""
+        tf = TestFile(
+            path="ms.xlsx",
+            feature="multiple_sheets",
+            tier=1,
+            test_cases=[
+                TestCase(
+                    id="ms_names",
+                    label="",
+                    row=1,
+                    expected={"sheet_names": ["S1", "S2"]},
+                    importance=Importance.BASIC,
+                ),
+            ],
+        )
+        results = _test_write(adapter, tf, FIXTURES_DIR / "tier1/09_multiple_sheets.xlsx")
+        assert len(results) == 1
+        # sheet_names are verified via read, so the write test just
+        # verifies the sheets were created
+        assert results[0].operation == OperationType.WRITE
