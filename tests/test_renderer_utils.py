@@ -2,12 +2,24 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+from pathlib import Path
 from unittest.mock import patch
 
-from excelbench.models import Importance, OperationType, TestResult
+from excelbench.models import (
+    BenchmarkMetadata,
+    BenchmarkResults,
+    FeatureScore,
+    Importance,
+    LibraryInfo,
+    OperationType,
+    TestResult,
+)
 from excelbench.results.renderer import (
     _get_git_commit,
     _group_test_cases,
+    _render_per_test_table,
+    render_markdown,
     score_emoji,
 )
 
@@ -115,3 +127,136 @@ def test_get_git_commit_failure() -> None:
 def test_get_git_commit_no_git() -> None:
     with patch("subprocess.run", side_effect=FileNotFoundError):
         assert _get_git_commit() is None
+
+
+# ─────────────────────────────────────────────────
+# _render_per_test_table
+# ─────────────────────────────────────────────────
+
+
+def test_render_per_test_write_only_label() -> None:
+    """A test with only write results should use write_tr for label/importance."""
+    score = FeatureScore(
+        feature="borders",
+        library="openpyxl",
+        test_results=[
+            _make_tr("tc1", OperationType.WRITE, label="Thick border"),
+        ],
+    )
+    lines = _render_per_test_table(score)
+    text = "\n".join(lines)
+    assert "Thick border" in text
+    assert "basic" in text  # importance
+
+
+def test_render_per_test_missing_read_dash() -> None:
+    """When has_read is True but a test_case has no read result, show —."""
+    score = FeatureScore(
+        feature="cell_values",
+        library="openpyxl",
+        test_results=[
+            _make_tr("tc1", OperationType.READ),
+            _make_tr("tc1", OperationType.WRITE),
+            _make_tr("tc2", OperationType.WRITE),  # no read for tc2
+        ],
+    )
+    lines = _render_per_test_table(score)
+    text = "\n".join(lines)
+    assert "—" in text  # tc2 read column is a dash
+
+
+def test_render_per_test_missing_write_dash() -> None:
+    """When has_write is True but a test_case has no write result, show —."""
+    score = FeatureScore(
+        feature="cell_values",
+        library="openpyxl",
+        test_results=[
+            _make_tr("tc1", OperationType.READ),
+            _make_tr("tc1", OperationType.WRITE),
+            _make_tr("tc2", OperationType.READ),  # no write for tc2
+        ],
+    )
+    lines = _render_per_test_table(score)
+    text = "\n".join(lines)
+    assert "—" in text  # tc2 write column is a dash
+
+
+# ─────────────────────────────────────────────────
+# render_markdown edge cases
+# ─────────────────────────────────────────────────
+
+
+def _make_results(
+    *,
+    features: list[str] | None = None,
+    libs: dict[str, list[str]] | None = None,
+    scores: list[FeatureScore] | None = None,
+) -> BenchmarkResults:
+    """Build minimal BenchmarkResults for renderer tests."""
+    if features is None:
+        features = ["cell_values"]
+    if libs is None:
+        libs = {"openpyxl": ["read", "write"]}
+    if scores is None:
+        scores = []
+
+    libraries = {
+        name: LibraryInfo(
+            name=name, version="1.0", language="python", capabilities=set(caps)
+        )
+        for name, caps in libs.items()
+    }
+    return BenchmarkResults(
+        metadata=BenchmarkMetadata(
+            benchmark_version="0.1",
+            run_date=datetime(2026, 1, 1),
+            excel_version="16.0",
+            platform="test",
+            profile="xlsx",
+        ),
+        libraries=libraries,
+        scores=scores,
+    )
+
+
+def test_render_markdown_missing_score_skips_lib(tmp_path: Path) -> None:
+    """When a feature has no score for a library, skip that lib in detail."""
+    results = _make_results(
+        features=["cell_values", "borders"],
+        libs={"openpyxl": ["read", "write"], "xlrd": ["read"]},
+        scores=[
+            FeatureScore(
+                feature="cell_values",
+                library="openpyxl",
+                read_score=3,
+                write_score=2,
+            ),
+            # xlrd has no score for cell_values — hits continue at line 199
+            # openpyxl has no score for borders — hits continue at line 199
+        ],
+    )
+    out = tmp_path / "test.md"
+    render_markdown(results, out)
+    content = out.read_text()
+    assert "cell_values" in content
+    assert "openpyxl" in content
+
+
+def test_render_markdown_write_only_lib_stats(tmp_path: Path) -> None:
+    """A write-only lib should show write stats but skip read (None score)."""
+    results = _make_results(
+        features=["cell_values"],
+        libs={"xlsxwriter": ["write"]},
+        scores=[
+            FeatureScore(
+                feature="cell_values",
+                library="xlsxwriter",
+                write_score=2,
+            ),
+        ],
+    )
+    out = tmp_path / "test.md"
+    render_markdown(results, out)
+    content = out.read_text()
+    assert "xlsxwriter" in content
+    assert "Write" in content
