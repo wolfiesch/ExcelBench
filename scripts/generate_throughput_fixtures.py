@@ -225,6 +225,33 @@ def main() -> None:
         )
     )
 
+    # Bulk read variant (same file, bulk API if adapter supports it)
+    files.append(
+        TestFile(
+            path=f"tier0/{filename}",
+            feature="cell_values_10k_bulk_read",
+            tier=0,
+            file_format="xlsx",
+            test_cases=[
+                TestCase(
+                    id="cell_values_10k_bulk_read",
+                    label="Throughput: cell values bulk read (10k cells)",
+                    row=1,
+                    expected={
+                        "workload": {
+                            "scenario": "cell_values_10k_bulk_read",
+                            "op": "bulk_sheet_values",
+                            "operations": ["read"],
+                            "sheet": sheet,
+                            "range": rng,
+                        }
+                    },
+                    importance=Importance.BASIC,
+                )
+            ],
+        )
+    )
+
     # 1k = 40x25 (useful for very slow per-cell readers)
     scenario = "cell_values_1k"
     sheet = "S1"
@@ -252,6 +279,33 @@ def main() -> None:
                             "range": rng,
                             "start": 1,
                             "step": 1,
+                        }
+                    },
+                    importance=Importance.BASIC,
+                )
+            ],
+        )
+    )
+
+    # Bulk read variant (same file, bulk API if adapter supports it)
+    files.append(
+        TestFile(
+            path=f"tier0/{filename}",
+            feature="cell_values_1k_bulk_read",
+            tier=0,
+            file_format="xlsx",
+            test_cases=[
+                TestCase(
+                    id="cell_values_1k_bulk_read",
+                    label="Throughput: cell values bulk read (1k cells)",
+                    row=1,
+                    expected={
+                        "workload": {
+                            "scenario": "cell_values_1k_bulk_read",
+                            "op": "bulk_sheet_values",
+                            "operations": ["read"],
+                            "sheet": sheet,
+                            "range": rng,
                         }
                     },
                     importance=Importance.BASIC,

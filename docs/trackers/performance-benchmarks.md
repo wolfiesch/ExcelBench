@@ -127,3 +127,8 @@ Template:
 - Worked on: PB-030 (fast batch baseline)
 - Notes: ran a fast multi-adapter throughput baseline (openpyxl/xlsxwriter/pylightxl/pyexcel) across the full throughput suite.
 - Next: decide whether to include pandas/polars/tablib adapters in throughput runs or keep throughput focused on Excel-native libs.
+
+### 02/08/2026 03:03 PM PST (via pst-timestamp)
+- Worked on: PB-030 (bulk read workload)
+- Notes: added `bulk_sheet_values` workload op and read-only workload support (`operations: [read]`); generated bulk-read scenarios and ran openpyxl baseline.
+- Next: add bulk implementations for one more adapter (e.g., pandas/polars) or clearly mark unsupported in reports.

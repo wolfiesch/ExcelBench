@@ -319,3 +319,30 @@ Outputs:
 - Markdown: `results_dev_perf_throughput_batch_fast/perf/README.md`
 - CSV: `results_dev_perf_throughput_batch_fast/perf/matrix.csv`
 - History: `results_dev_perf_throughput_batch_fast/perf/history.jsonl`
+
+### 02/08/2026 03:03 PM PST (via pst-timestamp)
+
+Git:
+- commit: 4704676
+- branch: master
+
+Environment:
+- OS: macOS 26.2 (25C5031i)
+- CPU: Apple M4 Pro
+- RAM: 24 GB
+- Python (uv): 3.12.3
+- Power: (not recorded)
+- Notes: Bulk read workload op (`bulk_sheet_values`) added; openpyxl only; warmup=0 iters=1.
+
+Command:
+- `uv run python scripts/generate_throughput_fixtures.py`
+- `uv run excelbench perf --tests test_files/throughput_xlsx --output results_dev_perf_throughput_bulk --warmup 0 --iters 1 --adapter openpyxl --feature cell_values_10k_bulk_read --feature cell_values_1k_bulk_read`
+
+Outputs:
+- JSON: `results_dev_perf_throughput_bulk/perf/results.json`
+- Markdown: `results_dev_perf_throughput_bulk/perf/README.md`
+- CSV: `results_dev_perf_throughput_bulk/perf/matrix.csv`
+- History: `results_dev_perf_throughput_bulk/perf/history.jsonl`
+
+Observations:
+- Workload is read-only (`operations: [read]`); write is skipped.

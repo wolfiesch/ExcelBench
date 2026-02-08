@@ -118,6 +118,8 @@ def run_perf(
 
     results: list[PerfFeatureResult] = []
     for test_file in manifest.files:
+        workload = _extract_single_workload(test_file)
+        workload_ops = _workload_operations(workload)
         file_path = test_dir / test_file.path
         file_exists = file_path.exists()
 
@@ -127,7 +129,10 @@ def run_perf(
             write_res: PerfOpResult | None = None
 
             if adapter.can_read():
-                if not file_exists:
+                if "read" not in workload_ops:
+                    # Workload explicitly excludes read.
+                    pass
+                elif not file_exists:
                     notes_parts.append(f"Read skipped: missing input file {test_file.path}")
                 elif not adapter.supports_read_path(file_path):
                     notes_parts.append(
@@ -148,16 +153,20 @@ def run_perf(
                         notes_parts.append(f"Read failed: {type(e).__name__}: {e}")
 
             if adapter.can_write():
-                try:
-                    write_res = _bench_write(
-                        adapter=adapter,
-                        test_file=test_file,
-                        warmup=warmup,
-                        iters=iters,
-                        breakdown=breakdown,
-                    )
-                except Exception as e:
-                    notes_parts.append(f"Write failed: {type(e).__name__}: {e}")
+                if "write" not in workload_ops:
+                    # Workload explicitly excludes write.
+                    pass
+                else:
+                    try:
+                        write_res = _bench_write(
+                            adapter=adapter,
+                            test_file=test_file,
+                            warmup=warmup,
+                            iters=iters,
+                            breakdown=breakdown,
+                        )
+                    except Exception as e:
+                        notes_parts.append(f"Write failed: {type(e).__name__}: {e}")
 
             results.append(
                 PerfFeatureResult(
@@ -719,6 +728,29 @@ def _run_workload_read(
             _ = v.formula or v.value
         return
 
+    if op == "bulk_sheet_values":
+        fn = getattr(adapter, "read_sheet_values", None)
+        if fn is None:
+            raise ValueError(f"Adapter does not support bulk sheet reads: {adapter.name}")
+
+        # Prefer passing a range if supported.
+        cell_range = str(workload.get("range") or "")
+        try:
+            data = fn(workbook, sheet, cell_range)
+        except TypeError:
+            data = fn(workbook, sheet)
+
+        # Best-effort: touch output to avoid lazy containers.
+        _touch = None
+        if hasattr(data, "to_numpy"):
+            _touch = data.to_numpy()
+        elif hasattr(data, "values"):
+            _touch = data.values  # pandas-style
+        else:
+            _touch = data
+        _ = _touch
+        return
+
     if op == "bg_color":
         for cell in cells:
             fmt = adapter.read_cell_format(workbook, sheet, cell)
@@ -858,6 +890,28 @@ def _extract_single_workload(test_file: Any) -> dict[str, Any] | None:
     if "range" not in workload:
         return None
     return workload
+
+
+def _workload_operations(workload: dict[str, Any] | None) -> set[str]:
+    """Return which operations to run for a workload.
+
+    Default is both read+write. A workload may restrict operations by specifying:
+
+        {"operations": ["read"]}
+    """
+    if workload is None:
+        return {"read", "write"}
+    ops = workload.get("operations")
+    if not isinstance(ops, list) or not ops:
+        return {"read", "write"}
+    out: set[str] = set()
+    for op in ops:
+        if not isinstance(op, str):
+            continue
+        op_n = op.strip().lower()
+        if op_n in {"read", "write"}:
+            out.add(op_n)
+    return out or {"read", "write"}
 
 
 def _cells_from_range(range_str: str) -> list[str]:

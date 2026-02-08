@@ -341,3 +341,68 @@ def test_perf_workload_border_records_op_count(tmp_path: Path) -> None:
     assert row.perf["write"] is not None
     assert row.perf["read"].op_count == 4
     assert row.perf["write"].op_count == 4
+
+
+def test_perf_workload_bulk_read_skips_write(tmp_path: Path) -> None:
+    suite = tmp_path / "suite"
+    suite.mkdir(parents=True, exist_ok=True)
+
+    wb = Workbook()
+    ws = wb.active
+    assert ws is not None
+    ws.title = "S1"
+    ws["A1"] = 1
+    ws["B1"] = 2
+    ws["A2"] = 3
+    ws["B2"] = 4
+
+    (suite / "tier0").mkdir(parents=True, exist_ok=True)
+    wb_path = suite / "tier0" / "00_bulk_4.xlsx"
+    wb.save(wb_path)
+
+    workload = {
+        "scenario": "bulk_4",
+        "op": "bulk_sheet_values",
+        "operations": ["read"],
+        "sheet": "S1",
+        "range": "A1:B2",
+    }
+
+    manifest = Manifest(
+        generated_at=datetime.now(UTC),
+        excel_version="test",
+        generator_version="test",
+        file_format="xlsx",
+        files=[
+            TestFile(
+                path="tier0/00_bulk_4.xlsx",
+                feature="bulk_4",
+                tier=0,
+                file_format="xlsx",
+                test_cases=[
+                    TestCase(
+                        id="bulk_4",
+                        label="Throughput: bulk read 4 cells",
+                        row=1,
+                        expected={"workload": workload},
+                        importance=Importance.BASIC,
+                    )
+                ],
+            )
+        ],
+    )
+    write_manifest(manifest, suite / "manifest.json")
+
+    results = run_perf(
+        suite,
+        adapters=[OpenpyxlAdapter()],
+        warmup=0,
+        iters=1,
+        breakdown=False,
+    )
+
+    row = results.results[0]
+    assert row.perf["read"] is not None
+    assert row.perf["read"].op_count == 4
+    assert row.perf["write"] is None
+    assert row.notes is None
