@@ -1,82 +1,140 @@
 # ExcelBench
 
-A comprehensive benchmark suite comparing Excel libraries' **feature parity** across Python and Rust ecosystems.
+**Objective, reproducible fidelity scores for Python Excel libraries.**
 
-## Why ExcelBench?
+Most Excel library comparisons focus on speed. ExcelBench answers the question developers actually have: **"Can this library handle my complex spreadsheet?"**
 
-Most Excel library comparisons focus on speed. But the real question developers have is: **"Can this library handle my complex spreadsheet?"**
+We test 17 features — from cell values to conditional formatting to images — across 5 mainstream Python libraries, scoring each on a 0–3 fidelity scale against real Excel-generated reference files.
 
-ExcelBench measures **fidelity** - how accurately each library can read and write Excel features compared to native Excel. We test the nuances: border thickness, conditional formatting rules, pivot table structures, formula preservation, and 20+ other feature categories.
+## Results at a Glance
 
-## Scoring System
+> Last run: 2026-02-06 &bull; Excel 16.105.3 &bull; macOS (Apple Silicon)
 
-Each feature is scored on a 0-3 scale for both **Read** and **Write** capabilities:
+### XLSX Profile
+
+| Feature | openpyxl | | xlsxwriter | python-calamine | pylightxl | |
+|:--------|:--------:|:--------:|:----------:|:---------------:|:---------:|:---------:|
+| | **Read** | **Write** | **Write** | **Read** | **Read** | **Write** |
+| **Tier 1 — Essential** | | | | | | |
+| Cell values | 🟢 3 | 🟢 3 | 🟢 3 | 🟠 1 | 🟢 3 | 🟠 1 |
+| Formulas | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🟢 3 |
+| Text formatting | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 |
+| Background colors | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 |
+| Number formats | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 |
+| Alignment | 🟢 3 | 🟢 3 | 🟢 3 | 🟠 1 | 🔴 0 | 🟠 1 |
+| Borders | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 |
+| Dimensions | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 |
+| Multiple sheets | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 |
+| **Tier 2 — Standard** | | | | | | |
+| Merged cells | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 |
+| Conditional formatting | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 |
+| Data validation | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 |
+| Hyperlinks | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 |
+| Images | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 |
+| Comments | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 |
+| Freeze panes | 🟢 3 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 |
+| Pivot tables | ➖ | ➖ | ➖ | ➖ | ➖ | ➖ |
+
+**xlrd** is omitted from the XLSX table — it only supports the legacy `.xls` format (see [XLS results](#xls-profile) below).
+
+### XLS Profile
+
+| Feature | xlrd (Read) | python-calamine (Read) |
+|:--------|:-----------:|:----------------------:|
+| Cell values | 🟢 3 | 🟢 3 |
+| Alignment | 🟢 3 | 🟠 1 |
+| Dimensions | 🟢 3 | 🔴 0 |
+| Multiple sheets | 🟢 3 | 🟢 3 |
+
+### Score Legend
 
 | Score | Meaning |
-|-------|---------|
-| 🔴 0 | Unsupported - errors, corruption, or complete data loss |
-| 🟠 1 | Minimal - basic recognition but significant limitations |
-| 🟡 2 | Functional - works for common cases, some edge case failures |
-| 🟢 3 | Complete - full fidelity, indistinguishable from Excel |
+|:------|:--------|
+| 🟢 3 | **Complete** — full fidelity, indistinguishable from Excel |
+| 🟡 2 | **Functional** — works for common cases, some edge-case failures |
+| 🟠 1 | **Minimal** — basic recognition but significant limitations |
+| 🔴 0 | **Unsupported** — errors, corruption, or complete data loss |
+| ➖ | Not applicable (library doesn't support this format/operation) |
 
 ## Libraries Tested
 
-**Current (implemented):**
-- openpyxl (read/write)
-- xlsxwriter (write-only)
-- python-calamine (read-only, Rust-backed)
-- pylightxl (read/write, zero-dependency)
-- xlrd (read-only, .xls format)
+| Library | Version | Lang | Capabilities | Notes |
+|:--------|:--------|:-----|:-------------|:------|
+| [openpyxl](https://openpyxl.readthedocs.io/) | 3.1.5 | Python | Read + Write | Full-featured, pure Python |
+| [XlsxWriter](https://xlsxwriter.readthedocs.io/) | 3.2.9 | Python | Write only | Write-optimized, excellent formatting |
+| [python-calamine](https://github.com/dimastbk/python-calamine) | 0.6.1 | Rust | Read only | Fast reads via Rust `calamine` crate |
+| [pylightxl](https://github.com/PydPiper/pylightxl) | 1.61 | Python | Read + Write | Zero-dependency, lightweight |
+| [xlrd](https://github.com/python-excel/xlrd) | 2.0.2 | Python | Read only | Legacy `.xls` format only |
 
-**Planned:**
-- pyexcel
-- Rust: rust_xlsxwriter, umya-spreadsheet
+## How It Works
 
-## Features Tested
-
-### Tier 1 - Essential
-Cell values, formulas, text formatting, background colors, number formats, alignment, borders, dimensions, multiple sheets
-
-### Tier 2 - Standard (Implemented)
-Merged cells, conditional formatting, data validation, hyperlinks, images, pivot tables, comments, freeze panes
-
-### Tier 3 - Advanced
-Charts, named ranges, complex conditional formatting, tables, print settings, protection
+1. **Generate reference files** — [xlwings](https://www.xlwings.org/) drives real Excel to produce canonical `.xlsx`/`.xls` test files with known features.
+2. **Read tests** — each library reads the Excel-generated file; extracted values are compared to the expected manifest.
+3. **Write tests** — each library writes a new file from the same spec; the output is verified by re-reading with a trusted oracle (Excel via xlwings, or openpyxl in CI).
+4. **Score** — pass rates map to the 0–3 fidelity scale per feature.
 
 ## Quick Start
 
 ```bash
-# Install dependencies
+# Install
 uv sync
 
-# Generate canonical fixtures (requires Excel installed)
-uv run excelbench generate --output test_files
-
-# Run benchmark
-uv run excelbench benchmark --tests test_files --output results
+# Run the benchmark against pre-built fixtures (no Excel required)
+uv run excelbench benchmark --tests fixtures/excel --output results
 
 # View results
-cat results/README.md
+cat results/xlsx/README.md
 ```
 
-## Results
+To regenerate canonical fixtures from scratch (requires Excel installed):
 
-See [results/README.md](results/README.md) for the latest benchmark results.
+```bash
+uv run excelbench generate --output fixtures/excel
+```
+
+## Detailed Results
+
+- **[XLSX detailed results](results/xlsx/README.md)** — per-library, per-test-case breakdowns
+- **[XLS detailed results](results/xls/README.md)** — legacy format results
+- **[CSV export](results/matrix.csv)** — machine-readable flat file
+- **[Run history](results/history.jsonl)** — append-only log of scores across runs
 
 ## Methodology
 
-Our methodology ensures reproducible, objective scoring:
-
-1. **Test files generated by real Excel** via xlwings - guaranteed correct reference files
-2. **Detailed scoring rubrics** define exactly what qualifies for each score level
-3. **Independent read/write scores** because capabilities often differ
-4. **Edge case coverage** informed by real-world pain points from GitHub issues
+- **Real Excel as source of truth** — test fixtures are generated by Excel itself via xlwings, not hand-crafted XML
+- **Independent Read/Write scores** — because library capabilities often differ
+- **Detailed scoring rubrics** — objective 0–3 criteria for each feature ([rubrics](rubrics/fidelity-rubrics.md))
+- **Reproducible** — canonical fixtures are tracked in git; CI runs the full benchmark on every push
 
 Full methodology: [METHODOLOGY.md](METHODOLOGY.md)
 
+## Feature Coverage
+
+### Implemented (Tier 1 + 2)
+
+| Tier | Features |
+|:-----|:---------|
+| **Tier 1** — Essential | Cell values, formulas, text formatting, background colors, number formats, alignment, borders, dimensions, multiple sheets |
+| **Tier 2** — Standard | Merged cells, conditional formatting, data validation, hyperlinks, images, pivot tables*, comments, freeze panes |
+
+\* Pivot tables require a Windows-generated fixture; macOS support is limited.
+
+### Planned (Tier 3)
+
+Charts, named ranges, complex conditional formatting, tables (structured references), print settings, protection.
+
 ## Project Status
 
-🚧 **In Development** - Tier 1+2 complete, 5 adapters (openpyxl, xlsxwriter, python-calamine, pylightxl, xlrd)
+**v0.1.0** — Tier 1 + Tier 2 complete for 5 Python libraries. CI green. Actively maintained.
+
+Roadmap:
+- Rust library integration (rust_xlsxwriter, umya-spreadsheet) via PyO3
+- Tier 3 features (charts, named ranges, protection)
+- Interactive web viewer for results
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, how to add features, and how to add library adapters.
 
 ## License
 
