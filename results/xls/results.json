@@ -1,7 +1,7 @@
 {
   "metadata": {
     "benchmark_version": "0.1.0",
-    "run_date": "2026-02-06T10:16:52.361070+00:00",
+    "run_date": "2026-02-08T22:09:12.658266+00:00",
     "excel_version": "xlwt",
     "platform": "Darwin-arm64",
     "profile": "xls"
@@ -44,7 +44,9 @@
               "type": "string",
               "value": "Hello World"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "String - simple"
           }
         },
         "string_unicode": {
@@ -58,7 +60,9 @@
               "type": "string",
               "value": "\u65e5\u672c\u8a9e\ud83c\udf89\u00e9mojis"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "String - unicode"
           }
         },
         "string_empty": {
@@ -70,7 +74,9 @@
             "actual": {
               "type": "blank"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "String - empty"
           }
         },
         "string_long": {
@@ -84,7 +90,9 @@
               "type": "string",
               "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "String - long (1000 chars)"
           }
         },
         "string_newline": {
@@ -98,7 +106,9 @@
               "type": "string",
               "value": "Line 1\nLine 2\nLine 3"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "String - with newlines"
           }
         },
         "number_integer": {
@@ -112,7 +122,9 @@
               "type": "number",
               "value": 42
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Number - integer"
           }
         },
         "number_float": {
@@ -126,7 +138,9 @@
               "type": "number",
               "value": 3.14159265358979
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Number - float"
           }
         },
         "number_negative": {
@@ -140,7 +154,9 @@
               "type": "number",
               "value": -100.5
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Number - negative"
           }
         },
         "number_large": {
@@ -154,7 +170,9 @@
               "type": "number",
               "value": 1234567890123456.0
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Number - large"
           }
         },
         "number_scientific": {
@@ -168,7 +186,9 @@
               "type": "number",
               "value": 1.23e-10
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Number - scientific notation"
           }
         },
         "date_standard": {
@@ -182,7 +202,9 @@
               "type": "date",
               "value": "2026-02-04"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Date - standard"
           }
         },
         "datetime": {
@@ -196,7 +218,9 @@
               "type": "datetime",
               "value": "2026-02-04T10:30:45"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "DateTime - with time"
           }
         },
         "boolean_true": {
@@ -210,7 +234,9 @@
               "type": "boolean",
               "value": true
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Boolean - TRUE"
           }
         },
         "boolean_false": {
@@ -224,7 +250,9 @@
               "type": "boolean",
               "value": false
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Boolean - FALSE"
           }
         },
         "error_div0": {
@@ -238,7 +266,9 @@
               "type": "error",
               "value": "#DIV/0!"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Error - #DIV/0!"
           }
         },
         "error_na": {
@@ -252,7 +282,9 @@
               "type": "error",
               "value": "#N/A"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Error - #N/A"
           }
         },
         "error_value": {
@@ -266,7 +298,9 @@
               "type": "error",
               "value": "#VALUE!"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Error - #VALUE!"
           }
         },
         "blank": {
@@ -278,7 +312,9 @@
             "actual": {
               "type": "blank"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Blank cell"
           }
         }
       },
@@ -303,7 +339,9 @@
               "type": "string",
               "value": "Hello World"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "String - simple"
           }
         },
         "string_unicode": {
@@ -317,7 +355,9 @@
               "type": "string",
               "value": "\u65e5\u672c\u8a9e\ud83c\udf89\u00e9mojis"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "String - unicode"
           }
         },
         "string_empty": {
@@ -329,7 +369,9 @@
             "actual": {
               "type": "blank"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "String - empty"
           }
         },
         "string_long": {
@@ -343,7 +385,9 @@
               "type": "string",
               "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "String - long (1000 chars)"
           }
         },
         "string_newline": {
@@ -357,7 +401,9 @@
               "type": "string",
               "value": "Line 1\nLine 2\nLine 3"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "String - with newlines"
           }
         },
         "number_integer": {
@@ -371,7 +417,9 @@
               "type": "number",
               "value": 42.0
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Number - integer"
           }
         },
         "number_float": {
@@ -385,7 +433,9 @@
               "type": "number",
               "value": 3.14159265358979
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Number - float"
           }
         },
         "number_negative": {
@@ -399,7 +449,9 @@
               "type": "number",
               "value": -100.5
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Number - negative"
           }
         },
         "number_large": {
@@ -413,7 +465,9 @@
               "type": "number",
               "value": 1234567890123456.0
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Number - large"
           }
         },
         "number_scientific": {
@@ -427,7 +481,9 @@
               "type": "number",
               "value": 1.23e-10
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Number - scientific notation"
           }
         },
         "date_standard": {
@@ -441,7 +497,9 @@
               "type": "date",
               "value": "2026-02-04"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Date - standard"
           }
         },
         "datetime": {
@@ -455,7 +513,9 @@
               "type": "datetime",
               "value": "2026-02-04T10:30:45"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "DateTime - with time"
           }
         },
         "boolean_true": {
@@ -469,7 +529,9 @@
               "type": "boolean",
               "value": true
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Boolean - TRUE"
           }
         },
         "boolean_false": {
@@ -483,7 +545,9 @@
               "type": "boolean",
               "value": false
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Boolean - FALSE"
           }
         },
         "error_div0": {
@@ -497,7 +561,9 @@
               "type": "error",
               "value": "#DIV/0!"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Error - #DIV/0!"
           }
         },
         "error_na": {
@@ -511,7 +577,9 @@
               "type": "error",
               "value": "#N/A"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Error - #N/A"
           }
         },
         "error_value": {
@@ -525,7 +593,9 @@
               "type": "error",
               "value": "#VALUE!"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Error - #VALUE!"
           }
         },
         "blank": {
@@ -537,7 +607,9 @@
             "actual": {
               "type": "blank"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Blank cell"
           }
         }
       },
@@ -561,7 +633,9 @@
               "h_align": "general",
               "v_align": "bottom"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - left"
           }
         },
         "h_center": {
@@ -574,7 +648,9 @@
               "h_align": "general",
               "v_align": "bottom"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - center"
           }
         },
         "h_right": {
@@ -587,7 +663,9 @@
               "h_align": "general",
               "v_align": "bottom"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - right"
           }
         },
         "v_top": {
@@ -600,7 +678,9 @@
               "h_align": "general",
               "v_align": "bottom"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - top"
           }
         },
         "v_center": {
@@ -613,7 +693,9 @@
               "h_align": "general",
               "v_align": "bottom"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - center"
           }
         },
         "v_bottom": {
@@ -626,7 +708,9 @@
               "h_align": "general",
               "v_align": "bottom"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - bottom"
           }
         },
         "wrap_text": {
@@ -639,7 +723,9 @@
               "h_align": "general",
               "v_align": "bottom"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - wrap text"
           }
         },
         "rotation_45": {
@@ -652,7 +738,9 @@
               "h_align": "general",
               "v_align": "bottom"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - rotation 45"
           }
         },
         "indent_2": {
@@ -665,7 +753,9 @@
               "h_align": "general",
               "v_align": "bottom"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - indent 2"
           }
         }
       },
@@ -689,7 +779,9 @@
               "h_align": "left",
               "v_align": "bottom"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - left"
           }
         },
         "h_center": {
@@ -702,7 +794,9 @@
               "h_align": "center",
               "v_align": "bottom"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - center"
           }
         },
         "h_right": {
@@ -715,7 +809,9 @@
               "h_align": "right",
               "v_align": "bottom"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - right"
           }
         },
         "v_top": {
@@ -728,7 +824,9 @@
               "v_align": "top",
               "h_align": "general"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - top"
           }
         },
         "v_center": {
@@ -741,7 +839,9 @@
               "v_align": "center",
               "h_align": "general"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - center"
           }
         },
         "v_bottom": {
@@ -754,7 +854,9 @@
               "v_align": "bottom",
               "h_align": "general"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - bottom"
           }
         },
         "wrap_text": {
@@ -768,7 +870,9 @@
               "wrap": true,
               "h_align": "general"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - wrap text"
           }
         },
         "rotation_45": {
@@ -782,7 +886,9 @@
               "rotation": 45,
               "h_align": "general"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - rotation 45"
           }
         },
         "indent_2": {
@@ -796,7 +902,9 @@
               "indent": 2,
               "h_align": "general"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Align - indent 2"
           }
         }
       },
@@ -819,7 +927,9 @@
             "actual": {
               "row_height": null
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Row height - 30"
           }
         },
         "row_height_45": {
@@ -831,7 +941,9 @@
             "actual": {
               "row_height": null
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Row height - 45"
           }
         },
         "col_width_20": {
@@ -843,7 +955,9 @@
             "actual": {
               "column_width": null
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Column width - D = 20"
           }
         },
         "col_width_8": {
@@ -855,7 +969,9 @@
             "actual": {
               "column_width": null
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Column width - E = 8"
           }
         }
       },
@@ -878,7 +994,9 @@
             "actual": {
               "row_height": 30.0
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Row height - 30"
           }
         },
         "row_height_45": {
@@ -890,7 +1008,9 @@
             "actual": {
               "row_height": 45.0
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Row height - 45"
           }
         },
         "col_width_20": {
@@ -902,7 +1022,9 @@
             "actual": {
               "column_width": 20.0
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Column width - D = 20"
           }
         },
         "col_width_8": {
@@ -914,7 +1036,9 @@
             "actual": {
               "column_width": 8.0
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Column width - E = 8"
           }
         }
       },
@@ -945,7 +1069,9 @@
                 "Gamma"
               ]
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Sheet names"
           }
         },
         "value_alpha": {
@@ -959,7 +1085,9 @@
               "type": "string",
               "value": "Alpha"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Alpha value"
           }
         },
         "value_beta": {
@@ -973,7 +1101,9 @@
               "type": "string",
               "value": "Beta"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Beta value"
           }
         },
         "value_gamma": {
@@ -987,7 +1117,9 @@
               "type": "string",
               "value": "Gamma"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Gamma value"
           }
         }
       },
@@ -1018,7 +1150,9 @@
                 "Gamma"
               ]
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Sheet names"
           }
         },
         "value_alpha": {
@@ -1032,7 +1166,9 @@
               "type": "string",
               "value": "Alpha"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Alpha value"
           }
         },
         "value_beta": {
@@ -1046,7 +1182,9 @@
               "type": "string",
               "value": "Beta"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Beta value"
           }
         },
         "value_gamma": {
@@ -1060,7 +1198,9 @@
               "type": "string",
               "value": "Gamma"
             },
-            "notes": null
+            "notes": null,
+            "importance": "basic",
+            "label": "Gamma value"
           }
         }
       },

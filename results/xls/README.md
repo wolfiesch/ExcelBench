@@ -1,6 +1,6 @@
 # ExcelBench Results
 
-*Generated: 2026-02-06 10:16 UTC*
+*Generated: 2026-02-08 22:09 UTC*
 *Profile: xls*
 *Excel Version: xlwt*
 *Platform: Darwin-arm64*
@@ -17,15 +17,29 @@
 
 ## Summary
 
+**Tier 0 — Basic Values**
+
+| Feature | python-calamine (R) | xlrd (R) |
+|---------|------------|------------|
+| cell_values | 🟢 3 | 🟢 3 |
+| multiple_sheets | 🟢 3 | 🟢 3 |
+
+**Tier 1 — Formatting**
+
 | Feature | python-calamine (R) | xlrd (R) |
 |---------|------------|------------|
 | alignment | 🟠 1 | 🟢 3 |
-| cell_values | 🟢 3 | 🟢 3 |
 | dimensions | 🔴 0 | 🟢 3 |
-| multiple_sheets | 🟢 3 | 🟢 3 |
 
 Notes:
 - alignment: Known limitation: python-calamine alignment read is limited because its API does not expose style/alignment metadata.
+
+## Statistics
+
+| Library | Mode | Tests | Passed | Failed | Pass Rate | Green Features |
+|---------|------|-------|--------|--------|-----------|----------------|
+| python-calamine | R | 35 | 23 | 12 | 66% | 2/4 |
+| xlrd | R | 35 | 35 | 0 | 100% | 4/4 |
 
 ## Libraries Tested
 
@@ -36,48 +50,47 @@ Notes:
 
 ### alignment
 
-**python-calamine**
-- Read: 🟠 1 (1/3)
+**python-calamine** — Read: 🟠 1
 - Notes: Known limitation: python-calamine alignment read is limited because its API does not expose style/alignment metadata.
-- Failed tests (8):
-  - h_left (read)
-  - h_center (read)
-  - h_right (read)
-  - v_top (read)
-  - v_center (read)
-  - ... and 3 more
 
-**xlrd**
-- Read: 🟢 3 (3/3)
+| Test | Importance | Read |
+|------|-----------|------|
+| Align - left | basic | ❌ |
+| Align - center | basic | ❌ |
+| Align - right | basic | ❌ |
+| Align - top | basic | ❌ |
+| Align - center | basic | ❌ |
+| Align - bottom | basic | ✅ |
+| Align - wrap text | basic | ❌ |
+| Align - rotation 45 | basic | ❌ |
+| Align - indent 2 | basic | ❌ |
+
+**xlrd** — Read: 🟢 3
 
 ### cell_values
 
-**python-calamine**
-- Read: 🟢 3 (3/3)
+**python-calamine** — Read: 🟢 3
 
-**xlrd**
-- Read: 🟢 3 (3/3)
+**xlrd** — Read: 🟢 3
 
 ### dimensions
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (4):
-  - row_height_30 (read)
-  - row_height_45 (read)
-  - col_width_20 (read)
-  - col_width_8 (read)
+**python-calamine** — Read: 🔴 0
 
-**xlrd**
-- Read: 🟢 3 (3/3)
+| Test | Importance | Read |
+|------|-----------|------|
+| Row height - 30 | basic | ❌ |
+| Row height - 45 | basic | ❌ |
+| Column width - D = 20 | basic | ❌ |
+| Column width - E = 8 | basic | ❌ |
+
+**xlrd** — Read: 🟢 3
 
 ### multiple_sheets
 
-**python-calamine**
-- Read: 🟢 3 (3/3)
+**python-calamine** — Read: 🟢 3
 
-**xlrd**
-- Read: 🟢 3 (3/3)
+**xlrd** — Read: 🟢 3
 
 ---
 *Benchmark version: 0.1.0*

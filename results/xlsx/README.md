@@ -1,6 +1,6 @@
 # ExcelBench Results
 
-*Generated: 2026-02-06 10:16 UTC*
+*Generated: 2026-02-08 22:09 UTC*
 *Profile: xlsx*
 *Excel Version: 16.105.3*
 *Platform: Darwin-arm64*
@@ -17,25 +17,37 @@
 
 ## Summary
 
-| Feature | openpyxl (R) | openpyxl (W) | pylightxl (R) | pylightxl (W) | python-calamine (R) | xlrd (R) | xlsxwriter (W) |
-|---------|------------|------------|------------|------------|------------|------------|------------|
-| alignment | 🟢 3 | 🟢 3 | 🔴 0 | 🟠 1 | 🟠 1 | ➖ | 🟢 3 |
-| background_colors | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 |
-| borders | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 |
-| cell_values | 🟢 3 | 🟢 3 | 🟢 3 | 🟠 1 | 🟠 1 | ➖ | 🟢 3 |
-| comments | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 |
-| conditional_formatting | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 |
-| data_validation | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 |
-| dimensions | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 |
-| formulas | 🟢 3 | 🟢 3 | 🔴 0 | 🟢 3 | 🔴 0 | ➖ | 🟢 3 |
-| freeze_panes | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 |
-| hyperlinks | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 |
-| images | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 |
-| merged_cells | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 |
-| multiple_sheets | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 | ➖ | 🟢 3 |
-| number_formats | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 |
-| pivot_tables | ➖ | ➖ | ➖ | ➖ | ➖ | ➖ | ➖ |
-| text_formatting | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 |
+**Tier 0 — Basic Values**
+
+| Feature | openpyxl (R) | openpyxl (W) | pandas (R) | pandas (W) | pyexcel (R) | pyexcel (W) | pylightxl (R) | pylightxl (W) | python-calamine (R) | xlrd (R) | xlsxwriter (W) | xlwt (W) |
+|---------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|
+| cell_values | 🟢 3 | 🟢 3 | 🟠 1 | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 | 🟠 1 | 🟠 1 | ➖ | 🟢 3 | 🟢 3 |
+| formulas | 🟢 3 | 🟢 3 | 🔴 0 | 🟢 3 | 🔴 0 | 🟢 3 | 🔴 0 | 🟢 3 | 🔴 0 | ➖ | 🟢 3 | 🔴 0 |
+| multiple_sheets | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 | 🟢 3 | ➖ | 🟢 3 | 🟢 3 |
+
+**Tier 1 — Formatting**
+
+| Feature | openpyxl (R) | openpyxl (W) | pandas (R) | pandas (W) | pyexcel (R) | pyexcel (W) | pylightxl (R) | pylightxl (W) | python-calamine (R) | xlrd (R) | xlsxwriter (W) | xlwt (W) |
+|---------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|
+| alignment | 🟢 3 | 🟢 3 | 🟠 1 | 🟠 1 | 🟠 1 | 🟠 1 | 🔴 0 | 🟠 1 | 🟠 1 | ➖ | 🟢 3 | 🟢 3 |
+| background_colors | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 | 🟠 1 |
+| borders | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 | 🟠 1 |
+| dimensions | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 | 🟠 1 |
+| number_formats | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🟠 1 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 | 🟢 3 |
+| text_formatting | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 | 🟠 1 |
+
+**Tier 2 — Advanced**
+
+| Feature | openpyxl (R) | openpyxl (W) | pandas (R) | pandas (W) | pyexcel (R) | pyexcel (W) | pylightxl (R) | pylightxl (W) | python-calamine (R) | xlrd (R) | xlsxwriter (W) | xlwt (W) |
+|---------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|
+| comments | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 | 🔴 0 |
+| conditional_formatting | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 | 🔴 0 |
+| data_validation | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 | 🔴 0 |
+| freeze_panes | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 | 🔴 0 |
+| hyperlinks | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 | 🔴 0 |
+| images | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 | 🔴 0 |
+| merged_cells | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | ➖ | 🟢 3 | 🔴 0 |
+| pivot_tables | ➖ | ➖ | ➖ | ➖ | ➖ | ➖ | ➖ | ➖ | ➖ | ➖ | ➖ | ➖ |
 
 Notes:
 - alignment: Known limitation: pylightxl alignment write is a no-op because the library does not support formatting writes.
@@ -62,477 +74,943 @@ Notes:
 - pivot_tables: Unsupported on macOS without a Windows-generated pivot fixture (fixtures/excel/tier2/15_pivot_tables.xlsx).
 - pivot_tables: Unsupported on macOS without a Windows-generated pivot fixture (fixtures/excel/tier2/15_pivot_tables.xlsx).
 - pivot_tables: Unsupported on macOS without a Windows-generated pivot fixture (fixtures/excel/tier2/15_pivot_tables.xlsx).
+- pivot_tables: Unsupported on macOS without a Windows-generated pivot fixture (fixtures/excel/tier2/15_pivot_tables.xlsx).
+- pivot_tables: Unsupported on macOS without a Windows-generated pivot fixture (fixtures/excel/tier2/15_pivot_tables.xlsx).
+- pivot_tables: Unsupported on macOS without a Windows-generated pivot fixture (fixtures/excel/tier2/15_pivot_tables.xlsx).
 - text_formatting: Not applicable: xlrd does not support .xlsx input
+
+## Statistics
+
+| Library | Mode | Tests | Passed | Failed | Pass Rate | Green Features |
+|---------|------|-------|--------|--------|-----------|----------------|
+| openpyxl | R | 113 | 113 | 0 | 100% | 16/16 |
+| openpyxl | W | 113 | 113 | 0 | 100% | 16/16 |
+| pandas | R | 113 | 20 | 93 | 18% | 1/16 |
+| pandas | W | 113 | 27 | 86 | 24% | 3/16 |
+| pyexcel | R | 113 | 23 | 90 | 20% | 2/16 |
+| pyexcel | W | 113 | 28 | 85 | 25% | 3/16 |
+| pylightxl | R | 113 | 22 | 91 | 19% | 2/16 |
+| pylightxl | W | 113 | 23 | 90 | 20% | 2/16 |
+| python-calamine | R | 113 | 20 | 93 | 18% | 1/16 |
+| xlsxwriter | W | 113 | 113 | 0 | 100% | 16/16 |
+| xlwt | W | 113 | 72 | 41 | 64% | 4/16 |
 
 ## Libraries Tested
 
 - **openpyxl** v3.1.5 (python) - read, write
+- **pandas** v3.0.0 (python) - read, write
+- **pyexcel** v0.7.4 (python) - read, write
 - **pylightxl** v1.61 (python) - read, write
 - **python-calamine** v0.6.1 (python) - read
 - **xlrd** v2.0.2 (python) - read
 - **xlsxwriter** v3.2.9 (python) - write
+- **xlwt** v1.3.0 (python) - write
 
 ## Detailed Results
 
 ### alignment
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🟠 1 (1/3)
+**pandas** — Read: 🟠 1 | Write: 🟠 1
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Align - left | basic | ❌ | ❌ |
+| Align - center | basic | ❌ | ❌ |
+| Align - right | basic | ❌ | ❌ |
+| Align - top | basic | ❌ | ❌ |
+| Align - center | basic | ❌ | ❌ |
+| Align - bottom | basic | ✅ | ✅ |
+| Align - wrap text | basic | ❌ | ❌ |
+| Align - rotation 45 | basic | ❌ | ❌ |
+| Align - indent 2 | basic | ❌ | ❌ |
+
+**pyexcel** — Read: 🟠 1 | Write: 🟠 1
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Align - left | basic | ❌ | ❌ |
+| Align - center | basic | ❌ | ❌ |
+| Align - right | basic | ❌ | ❌ |
+| Align - top | basic | ❌ | ❌ |
+| Align - center | basic | ❌ | ❌ |
+| Align - bottom | basic | ✅ | ✅ |
+| Align - wrap text | basic | ❌ | ❌ |
+| Align - rotation 45 | basic | ❌ | ❌ |
+| Align - indent 2 | basic | ❌ | ❌ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🟠 1
 - Notes: Known limitation: pylightxl alignment write is a no-op because the library does not support formatting writes.
-- Failed tests (17):
-  - h_left (read)
-  - h_center (read)
-  - h_right (read)
-  - v_top (read)
-  - v_center (read)
-  - ... and 12 more
 
-**python-calamine**
-- Read: 🟠 1 (1/3)
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Align - left | basic | ❌ | ❌ |
+| Align - center | basic | ❌ | ❌ |
+| Align - right | basic | ❌ | ❌ |
+| Align - top | basic | ❌ | ❌ |
+| Align - center | basic | ❌ | ❌ |
+| Align - bottom | basic | ❌ | ✅ |
+| Align - wrap text | basic | ❌ | ❌ |
+| Align - rotation 45 | basic | ❌ | ❌ |
+| Align - indent 2 | basic | ❌ | ❌ |
+
+**python-calamine** — Read: 🟠 1
 - Notes: Known limitation: python-calamine alignment read is limited because its API does not expose style/alignment metadata.
-- Failed tests (8):
-  - h_left (read)
-  - h_center (read)
-  - h_right (read)
-  - v_top (read)
-  - v_center (read)
-  - ... and 3 more
+
+| Test | Importance | Read |
+|------|-----------|------|
+| Align - left | basic | ❌ |
+| Align - center | basic | ❌ |
+| Align - right | basic | ❌ |
+| Align - top | basic | ❌ |
+| Align - center | basic | ❌ |
+| Align - bottom | basic | ✅ |
+| Align - wrap text | basic | ❌ |
+| Align - rotation 45 | basic | ❌ |
+| Align - indent 2 | basic | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🟢 3
 
 ### background_colors
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (8):
-  - bg_red (read)
-  - bg_blue (read)
-  - bg_green (read)
-  - bg_custom (read)
-  - bg_red (write)
-  - ... and 3 more
+**pandas** — Read: 🔴 0 | Write: 🔴 0
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (4):
-  - bg_red (read)
-  - bg_blue (read)
-  - bg_green (read)
-  - bg_custom (read)
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Background - red | basic | ❌ | ❌ |
+| Background - blue | basic | ❌ | ❌ |
+| Background - green | basic | ❌ | ❌ |
+| Background - custom (#8B4513) | basic | ❌ | ❌ |
+
+**pyexcel** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Background - red | basic | ❌ | ❌ |
+| Background - blue | basic | ❌ | ❌ |
+| Background - green | basic | ❌ | ❌ |
+| Background - custom (#8B4513) | basic | ❌ | ❌ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Background - red | basic | ❌ | ❌ |
+| Background - blue | basic | ❌ | ❌ |
+| Background - green | basic | ❌ | ❌ |
+| Background - custom (#8B4513) | basic | ❌ | ❌ |
+
+**python-calamine** — Read: 🔴 0
+
+| Test | Importance | Read |
+|------|-----------|------|
+| Background - red | basic | ❌ |
+| Background - blue | basic | ❌ |
+| Background - green | basic | ❌ |
+| Background - custom (#8B4513) | basic | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🟠 1
+
+| Test | Importance | Write |
+|------|-----------|-------|
+| Background - red | basic | ✅ |
+| Background - blue | basic | ✅ |
+| Background - green | basic | ❌ |
+| Background - custom (#8B4513) | basic | ❌ |
 
 ### borders
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (40):
-  - thin_all (read)
-  - medium_all (read)
-  - thick_all (read)
-  - double (read)
-  - dashed (read)
-  - ... and 35 more
+**pandas** — Read: 🔴 0 | Write: 🔴 0
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (20):
-  - thin_all (read)
-  - medium_all (read)
-  - thick_all (read)
-  - double (read)
-  - dashed (read)
-  - ... and 15 more
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Border - thin all edges | basic | ❌ | ❌ |
+| Border - medium all edges | basic | ❌ | ❌ |
+| Border - thick all edges | basic | ❌ | ❌ |
+| Border - double line | basic | ❌ | ❌ |
+| Border - dashed | basic | ❌ | ❌ |
+| Border - dotted | basic | ❌ | ❌ |
+| Border - dash-dot | basic | ❌ | ❌ |
+| Border - dash-dot-dot | basic | ❌ | ❌ |
+| Border - top only | basic | ❌ | ❌ |
+| Border - bottom only | basic | ❌ | ❌ |
+| Border - left only | basic | ❌ | ❌ |
+| Border - right only | basic | ❌ | ❌ |
+| Border - diagonal up | basic | ❌ | ❌ |
+| Border - diagonal down | basic | ❌ | ❌ |
+| Border - diagonal both | basic | ❌ | ❌ |
+| Border - red color | basic | ❌ | ❌ |
+| Border - blue color | basic | ❌ | ❌ |
+| Border - custom color (#8B4513) | basic | ❌ | ❌ |
+| Border - mixed styles per edge | basic | ❌ | ❌ |
+| Border - mixed colors per edge | basic | ❌ | ❌ |
+
+**pyexcel** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Border - thin all edges | basic | ❌ | ❌ |
+| Border - medium all edges | basic | ❌ | ❌ |
+| Border - thick all edges | basic | ❌ | ❌ |
+| Border - double line | basic | ❌ | ❌ |
+| Border - dashed | basic | ❌ | ❌ |
+| Border - dotted | basic | ❌ | ❌ |
+| Border - dash-dot | basic | ❌ | ❌ |
+| Border - dash-dot-dot | basic | ❌ | ❌ |
+| Border - top only | basic | ❌ | ❌ |
+| Border - bottom only | basic | ❌ | ❌ |
+| Border - left only | basic | ❌ | ❌ |
+| Border - right only | basic | ❌ | ❌ |
+| Border - diagonal up | basic | ❌ | ❌ |
+| Border - diagonal down | basic | ❌ | ❌ |
+| Border - diagonal both | basic | ❌ | ❌ |
+| Border - red color | basic | ❌ | ❌ |
+| Border - blue color | basic | ❌ | ❌ |
+| Border - custom color (#8B4513) | basic | ❌ | ❌ |
+| Border - mixed styles per edge | basic | ❌ | ❌ |
+| Border - mixed colors per edge | basic | ❌ | ❌ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Border - thin all edges | basic | ❌ | ❌ |
+| Border - medium all edges | basic | ❌ | ❌ |
+| Border - thick all edges | basic | ❌ | ❌ |
+| Border - double line | basic | ❌ | ❌ |
+| Border - dashed | basic | ❌ | ❌ |
+| Border - dotted | basic | ❌ | ❌ |
+| Border - dash-dot | basic | ❌ | ❌ |
+| Border - dash-dot-dot | basic | ❌ | ❌ |
+| Border - top only | basic | ❌ | ❌ |
+| Border - bottom only | basic | ❌ | ❌ |
+| Border - left only | basic | ❌ | ❌ |
+| Border - right only | basic | ❌ | ❌ |
+| Border - diagonal up | basic | ❌ | ❌ |
+| Border - diagonal down | basic | ❌ | ❌ |
+| Border - diagonal both | basic | ❌ | ❌ |
+| Border - red color | basic | ❌ | ❌ |
+| Border - blue color | basic | ❌ | ❌ |
+| Border - custom color (#8B4513) | basic | ❌ | ❌ |
+| Border - mixed styles per edge | basic | ❌ | ❌ |
+| Border - mixed colors per edge | basic | ❌ | ❌ |
+
+**python-calamine** — Read: 🔴 0
+
+| Test | Importance | Read |
+|------|-----------|------|
+| Border - thin all edges | basic | ❌ |
+| Border - medium all edges | basic | ❌ |
+| Border - thick all edges | basic | ❌ |
+| Border - double line | basic | ❌ |
+| Border - dashed | basic | ❌ |
+| Border - dotted | basic | ❌ |
+| Border - dash-dot | basic | ❌ |
+| Border - dash-dot-dot | basic | ❌ |
+| Border - top only | basic | ❌ |
+| Border - bottom only | basic | ❌ |
+| Border - left only | basic | ❌ |
+| Border - right only | basic | ❌ |
+| Border - diagonal up | basic | ❌ |
+| Border - diagonal down | basic | ❌ |
+| Border - diagonal both | basic | ❌ |
+| Border - red color | basic | ❌ |
+| Border - blue color | basic | ❌ |
+| Border - custom color (#8B4513) | basic | ❌ |
+| Border - mixed styles per edge | basic | ❌ |
+| Border - mixed colors per edge | basic | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🟠 1
+
+| Test | Importance | Write |
+|------|-----------|-------|
+| Border - thin all edges | basic | ✅ |
+| Border - medium all edges | basic | ✅ |
+| Border - thick all edges | basic | ✅ |
+| Border - double line | basic | ✅ |
+| Border - dashed | basic | ✅ |
+| Border - dotted | basic | ✅ |
+| Border - dash-dot | basic | ✅ |
+| Border - dash-dot-dot | basic | ✅ |
+| Border - top only | basic | ✅ |
+| Border - bottom only | basic | ✅ |
+| Border - left only | basic | ✅ |
+| Border - right only | basic | ✅ |
+| Border - diagonal up | basic | ❌ |
+| Border - diagonal down | basic | ❌ |
+| Border - diagonal both | basic | ✅ |
+| Border - red color | basic | ✅ |
+| Border - blue color | basic | ✅ |
+| Border - custom color (#8B4513) | basic | ❌ |
+| Border - mixed styles per edge | basic | ✅ |
+| Border - mixed colors per edge | basic | ❌ |
 
 ### cell_values
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟠 1 (1/3)
+**pandas** — Read: 🟠 1 | Write: 🟢 3
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| String - simple | basic | ✅ | ✅ |
+| String - unicode | basic | ✅ | ✅ |
+| String - empty | basic | ✅ | ✅ |
+| String - long (1000 chars) | basic | ✅ | ✅ |
+| String - with newlines | basic | ✅ | ✅ |
+| Number - integer | basic | ✅ | ✅ |
+| Number - float | basic | ✅ | ✅ |
+| Number - negative | basic | ✅ | ✅ |
+| Number - large | basic | ✅ | ✅ |
+| Number - scientific notation | basic | ✅ | ✅ |
+| Date - standard | basic | ✅ | ✅ |
+| DateTime - with time | basic | ✅ | ✅ |
+| Boolean - TRUE | basic | ✅ | ✅ |
+| Boolean - FALSE | basic | ✅ | ✅ |
+| Error - #DIV/0! | basic | ❌ | ✅ |
+| Error - #N/A | basic | ❌ | ✅ |
+| Error - #VALUE! | basic | ❌ | ✅ |
+| Blank cell | basic | ✅ | ✅ |
+
+**pyexcel** — Read: 🟢 3 | Write: 🟢 3
+
+**pylightxl** — Read: 🟢 3 | Write: 🟠 1
 - Notes: Known limitation: pylightxl cell-values write has date/boolean/error fidelity limits due to writer encoding behavior.
-- Failed tests (4):
-  - date_standard (write)
-  - datetime (write)
-  - boolean_true (write)
-  - boolean_false (write)
 
-**python-calamine**
-- Read: 🟠 1 (1/3)
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| String - simple | basic | ✅ | ✅ |
+| String - unicode | basic | ✅ | ✅ |
+| String - empty | basic | ✅ | ✅ |
+| String - long (1000 chars) | basic | ✅ | ✅ |
+| String - with newlines | basic | ✅ | ✅ |
+| Number - integer | basic | ✅ | ✅ |
+| Number - float | basic | ✅ | ✅ |
+| Number - negative | basic | ✅ | ✅ |
+| Number - large | basic | ✅ | ✅ |
+| Number - scientific notation | basic | ✅ | ✅ |
+| Date - standard | basic | ✅ | ❌ |
+| DateTime - with time | basic | ✅ | ❌ |
+| Boolean - TRUE | basic | ✅ | ❌ |
+| Boolean - FALSE | basic | ✅ | ❌ |
+| Error - #DIV/0! | basic | ✅ | ✅ |
+| Error - #N/A | basic | ✅ | ✅ |
+| Error - #VALUE! | basic | ✅ | ✅ |
+| Blank cell | basic | ✅ | ✅ |
+
+**python-calamine** — Read: 🟠 1
 - Notes: Known limitation: python-calamine can surface formula error cells as blank values in current API responses.
-- Failed tests (3):
-  - error_div0 (read)
-  - error_na (read)
-  - error_value (read)
+
+| Test | Importance | Read |
+|------|-----------|------|
+| String - simple | basic | ✅ |
+| String - unicode | basic | ✅ |
+| String - empty | basic | ✅ |
+| String - long (1000 chars) | basic | ✅ |
+| String - with newlines | basic | ✅ |
+| Number - integer | basic | ✅ |
+| Number - float | basic | ✅ |
+| Number - negative | basic | ✅ |
+| Number - large | basic | ✅ |
+| Number - scientific notation | basic | ✅ |
+| Date - standard | basic | ✅ |
+| DateTime - with time | basic | ✅ |
+| Boolean - TRUE | basic | ✅ |
+| Boolean - FALSE | basic | ✅ |
+| Error - #DIV/0! | basic | ❌ |
+| Error - #N/A | basic | ❌ |
+| Error - #VALUE! | basic | ❌ |
+| Blank cell | basic | ✅ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🟢 3
 
 ### comments
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (6):
-  - comment_legacy (read)
-  - comment_threaded (read)
-  - comment_author (read)
-  - comment_legacy (write)
-  - comment_threaded (write)
-  - ... and 1 more
+**pandas** — Read: 🔴 0 | Write: 🔴 0
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (3):
-  - comment_legacy (read)
-  - comment_threaded (read)
-  - comment_author (read)
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Comment: legacy note | basic | ❌ | ❌ |
+| Comment: threaded | edge | ❌ | ❌ |
+| Comment: second author | edge | ❌ | ❌ |
+
+**pyexcel** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Comment: legacy note | basic | ❌ | ❌ |
+| Comment: threaded | edge | ❌ | ❌ |
+| Comment: second author | edge | ❌ | ❌ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Comment: legacy note | basic | ❌ | ❌ |
+| Comment: threaded | edge | ❌ | ❌ |
+| Comment: second author | edge | ❌ | ❌ |
+
+**python-calamine** — Read: 🔴 0
+
+| Test | Importance | Read |
+|------|-----------|------|
+| Comment: legacy note | basic | ❌ |
+| Comment: threaded | edge | ❌ |
+| Comment: second author | edge | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🔴 0
+
+| Test | Importance | Write |
+|------|-----------|-------|
+| Comment: legacy note | basic | ❌ |
+| Comment: threaded | edge | ❌ |
+| Comment: second author | edge | ❌ |
 
 ### conditional_formatting
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (12):
-  - cf_cell_gt (read)
-  - cf_formula_cross_sheet (read)
-  - cf_text_contains (read)
-  - cf_data_bar (read)
-  - cf_color_scale (read)
-  - ... and 7 more
+**pandas** — Read: 🔴 0 | Write: 🔴 0
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (6):
-  - cf_cell_gt (read)
-  - cf_formula_cross_sheet (read)
-  - cf_text_contains (read)
-  - cf_data_bar (read)
-  - cf_color_scale (read)
-  - ... and 1 more
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| CF: cell > 5 (yellow fill) | basic | ❌ | ❌ |
+| CF: formula rule with cross-sheet ref | edge | ❌ | ❌ |
+| CF: text contains | edge | ❌ | ❌ |
+| CF: data bar | edge | ❌ | ❌ |
+| CF: 3-color scale | edge | ❌ | ❌ |
+| CF: stop-if-true priority | edge | ❌ | ❌ |
+
+**pyexcel** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| CF: cell > 5 (yellow fill) | basic | ❌ | ❌ |
+| CF: formula rule with cross-sheet ref | edge | ❌ | ❌ |
+| CF: text contains | edge | ❌ | ❌ |
+| CF: data bar | edge | ❌ | ❌ |
+| CF: 3-color scale | edge | ❌ | ❌ |
+| CF: stop-if-true priority | edge | ❌ | ❌ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| CF: cell > 5 (yellow fill) | basic | ❌ | ❌ |
+| CF: formula rule with cross-sheet ref | edge | ❌ | ❌ |
+| CF: text contains | edge | ❌ | ❌ |
+| CF: data bar | edge | ❌ | ❌ |
+| CF: 3-color scale | edge | ❌ | ❌ |
+| CF: stop-if-true priority | edge | ❌ | ❌ |
+
+**python-calamine** — Read: 🔴 0
+
+| Test | Importance | Read |
+|------|-----------|------|
+| CF: cell > 5 (yellow fill) | basic | ❌ |
+| CF: formula rule with cross-sheet ref | edge | ❌ |
+| CF: text contains | edge | ❌ |
+| CF: data bar | edge | ❌ |
+| CF: 3-color scale | edge | ❌ |
+| CF: stop-if-true priority | edge | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🔴 0
+
+| Test | Importance | Write |
+|------|-----------|-------|
+| CF: cell > 5 (yellow fill) | basic | ❌ |
+| CF: formula rule with cross-sheet ref | edge | ❌ |
+| CF: text contains | edge | ❌ |
+| CF: data bar | edge | ❌ |
+| CF: 3-color scale | edge | ❌ |
+| CF: stop-if-true priority | edge | ❌ |
 
 ### data_validation
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (10):
-  - dv_list_csv (read)
-  - dv_list_range (read)
-  - dv_cross_sheet (read)
-  - dv_custom_formula (read)
-  - dv_whole_between (read)
-  - ... and 5 more
+**pandas** — Read: 🔴 0 | Write: 🔴 0
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (5):
-  - dv_list_csv (read)
-  - dv_list_range (read)
-  - dv_cross_sheet (read)
-  - dv_custom_formula (read)
-  - dv_whole_between (read)
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| DV: list from CSV | basic | ❌ | ❌ |
+| DV: list from range | edge | ❌ | ❌ |
+| DV: cross-sheet named range | edge | ❌ | ❌ |
+| DV: custom formula | edge | ❌ | ❌ |
+| DV: whole number with error | basic | ❌ | ❌ |
+
+**pyexcel** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| DV: list from CSV | basic | ❌ | ❌ |
+| DV: list from range | edge | ❌ | ❌ |
+| DV: cross-sheet named range | edge | ❌ | ❌ |
+| DV: custom formula | edge | ❌ | ❌ |
+| DV: whole number with error | basic | ❌ | ❌ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| DV: list from CSV | basic | ❌ | ❌ |
+| DV: list from range | edge | ❌ | ❌ |
+| DV: cross-sheet named range | edge | ❌ | ❌ |
+| DV: custom formula | edge | ❌ | ❌ |
+| DV: whole number with error | basic | ❌ | ❌ |
+
+**python-calamine** — Read: 🔴 0
+
+| Test | Importance | Read |
+|------|-----------|------|
+| DV: list from CSV | basic | ❌ |
+| DV: list from range | edge | ❌ |
+| DV: cross-sheet named range | edge | ❌ |
+| DV: custom formula | edge | ❌ |
+| DV: whole number with error | basic | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🔴 0
+
+| Test | Importance | Write |
+|------|-----------|-------|
+| DV: list from CSV | basic | ❌ |
+| DV: list from range | edge | ❌ |
+| DV: cross-sheet named range | edge | ❌ |
+| DV: custom formula | edge | ❌ |
+| DV: whole number with error | basic | ❌ |
 
 ### dimensions
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (8):
-  - row_height_30 (read)
-  - row_height_45 (read)
-  - col_width_20 (read)
-  - col_width_8 (read)
-  - row_height_30 (write)
-  - ... and 3 more
+**pandas** — Read: 🔴 0 | Write: 🔴 0
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (4):
-  - row_height_30 (read)
-  - row_height_45 (read)
-  - col_width_20 (read)
-  - col_width_8 (read)
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Row height - 30 | basic | ❌ | ❌ |
+| Row height - 45 | basic | ❌ | ❌ |
+| Column width - D = 20 | basic | ❌ | ❌ |
+| Column width - E = 8 | basic | ❌ | ❌ |
+
+**pyexcel** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Row height - 30 | basic | ❌ | ❌ |
+| Row height - 45 | basic | ❌ | ❌ |
+| Column width - D = 20 | basic | ❌ | ❌ |
+| Column width - E = 8 | basic | ❌ | ❌ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Row height - 30 | basic | ❌ | ❌ |
+| Row height - 45 | basic | ❌ | ❌ |
+| Column width - D = 20 | basic | ❌ | ❌ |
+| Column width - E = 8 | basic | ❌ | ❌ |
+
+**python-calamine** — Read: 🔴 0
+
+| Test | Importance | Read |
+|------|-----------|------|
+| Row height - 30 | basic | ❌ |
+| Row height - 45 | basic | ❌ |
+| Column width - D = 20 | basic | ❌ |
+| Column width - E = 8 | basic | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🟠 1
+
+| Test | Importance | Write |
+|------|-----------|-------|
+| Row height - 30 | basic | ❌ |
+| Row height - 45 | basic | ❌ |
+| Column width - D = 20 | basic | ✅ |
+| Column width - E = 8 | basic | ✅ |
 
 ### formulas
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🟢 3 (3/3)
-- Failed tests (4):
-  - formula_sum (read)
-  - formula_cell_ref (read)
-  - formula_concat (read)
-  - formula_cross_sheet (read)
+**pandas** — Read: 🔴 0 | Write: 🟢 3
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (4):
-  - formula_sum (read)
-  - formula_cell_ref (read)
-  - formula_concat (read)
-  - formula_cross_sheet (read)
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Formula - SUM | basic | ❌ | ✅ |
+| Formula - cell reference | basic | ❌ | ✅ |
+| Formula - concat | basic | ❌ | ✅ |
+| Formula - cross sheet | basic | ❌ | ✅ |
+
+**pyexcel** — Read: 🔴 0 | Write: 🟢 3
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Formula - SUM | basic | ❌ | ✅ |
+| Formula - cell reference | basic | ❌ | ✅ |
+| Formula - concat | basic | ❌ | ✅ |
+| Formula - cross sheet | basic | ❌ | ✅ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🟢 3
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Formula - SUM | basic | ❌ | ✅ |
+| Formula - cell reference | basic | ❌ | ✅ |
+| Formula - concat | basic | ❌ | ✅ |
+| Formula - cross sheet | basic | ❌ | ✅ |
+
+**python-calamine** — Read: 🔴 0
+
+| Test | Importance | Read |
+|------|-----------|------|
+| Formula - SUM | basic | ❌ |
+| Formula - cell reference | basic | ❌ |
+| Formula - concat | basic | ❌ |
+| Formula - cross sheet | basic | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🔴 0
+
+| Test | Importance | Write |
+|------|-----------|-------|
+| Formula - SUM | basic | ❌ |
+| Formula - cell reference | basic | ❌ |
+| Formula - concat | basic | ❌ |
+| Formula - cross sheet | basic | ❌ |
 
 ### freeze_panes
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (6):
-  - freeze_b2 (read)
-  - freeze_d5 (read)
-  - split_2x1 (read)
-  - freeze_b2 (write)
-  - freeze_d5 (write)
-  - ... and 1 more
+**pandas** — Read: 🔴 0 | Write: 🔴 0
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (3):
-  - freeze_b2 (read)
-  - freeze_d5 (read)
-  - split_2x1 (read)
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Freeze panes at B2 | basic | ❌ | ❌ |
+| Freeze panes at D5 | edge | ❌ | ❌ |
+| Split panes row=2 col=1 | edge | ❌ | ❌ |
+
+**pyexcel** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Freeze panes at B2 | basic | ❌ | ❌ |
+| Freeze panes at D5 | edge | ❌ | ❌ |
+| Split panes row=2 col=1 | edge | ❌ | ❌ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Freeze panes at B2 | basic | ❌ | ❌ |
+| Freeze panes at D5 | edge | ❌ | ❌ |
+| Split panes row=2 col=1 | edge | ❌ | ❌ |
+
+**python-calamine** — Read: 🔴 0
+
+| Test | Importance | Read |
+|------|-----------|------|
+| Freeze panes at B2 | basic | ❌ |
+| Freeze panes at D5 | edge | ❌ |
+| Split panes row=2 col=1 | edge | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🔴 0
+
+| Test | Importance | Write |
+|------|-----------|-------|
+| Freeze panes at B2 | basic | ❌ |
+| Freeze panes at D5 | edge | ❌ |
+| Split panes row=2 col=1 | edge | ❌ |
 
 ### hyperlinks
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (8):
-  - link_external (read)
-  - link_internal (read)
-  - link_mailto (read)
-  - link_long (read)
-  - link_external (write)
-  - ... and 3 more
+**pandas** — Read: 🔴 0 | Write: 🔴 0
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (4):
-  - link_external (read)
-  - link_internal (read)
-  - link_mailto (read)
-  - link_long (read)
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Hyperlink: external URL | basic | ❌ | ❌ |
+| Hyperlink: internal sheet | edge | ❌ | ❌ |
+| Hyperlink: mailto | basic | ❌ | ❌ |
+| Hyperlink: long encoded URL | edge | ❌ | ❌ |
+
+**pyexcel** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Hyperlink: external URL | basic | ❌ | ❌ |
+| Hyperlink: internal sheet | edge | ❌ | ❌ |
+| Hyperlink: mailto | basic | ❌ | ❌ |
+| Hyperlink: long encoded URL | edge | ❌ | ❌ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Hyperlink: external URL | basic | ❌ | ❌ |
+| Hyperlink: internal sheet | edge | ❌ | ❌ |
+| Hyperlink: mailto | basic | ❌ | ❌ |
+| Hyperlink: long encoded URL | edge | ❌ | ❌ |
+
+**python-calamine** — Read: 🔴 0
+
+| Test | Importance | Read |
+|------|-----------|------|
+| Hyperlink: external URL | basic | ❌ |
+| Hyperlink: internal sheet | edge | ❌ |
+| Hyperlink: mailto | basic | ❌ |
+| Hyperlink: long encoded URL | edge | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🔴 0
+
+| Test | Importance | Write |
+|------|-----------|-------|
+| Hyperlink: external URL | basic | ❌ |
+| Hyperlink: internal sheet | edge | ❌ |
+| Hyperlink: mailto | basic | ❌ |
+| Hyperlink: long encoded URL | edge | ❌ |
 
 ### images
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (4):
-  - image_one_cell (read)
-  - image_two_cell_offset (read)
-  - image_one_cell (write)
-  - image_two_cell_offset (write)
+**pandas** — Read: 🔴 0 | Write: 🔴 0
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (2):
-  - image_one_cell (read)
-  - image_two_cell_offset (read)
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Image: one-cell anchor | basic | ❌ | ❌ |
+| Image: two-cell anchor with offset | edge | ❌ | ❌ |
+
+**pyexcel** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Image: one-cell anchor | basic | ❌ | ❌ |
+| Image: two-cell anchor with offset | edge | ❌ | ❌ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Image: one-cell anchor | basic | ❌ | ❌ |
+| Image: two-cell anchor with offset | edge | ❌ | ❌ |
+
+**python-calamine** — Read: 🔴 0
+
+| Test | Importance | Read |
+|------|-----------|------|
+| Image: one-cell anchor | basic | ❌ |
+| Image: two-cell anchor with offset | edge | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🔴 0
+
+| Test | Importance | Write |
+|------|-----------|-------|
+| Image: one-cell anchor | basic | ❌ |
+| Image: two-cell anchor with offset | edge | ❌ |
 
 ### merged_cells
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (8):
-  - merge_horizontal (read)
-  - merge_vertical (read)
-  - merge_value_off_top_left (read)
-  - merge_top_left_fill (read)
-  - merge_horizontal (write)
-  - ... and 3 more
+**pandas** — Read: 🔴 0 | Write: 🔴 0
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (4):
-  - merge_horizontal (read)
-  - merge_vertical (read)
-  - merge_value_off_top_left (read)
-  - merge_top_left_fill (read)
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Merge horizontal B2:D2 | basic | ❌ | ❌ |
+| Merge vertical B3:B5 | basic | ❌ | ❌ |
+| Merge with non-top-left value | edge | ❌ | ❌ |
+| Merge with top-left fill | edge | ❌ | ❌ |
+
+**pyexcel** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Merge horizontal B2:D2 | basic | ❌ | ❌ |
+| Merge vertical B3:B5 | basic | ❌ | ❌ |
+| Merge with non-top-left value | edge | ❌ | ❌ |
+| Merge with top-left fill | edge | ❌ | ❌ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Merge horizontal B2:D2 | basic | ❌ | ❌ |
+| Merge vertical B3:B5 | basic | ❌ | ❌ |
+| Merge with non-top-left value | edge | ❌ | ❌ |
+| Merge with top-left fill | edge | ❌ | ❌ |
+
+**python-calamine** — Read: 🔴 0
+
+| Test | Importance | Read |
+|------|-----------|------|
+| Merge horizontal B2:D2 | basic | ❌ |
+| Merge vertical B3:B5 | basic | ❌ |
+| Merge with non-top-left value | edge | ❌ |
+| Merge with top-left fill | edge | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🔴 0
+
+| Test | Importance | Write |
+|------|-----------|-------|
+| Merge horizontal B2:D2 | basic | ❌ |
+| Merge vertical B3:B5 | basic | ❌ |
+| Merge with non-top-left value | edge | ❌ |
+| Merge with top-left fill | edge | ❌ |
 
 ### multiple_sheets
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**pandas** — Read: 🟢 3 | Write: 🟢 3
 
-**python-calamine**
-- Read: 🟢 3 (3/3)
+**pyexcel** — Read: 🟢 3 | Write: 🟢 3
+
+**pylightxl** — Read: 🟢 3 | Write: 🟢 3
+
+**python-calamine** — Read: 🟢 3
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🟢 3
 
 ### number_formats
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (10):
-  - numfmt_currency (read)
-  - numfmt_percent (read)
-  - numfmt_date (read)
-  - numfmt_scientific (read)
-  - numfmt_custom_text (read)
-  - ... and 5 more
+**pandas** — Read: 🔴 0 | Write: 🔴 0
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (5):
-  - numfmt_currency (read)
-  - numfmt_percent (read)
-  - numfmt_date (read)
-  - numfmt_scientific (read)
-  - numfmt_custom_text (read)
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Format - currency | basic | ❌ | ❌ |
+| Format - percent | basic | ❌ | ❌ |
+| Format - date | basic | ❌ | ❌ |
+| Format - scientific | basic | ❌ | ❌ |
+| Format - custom text | basic | ❌ | ❌ |
+
+**pyexcel** — Read: 🔴 0 | Write: 🟠 1
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Format - currency | basic | ❌ | ❌ |
+| Format - percent | basic | ❌ | ❌ |
+| Format - date | basic | ❌ | ✅ |
+| Format - scientific | basic | ❌ | ❌ |
+| Format - custom text | basic | ❌ | ❌ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Format - currency | basic | ❌ | ❌ |
+| Format - percent | basic | ❌ | ❌ |
+| Format - date | basic | ❌ | ❌ |
+| Format - scientific | basic | ❌ | ❌ |
+| Format - custom text | basic | ❌ | ❌ |
+
+**python-calamine** — Read: 🔴 0
+
+| Test | Importance | Read |
+|------|-----------|------|
+| Format - currency | basic | ❌ |
+| Format - percent | basic | ❌ |
+| Format - date | basic | ❌ |
+| Format - scientific | basic | ❌ |
+| Format - custom text | basic | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🟢 3
 
 ### pivot_tables
 
 **openpyxl**
 - Notes: Unsupported on macOS without a Windows-generated pivot fixture (fixtures/excel/tier2/15_pivot_tables.xlsx).
 
+**pandas**
+- Notes: Unsupported on macOS without a Windows-generated pivot fixture (fixtures/excel/tier2/15_pivot_tables.xlsx).
+
+**pyexcel**
+- Notes: Unsupported on macOS without a Windows-generated pivot fixture (fixtures/excel/tier2/15_pivot_tables.xlsx).
+
 **pylightxl**
 - Notes: Unsupported on macOS without a Windows-generated pivot fixture (fixtures/excel/tier2/15_pivot_tables.xlsx).
 
@@ -543,40 +1021,134 @@ Notes:
 - Notes: Not applicable: xlrd does not support .xlsx input
 
 **xlsxwriter**
+- Notes: Unsupported on macOS without a Windows-generated pivot fixture (fixtures/excel/tier2/15_pivot_tables.xlsx).
+
+**xlwt**
 - Notes: Unsupported on macOS without a Windows-generated pivot fixture (fixtures/excel/tier2/15_pivot_tables.xlsx).
 
 ### text_formatting
 
-**openpyxl**
-- Read: 🟢 3 (3/3)
-- Write: 🟢 3 (3/3)
+**openpyxl** — Read: 🟢 3 | Write: 🟢 3
 
-**pylightxl**
-- Read: 🔴 0 (0/3)
-- Write: 🔴 0 (0/3)
-- Failed tests (36):
-  - bold (read)
-  - italic (read)
-  - underline_single (read)
-  - underline_double (read)
-  - strikethrough (read)
-  - ... and 31 more
+**pandas** — Read: 🔴 0 | Write: 🔴 0
 
-**python-calamine**
-- Read: 🔴 0 (0/3)
-- Failed tests (18):
-  - bold (read)
-  - italic (read)
-  - underline_single (read)
-  - underline_double (read)
-  - strikethrough (read)
-  - ... and 13 more
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Bold | basic | ❌ | ❌ |
+| Italic | basic | ❌ | ❌ |
+| Underline - single | basic | ❌ | ❌ |
+| Underline - double | basic | ❌ | ❌ |
+| Strikethrough | basic | ❌ | ❌ |
+| Bold + Italic | basic | ❌ | ❌ |
+| Font size 8 | basic | ❌ | ❌ |
+| Font size 14 | basic | ❌ | ❌ |
+| Font size 24 | basic | ❌ | ❌ |
+| Font size 36 | basic | ❌ | ❌ |
+| Font - Arial | basic | ❌ | ❌ |
+| Font - Times New Roman | basic | ❌ | ❌ |
+| Font - Courier New | basic | ❌ | ❌ |
+| Font color - red | basic | ❌ | ❌ |
+| Font color - blue | basic | ❌ | ❌ |
+| Font color - green | basic | ❌ | ❌ |
+| Font color - custom (#8B4513) | basic | ❌ | ❌ |
+| Combined - bold, 16pt, red | basic | ❌ | ❌ |
+
+**pyexcel** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Bold | basic | ❌ | ❌ |
+| Italic | basic | ❌ | ❌ |
+| Underline - single | basic | ❌ | ❌ |
+| Underline - double | basic | ❌ | ❌ |
+| Strikethrough | basic | ❌ | ❌ |
+| Bold + Italic | basic | ❌ | ❌ |
+| Font size 8 | basic | ❌ | ❌ |
+| Font size 14 | basic | ❌ | ❌ |
+| Font size 24 | basic | ❌ | ❌ |
+| Font size 36 | basic | ❌ | ❌ |
+| Font - Arial | basic | ❌ | ❌ |
+| Font - Times New Roman | basic | ❌ | ❌ |
+| Font - Courier New | basic | ❌ | ❌ |
+| Font color - red | basic | ❌ | ❌ |
+| Font color - blue | basic | ❌ | ❌ |
+| Font color - green | basic | ❌ | ❌ |
+| Font color - custom (#8B4513) | basic | ❌ | ❌ |
+| Combined - bold, 16pt, red | basic | ❌ | ❌ |
+
+**pylightxl** — Read: 🔴 0 | Write: 🔴 0
+
+| Test | Importance | Read | Write |
+|------|-----------|------|-------|
+| Bold | basic | ❌ | ❌ |
+| Italic | basic | ❌ | ❌ |
+| Underline - single | basic | ❌ | ❌ |
+| Underline - double | basic | ❌ | ❌ |
+| Strikethrough | basic | ❌ | ❌ |
+| Bold + Italic | basic | ❌ | ❌ |
+| Font size 8 | basic | ❌ | ❌ |
+| Font size 14 | basic | ❌ | ❌ |
+| Font size 24 | basic | ❌ | ❌ |
+| Font size 36 | basic | ❌ | ❌ |
+| Font - Arial | basic | ❌ | ❌ |
+| Font - Times New Roman | basic | ❌ | ❌ |
+| Font - Courier New | basic | ❌ | ❌ |
+| Font color - red | basic | ❌ | ❌ |
+| Font color - blue | basic | ❌ | ❌ |
+| Font color - green | basic | ❌ | ❌ |
+| Font color - custom (#8B4513) | basic | ❌ | ❌ |
+| Combined - bold, 16pt, red | basic | ❌ | ❌ |
+
+**python-calamine** — Read: 🔴 0
+
+| Test | Importance | Read |
+|------|-----------|------|
+| Bold | basic | ❌ |
+| Italic | basic | ❌ |
+| Underline - single | basic | ❌ |
+| Underline - double | basic | ❌ |
+| Strikethrough | basic | ❌ |
+| Bold + Italic | basic | ❌ |
+| Font size 8 | basic | ❌ |
+| Font size 14 | basic | ❌ |
+| Font size 24 | basic | ❌ |
+| Font size 36 | basic | ❌ |
+| Font - Arial | basic | ❌ |
+| Font - Times New Roman | basic | ❌ |
+| Font - Courier New | basic | ❌ |
+| Font color - red | basic | ❌ |
+| Font color - blue | basic | ❌ |
+| Font color - green | basic | ❌ |
+| Font color - custom (#8B4513) | basic | ❌ |
+| Combined - bold, 16pt, red | basic | ❌ |
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input
 
-**xlsxwriter**
-- Write: 🟢 3 (3/3)
+**xlsxwriter** — Write: 🟢 3
+
+**xlwt** — Write: 🟠 1
+
+| Test | Importance | Write |
+|------|-----------|-------|
+| Bold | basic | ✅ |
+| Italic | basic | ✅ |
+| Underline - single | basic | ✅ |
+| Underline - double | basic | ✅ |
+| Strikethrough | basic | ✅ |
+| Bold + Italic | basic | ✅ |
+| Font size 8 | basic | ✅ |
+| Font size 14 | basic | ✅ |
+| Font size 24 | basic | ✅ |
+| Font size 36 | basic | ✅ |
+| Font - Arial | basic | ✅ |
+| Font - Times New Roman | basic | ✅ |
+| Font - Courier New | basic | ✅ |
+| Font color - red | basic | ✅ |
+| Font color - blue | basic | ✅ |
+| Font color - green | basic | ❌ |
+| Font color - custom (#8B4513) | basic | ❌ |
+| Combined - bold, 16pt, red | basic | ✅ |
 
 ---
 *Benchmark version: 0.1.0*
