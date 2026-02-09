@@ -14,6 +14,13 @@ import json
 import shlex
 import subprocess
 from pathlib import Path
+from typing import TypedDict
+
+
+class _Job(TypedDict):
+    name: str
+    adapters: list[str]
+    features: list[str]
 
 
 def _run(cmd: list[str]) -> None:
@@ -87,7 +94,7 @@ def main() -> None:
             raise ValueError(f"Bad mapping: {feat} points at {rel}")
 
     # 2) Dashboard batches.
-    jobs: list[dict[str, object]] = []
+    jobs: list[_Job] = []
 
     jobs.append(
         {
@@ -143,9 +150,9 @@ def main() -> None:
         )
 
     for job in jobs:
-        name = str(job["name"])
-        adapters = list(job["adapters"])  # type: ignore[arg-type]
-        features = list(job["features"])  # type: ignore[arg-type]
+        name = job["name"]
+        adapters = job["adapters"]
+        features = job["features"]
 
         job_out = out_root / name
         job_out.mkdir(parents=True, exist_ok=True)

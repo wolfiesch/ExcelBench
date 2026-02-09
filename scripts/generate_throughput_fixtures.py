@@ -10,19 +10,20 @@ Default output is under `test_files/` so it stays gitignored.
 from __future__ import annotations
 
 import argparse
+from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Iterator
 
 import xlsxwriter
+from xlsxwriter.worksheet import Worksheet
 
 from excelbench.generator.generate import write_manifest
 from excelbench.models import Importance, Manifest, TestCase, TestFile
 
 
 @contextmanager
-def _xlsx_workbook(path: Path, sheet: str) -> Iterator[tuple[xlsxwriter.Workbook, object]]:
+def _xlsx_workbook(path: Path, sheet: str) -> Iterator[tuple[xlsxwriter.Workbook, Worksheet]]:
     """Create an xlsxwriter workbook with a single worksheet, ensuring close on exit."""
     path.parent.mkdir(parents=True, exist_ok=True)
     wb = xlsxwriter.Workbook(str(path))
@@ -67,15 +68,10 @@ def _generate_formulas_grid(
     cols: int,
     formula: str = "=1+1",
 ) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    wb = xlsxwriter.Workbook(str(path))
-    try:
-        ws = wb.add_worksheet(sheet)
+    with _xlsx_workbook(path, sheet) as (_wb, ws):
         for r in range(rows):
             for c in range(cols):
                 ws.write_formula(r, c, formula)
-    finally:
-        wb.close()
 
 
 def _generate_bg_colors_grid(
@@ -86,17 +82,12 @@ def _generate_bg_colors_grid(
     cols: int,
     palette: list[str],
 ) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    wb = xlsxwriter.Workbook(str(path))
-    try:
-        ws = wb.add_worksheet(sheet)
+    with _xlsx_workbook(path, sheet) as (wb, ws):
         fmts = [wb.add_format({"bg_color": f"#{c}", "pattern": 1}) for c in palette]
         for r in range(rows):
             for c in range(cols):
                 fmt = fmts[(r * cols + c) % len(fmts)]
                 ws.write_string(r, c, "Color", fmt)
-    finally:
-        wb.close()
 
 
 def _generate_number_formats_grid(
@@ -107,18 +98,13 @@ def _generate_number_formats_grid(
     cols: int,
     number_format: str,
 ) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    wb = xlsxwriter.Workbook(str(path))
-    try:
-        ws = wb.add_worksheet(sheet)
+    with _xlsx_workbook(path, sheet) as (wb, ws):
         fmt = wb.add_format({"num_format": number_format})
         value = 0.5
         for r in range(rows):
             for c in range(cols):
                 ws.write_number(r, c, value, fmt)
                 value += 1.0
-    finally:
-        wb.close()
 
 
 def _generate_alignment_grid(
@@ -131,10 +117,7 @@ def _generate_alignment_grid(
     v_align: str,
     wrap: bool,
 ) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    wb = xlsxwriter.Workbook(str(path))
-    try:
-        ws = wb.add_worksheet(sheet)
+    with _xlsx_workbook(path, sheet) as (wb, ws):
         fmt_dict: dict[str, object] = {
             "align": h_align,
             "valign": v_align,
@@ -145,8 +128,6 @@ def _generate_alignment_grid(
         for r in range(rows):
             for c in range(cols):
                 ws.write_string(r, c, "Align", fmt)
-    finally:
-        wb.close()
 
 
 def _generate_borders_grid(
@@ -157,10 +138,7 @@ def _generate_borders_grid(
     cols: int,
     border_style: str,
 ) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    wb = xlsxwriter.Workbook(str(path))
-    try:
-        ws = wb.add_worksheet(sheet)
+    with _xlsx_workbook(path, sheet) as (wb, ws):
         # Map a small subset of styles.
         border_map = {"thin": 1, "medium": 2, "thick": 5, "double": 6}
         border_val = border_map.get(border_style, 1)
@@ -168,8 +146,6 @@ def _generate_borders_grid(
         for r in range(rows):
             for c in range(cols):
                 ws.write_string(r, c, "Border", fmt)
-    finally:
-        wb.close()
 
 
 def main() -> None:

@@ -193,7 +193,8 @@ def _append_throughput_section(
 
     bulk_read = [f for f in workload_features if f.endswith("_bulk_read")]
     bulk_write = [f for f in workload_features if f.endswith("_bulk_write")]
-    per_cell = [f for f in workload_features if f not in set(bulk_read + bulk_write)]
+    bulk_feats = set(bulk_read + bulk_write)
+    per_cell = [f for f in workload_features if f not in bulk_feats]
 
     for label, feats in (
         ("Bulk Read", bulk_read),
