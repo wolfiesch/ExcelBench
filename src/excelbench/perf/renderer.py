@@ -191,6 +191,30 @@ def _append_throughput_section(
     lines.append("Computed as: op_count * 1000 / p50_wall_ms")
     lines.append("")
 
+    bulk_read = [f for f in workload_features if f.endswith("_bulk_read")]
+    bulk_write = [f for f in workload_features if f.endswith("_bulk_write")]
+    per_cell = [f for f in workload_features if f not in set(bulk_read + bulk_write)]
+
+    for label, feats in (
+        ("Bulk Read", bulk_read),
+        ("Bulk Write", bulk_write),
+        ("Per-Cell", per_cell),
+    ):
+        if not feats:
+            continue
+        lines.append(f"**{label}**")
+        lines.append("")
+        _append_throughput_table(lines, data, libs, feats, lookup)
+        lines.append("")
+
+
+def _append_throughput_table(
+    lines: list[str],
+    data: dict[str, Any],
+    libs: list[str],
+    feats: list[str],
+    lookup: dict[tuple[str, str], dict[str, Any]],
+) -> None:
     header = "| Scenario | op_count | op_unit |"
     sep = "|----------|----------|---------|"
     for lib in libs:
@@ -205,7 +229,7 @@ def _append_throughput_section(
     lines.append(header)
     lines.append(sep)
 
-    for feat in workload_features:
+    for feat in feats:
         base_count, base_unit = _feature_op_meta(libs, lookup, feat)
         row = f"| {feat} | {base_count if base_count is not None else '—'} | {base_unit or '—'} |"
         for lib in libs:
@@ -217,8 +241,6 @@ def _append_throughput_section(
             if "write" in caps:
                 row += f" {_fmt_p50_units_per_sec(perf, 'write')} |"
         lines.append(row)
-
-    lines.append("")
 
 
 def _feature_op_meta(
@@ -257,11 +279,15 @@ def _fmt_p50_units_per_sec(perf: dict[str, Any] | None, op: str) -> str:
     wall = op_data.get("wall_ms")
     if op_count is None or not isinstance(wall, dict):
         return "—"
-    p50 = wall.get("p50")
-    if p50 in (None, 0):
-        return "—"
     try:
-        rate = float(op_count) * 1000.0 / float(p50)
+        p50_any = wall.get("p50")
+        if p50_any is None:
+            return "—"
+        p50_f = float(p50_any)
+        if p50_f == 0:
+            return "—"
+
+        rate = float(op_count) * 1000.0 / p50_f
     except (TypeError, ValueError, ZeroDivisionError):
         return "—"
     return _fmt_rate(rate)

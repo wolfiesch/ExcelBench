@@ -109,6 +109,17 @@ uv run python scripts/generate_throughput_fixtures.py
 uv run excelbench perf --tests test_files/throughput_xlsx --output results_dev_perf_throughput --warmup 1 --iters 5 --breakdown
 ```
 
+Dashboard (recommended):
+
+```bash
+uv run python scripts/run_throughput_dashboard.py --warmup 0 --iters 1
+```
+
+Implementation note:
+
+- Throughput `.xlsx` fixtures are generated via `xlsxwriter` to avoid pylightxl parsing issues with
+  openpyxl-emitted namespace placement in `xl/workbook.xml`.
+
 Docs:
 
 - `fixtures/throughput_xlsx/README.md`

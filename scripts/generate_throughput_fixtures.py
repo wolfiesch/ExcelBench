@@ -13,8 +13,7 @@ import argparse
 from datetime import UTC, datetime
 from pathlib import Path
 
-from openpyxl import Workbook
-from openpyxl.styles import Alignment, Border, PatternFill, Side
+import xlsxwriter
 
 from excelbench.generator.generate import write_manifest
 from excelbench.models import Importance, Manifest, TestCase, TestFile
@@ -38,19 +37,17 @@ def _generate_cell_values_grid(
     start: int = 1,
     step: int = 1,
 ) -> None:
-    wb = Workbook()
-    ws = wb.active
-    assert ws is not None
-    ws.title = sheet
-
-    value = start
-    for r in range(1, rows + 1):
-        for c in range(1, cols + 1):
-            ws.cell(row=r, column=c, value=value)
-            value += step
-
     path.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(path)
+    wb = xlsxwriter.Workbook(str(path))
+    try:
+        ws = wb.add_worksheet(sheet)
+        value = start
+        for r in range(rows):
+            for c in range(cols):
+                ws.write_number(r, c, value)
+                value += step
+    finally:
+        wb.close()
 
 
 def _generate_formulas_grid(
@@ -61,17 +58,15 @@ def _generate_formulas_grid(
     cols: int,
     formula: str = "=1+1",
 ) -> None:
-    wb = Workbook()
-    ws = wb.active
-    assert ws is not None
-    ws.title = sheet
-
-    for r in range(1, rows + 1):
-        for c in range(1, cols + 1):
-            ws.cell(row=r, column=c, value=formula)
-
     path.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(path)
+    wb = xlsxwriter.Workbook(str(path))
+    try:
+        ws = wb.add_worksheet(sheet)
+        for r in range(rows):
+            for c in range(cols):
+                ws.write_formula(r, c, formula)
+    finally:
+        wb.close()
 
 
 def _generate_bg_colors_grid(
@@ -82,22 +77,17 @@ def _generate_bg_colors_grid(
     cols: int,
     palette: list[str],
 ) -> None:
-    wb = Workbook()
-    ws = wb.active
-    assert ws is not None
-    ws.title = sheet
-
-    fills = [
-        PatternFill(start_color=f"FF{c}", end_color=f"FF{c}", fill_type="solid") for c in palette
-    ]
-
-    for r in range(1, rows + 1):
-        for c in range(1, cols + 1):
-            cell = ws.cell(row=r, column=c, value="Color")
-            cell.fill = fills[(r * cols + c) % len(fills)]
-
     path.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(path)
+    wb = xlsxwriter.Workbook(str(path))
+    try:
+        ws = wb.add_worksheet(sheet)
+        fmts = [wb.add_format({"bg_color": f"#{c}", "pattern": 1}) for c in palette]
+        for r in range(rows):
+            for c in range(cols):
+                fmt = fmts[(r * cols + c) % len(fmts)]
+                ws.write_string(r, c, "Color", fmt)
+    finally:
+        wb.close()
 
 
 def _generate_number_formats_grid(
@@ -108,20 +98,18 @@ def _generate_number_formats_grid(
     cols: int,
     number_format: str,
 ) -> None:
-    wb = Workbook()
-    ws = wb.active
-    assert ws is not None
-    ws.title = sheet
-
-    value = 0.5
-    for r in range(1, rows + 1):
-        for c in range(1, cols + 1):
-            cell = ws.cell(row=r, column=c, value=value)
-            cell.number_format = number_format
-            value += 1.0
-
     path.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(path)
+    wb = xlsxwriter.Workbook(str(path))
+    try:
+        ws = wb.add_worksheet(sheet)
+        fmt = wb.add_format({"num_format": number_format})
+        value = 0.5
+        for r in range(rows):
+            for c in range(cols):
+                ws.write_number(r, c, value, fmt)
+                value += 1.0
+    finally:
+        wb.close()
 
 
 def _generate_alignment_grid(
@@ -130,20 +118,26 @@ def _generate_alignment_grid(
     sheet: str,
     rows: int,
     cols: int,
-    alignment: Alignment,
+    h_align: str,
+    v_align: str,
+    wrap: bool,
 ) -> None:
-    wb = Workbook()
-    ws = wb.active
-    assert ws is not None
-    ws.title = sheet
-
-    for r in range(1, rows + 1):
-        for c in range(1, cols + 1):
-            cell = ws.cell(row=r, column=c, value="Align")
-            cell.alignment = alignment
-
     path.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(path)
+    wb = xlsxwriter.Workbook(str(path))
+    try:
+        ws = wb.add_worksheet(sheet)
+        fmt_dict: dict[str, object] = {
+            "align": h_align,
+            "valign": v_align,
+        }
+        if wrap:
+            fmt_dict["text_wrap"] = True
+        fmt = wb.add_format(fmt_dict)
+        for r in range(rows):
+            for c in range(cols):
+                ws.write_string(r, c, "Align", fmt)
+    finally:
+        wb.close()
 
 
 def _generate_borders_grid(
@@ -152,20 +146,21 @@ def _generate_borders_grid(
     sheet: str,
     rows: int,
     cols: int,
-    border: Border,
+    border_style: str,
 ) -> None:
-    wb = Workbook()
-    ws = wb.active
-    assert ws is not None
-    ws.title = sheet
-
-    for r in range(1, rows + 1):
-        for c in range(1, cols + 1):
-            cell = ws.cell(row=r, column=c, value="Border")
-            cell.border = border
-
     path.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(path)
+    wb = xlsxwriter.Workbook(str(path))
+    try:
+        ws = wb.add_worksheet(sheet)
+        # Map a small subset of styles.
+        border_map = {"thin": 1, "medium": 2, "thick": 5, "double": 6}
+        border_val = border_map.get(border_style, 1)
+        fmt = wb.add_format({"border": border_val})
+        for r in range(rows):
+            for c in range(cols):
+                ws.write_string(r, c, "Border", fmt)
+    finally:
+        wb.close()
 
 
 def main() -> None:
@@ -413,6 +408,33 @@ def main() -> None:
         )
     )
 
+    # Bulk read variant (same file, bulk API if adapter supports it)
+    files.append(
+        TestFile(
+            path=f"tier0/{filename}",
+            feature="formulas_10k_bulk_read",
+            tier=0,
+            file_format="xlsx",
+            test_cases=[
+                TestCase(
+                    id="formulas_10k_bulk_read",
+                    label="Throughput: formulas bulk read (10k cells)",
+                    row=1,
+                    expected={
+                        "workload": {
+                            "scenario": "formulas_10k_bulk_read",
+                            "op": "bulk_sheet_values",
+                            "operations": ["read"],
+                            "sheet": sheet,
+                            "range": rng,
+                        }
+                    },
+                    importance=Importance.BASIC,
+                )
+            ],
+        )
+    )
+
     # 1k formulas = 40x25
     scenario = "formulas_1k"
     sheet = "S1"
@@ -446,6 +468,33 @@ def main() -> None:
                             "sheet": sheet,
                             "range": rng,
                             "formula": formula,
+                        }
+                    },
+                    importance=Importance.BASIC,
+                )
+            ],
+        )
+    )
+
+    # Bulk read variant (same file, bulk API if adapter supports it)
+    files.append(
+        TestFile(
+            path=f"tier0/{filename}",
+            feature="formulas_1k_bulk_read",
+            tier=0,
+            file_format="xlsx",
+            test_cases=[
+                TestCase(
+                    id="formulas_1k_bulk_read",
+                    label="Throughput: formulas bulk read (1k cells)",
+                    row=1,
+                    expected={
+                        "workload": {
+                            "scenario": "formulas_1k_bulk_read",
+                            "op": "bulk_sheet_values",
+                            "operations": ["read"],
+                            "sheet": sheet,
+                            "range": rng,
                         }
                     },
                     importance=Importance.BASIC,
@@ -543,13 +592,14 @@ def main() -> None:
     end_cell = _coord_to_cell(rows, cols)
     rng = f"A1:{end_cell}"
     filename = "00_alignment_1k.xlsx"
-    align = Alignment(horizontal="center", vertical="top", wrap_text=True)
     _generate_alignment_grid(
         path=tier_dir / filename,
         sheet=sheet,
         rows=rows,
         cols=cols,
-        alignment=align,
+        h_align="center",
+        v_align="top",
+        wrap=True,
     )
     files.append(
         TestFile(
@@ -586,14 +636,12 @@ def main() -> None:
     end_cell = _coord_to_cell(rows, cols)
     rng = f"A1:{end_cell}"
     filename = "00_borders_200.xlsx"
-    side = Side(style="thin", color="FF000000")
-    border = Border(left=side, right=side, top=side, bottom=side)
     _generate_borders_grid(
         path=tier_dir / filename,
         sheet=sheet,
         rows=rows,
         cols=cols,
-        border=border,
+        border_style="thin",
     )
     files.append(
         TestFile(

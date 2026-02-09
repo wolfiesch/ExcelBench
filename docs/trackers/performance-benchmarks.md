@@ -147,3 +147,18 @@ Template:
 - Worked on: PB-030 (bulk write implementations)
 - Notes: implemented `write_sheet_values` for pandas and tablib; ran multi-adapter bulk write baseline.
 - Next: add bulk write for styles (format/border) if we want to measure style throughput beyond cell values.
+
+### 02/08/2026 04:26 PM PST (via pst-timestamp)
+- Worked on: PB-030 (bulk formulas read)
+- Notes: added `formulas_*_bulk_read` scenarios and ran a multi-adapter bulk-read baseline.
+- Next: decide whether to add `formulas_*_bulk_write` (likely not comparable across adapters) or keep formulas write as per-cell.
+
+### 02/08/2026 04:29 PM PST (via pst-timestamp)
+- Worked on: PB-030 (report readability)
+- Notes: updated perf renderer to group throughput tables into Bulk Read / Bulk Write / Per-Cell; reran sample outputs to validate formatting.
+- Next: add a single "throughput dashboard" run command/template and standardize adapter batches.
+
+### 02/08/2026 05:13 PM PST (via pst-timestamp)
+- Worked on: PB-030 (dashboard + fixture compatibility)
+- Notes: switched throughput fixture generation to xlsxwriter to fix pylightxl read failures; fixed formulas bulk-read paths; added `scripts/run_throughput_dashboard.py` and ran the 3-batch dashboard.
+- Next: wire the dashboard batches into a first-class CLI command (optional) or keep it as a script.

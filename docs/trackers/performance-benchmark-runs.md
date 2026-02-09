@@ -416,3 +416,48 @@ Outputs:
 - Markdown: `results_dev_perf_throughput_bulk_write_multi/perf/README.md`
 - CSV: `results_dev_perf_throughput_bulk_write_multi/perf/matrix.csv`
 - History: `results_dev_perf_throughput_bulk_write_multi/perf/history.jsonl`
+
+### 02/08/2026 04:26 PM PST (via pst-timestamp)
+
+Git:
+- commit: 2129abe
+- branch: master
+
+Environment:
+- OS: macOS 26.2 (25C5031i)
+- CPU: Apple M4 Pro
+- RAM: 24 GB
+- Python (uv): 3.12.3
+- Power: (not recorded)
+- Notes: Bulk formulas read scenarios (`bulk_sheet_values`); warmup=0 iters=1.
+
+Command:
+- `uv run excelbench perf --tests test_files/throughput_xlsx --output results_dev_perf_throughput_bulk_formulas_multi --warmup 0 --iters 1 --adapter openpyxl --adapter openpyxl-readonly --adapter pandas --adapter polars --adapter tablib --feature formulas_1k_bulk_read --feature formulas_10k_bulk_read`
+
+Outputs:
+- JSON: `results_dev_perf_throughput_bulk_formulas_multi/perf/results.json`
+- Markdown: `results_dev_perf_throughput_bulk_formulas_multi/perf/README.md`
+- CSV: `results_dev_perf_throughput_bulk_formulas_multi/perf/matrix.csv`
+- History: `results_dev_perf_throughput_bulk_formulas_multi/perf/history.jsonl`
+
+### 02/08/2026 05:13 PM PST (via pst-timestamp)
+
+Git:
+- commit: 7df83ff
+- branch: master
+
+Environment:
+- OS: macOS 26.2 (25C5031i)
+- CPU: Apple M4 Pro
+- RAM: 24 GB
+- Python (uv): 3.12.3
+- Power: (not recorded)
+- Notes: Throughput dashboard run (3 batches); fixtures generated via xlsxwriter for pylightxl compatibility; warmup=0 iters=1.
+
+Command:
+- `uv run python scripts/run_throughput_dashboard.py --warmup 0 --iters 1`
+
+Outputs:
+- Bulk read: `results_dev_perf_dashboard/bulk_read_multi/perf/README.md`
+- Bulk write: `results_dev_perf_dashboard/bulk_write_multi/perf/README.md`
+- Per-cell fast: `results_dev_perf_dashboard/per_cell_fast/perf/README.md`
