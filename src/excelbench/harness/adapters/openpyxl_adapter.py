@@ -602,6 +602,28 @@ class OpenpyxlAdapter(ExcelAdapter):
         """Add a new sheet to a workbook."""
         workbook.create_sheet(name)
 
+    def write_sheet_values(
+        self,
+        workbook: Workbook,
+        sheet: str,
+        start_cell: str,
+        values: list[list[Any]],
+    ) -> None:
+        """Bulk write a rectangular grid of raw Python values.
+
+        Optional helper used by performance workloads.
+        """
+        from openpyxl.utils.cell import column_index_from_string, coordinate_from_string
+
+        ws = workbook[sheet]
+        col_str, row = coordinate_from_string(start_cell)
+        start_row = int(row)
+        start_col = int(column_index_from_string(col_str))
+
+        for r, row_vals in enumerate(values):
+            for c, v in enumerate(row_vals):
+                ws.cell(row=start_row + r, column=start_col + c, value=v)
+
     def write_cell_value(
         self,
         workbook: Workbook,

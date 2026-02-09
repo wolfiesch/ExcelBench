@@ -94,8 +94,12 @@ def render_perf_markdown(results: PerfResults, path: Path) -> None:
     )
     lines.append("")
 
-    lines.append("## Summary (p50 wall time)")
-    lines.append("")
+    workload_features = _collect_workload_features(libs, features, lookup)
+    fidelity_features = [f for f in features if f not in workload_features]
+
+    if fidelity_features:
+        lines.append("## Summary (p50 wall time)")
+        lines.append("")
 
     header = "| Feature |"
     sep = "|---------|"
@@ -108,33 +112,33 @@ def render_perf_markdown(results: PerfResults, path: Path) -> None:
             header += f" {lib} (W p50 ms) |"
             sep += "--------------|"
 
-    tier_map: dict[int, list[str]] = {0: [], 1: [], 2: []}
-    for feat in features:
-        tier_map.setdefault(_FEATURE_TIERS.get(feat, 2), []).append(feat)
+        tier_map: dict[int, list[str]] = {0: [], 1: [], 2: []}
+        for feat in fidelity_features:
+            tier_map.setdefault(_FEATURE_TIERS.get(feat, 2), []).append(feat)
 
-    for tier in sorted(tier_map.keys()):
-        feats = tier_map[tier]
-        if not feats:
-            continue
-        lines.append(f"**{_TIER_LABELS.get(tier, f'Tier {tier}')}**")
-        lines.append("")
+        for tier in sorted(tier_map.keys()):
+            feats = tier_map[tier]
+            if not feats:
+                continue
+            lines.append(f"**{_TIER_LABELS.get(tier, f'Tier {tier}')}**")
+            lines.append("")
 
-        lines.append(header)
-        lines.append(sep)
-        for feat in feats:
-            row = f"| {feat} |"
-            for lib in libs:
-                caps = set(data["libraries"][lib].get("capabilities", []))
-                entry = lookup.get((feat, lib))
-                perf = entry.get("perf") if entry else None
-                if "read" in caps:
-                    row += f" {_fmt_p50_ms(perf, 'read')} |"
-                if "write" in caps:
-                    row += f" {_fmt_p50_ms(perf, 'write')} |"
-            lines.append(row)
-        lines.append("")
+            lines.append(header)
+            lines.append(sep)
+            for feat in feats:
+                row = f"| {feat} |"
+                for lib in libs:
+                    caps = set(data["libraries"][lib].get("capabilities", []))
+                    entry = lookup.get((feat, lib))
+                    perf = entry.get("perf") if entry else None
+                    if "read" in caps:
+                        row += f" {_fmt_p50_ms(perf, 'read')} |"
+                    if "write" in caps:
+                        row += f" {_fmt_p50_ms(perf, 'write')} |"
+                lines.append(row)
+            lines.append("")
 
-    _append_throughput_section(lines, data, libs, features, lookup)
+    _append_throughput_section(lines, data, libs, workload_features, lookup)
 
     issues: list[str] = []
     for r in data["results"]:
@@ -150,21 +154,18 @@ def render_perf_markdown(results: PerfResults, path: Path) -> None:
         f.write("\n".join(lines))
 
 
-def _append_throughput_section(
-    lines: list[str],
-    data: dict[str, Any],
+def _collect_workload_features(
     libs: list[str],
     features: list[str],
     lookup: dict[tuple[str, str], dict[str, Any]],
-) -> None:
-    # Identify workload-style features that include op_count.
+) -> list[str]:
     def _has_op_count(perf: dict[str, Any] | None, op: str) -> bool:
         if not perf or not isinstance(perf, dict):
             return False
         op_data = perf.get(op)
         return isinstance(op_data, dict) and op_data.get("op_count") is not None
 
-    workload_features = []
+    workload_features: list[str] = []
     for feat in features:
         for lib in libs:
             entry = lookup.get((feat, lib))
@@ -172,7 +173,16 @@ def _append_throughput_section(
             if _has_op_count(perf, "read") or _has_op_count(perf, "write"):
                 workload_features.append(feat)
                 break
+    return workload_features
 
+
+def _append_throughput_section(
+    lines: list[str],
+    data: dict[str, Any],
+    libs: list[str],
+    workload_features: list[str],
+    lookup: dict[tuple[str, str], dict[str, Any]],
+) -> None:
     if not workload_features:
         return
 

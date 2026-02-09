@@ -128,6 +128,11 @@ def run_perf(
             read_res: PerfOpResult | None = None
             write_res: PerfOpResult | None = None
 
+            if "read" in workload_ops and not adapter.can_read():
+                notes_parts.append("Read unsupported")
+            if "write" in workload_ops and not adapter.can_write():
+                notes_parts.append("Write unsupported")
+
             if adapter.can_read():
                 if "read" not in workload_ops:
                     # Workload explicitly excludes read.
@@ -801,6 +806,31 @@ def _run_workload_write(
 
     sheet = str(workload.get("sheet") or "S1")
     op = str(workload.get("op") or "cell_value")
+
+    if op == "bulk_write_grid":
+        fn = getattr(adapter, "write_sheet_values", None)
+        if fn is None:
+            raise ValueError(f"Adapter does not support bulk sheet writes: {adapter.name}")
+
+        start_cell, end_cell = _split_range(str(workload.get("range") or "A1"))
+        r0, c0 = _cell_to_coord(start_cell)
+        r1, c1 = _cell_to_coord(end_cell)
+        rows = r1 - r0 + 1
+        cols = c1 - c0 + 1
+
+        start = int(workload.get("start") or 1)
+        step = int(workload.get("step") or 1)
+        values: list[list[Any]] = []
+        v = start
+        for _r in range(rows):
+            row_vals: list[Any] = []
+            for _c in range(cols):
+                row_vals.append(v)
+                v += step
+            values.append(row_vals)
+
+        fn(workbook, sheet, start_cell, values)
+        return
 
     if op == "cell_value":
         start = int(workload.get("start") or 1)

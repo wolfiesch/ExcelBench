@@ -243,12 +243,36 @@ class TablibAdapter(ExcelAdapter):
     # =========================================================================
 
     def create_workbook(self) -> WorkbookData:
-        return {"sheets": {}, "_order": []}
+        return {"sheets": {}, "_order": [], "_bulk": {}}
 
     def add_sheet(self, workbook: WorkbookData, name: str) -> None:
         if name not in workbook["sheets"]:
             workbook["sheets"][name] = {}
             workbook["_order"].append(name)
+
+    def write_sheet_values(
+        self,
+        workbook: WorkbookData,
+        sheet: str,
+        start_cell: str,
+        values: list[list[Any]],
+    ) -> None:
+        """Bulk write a grid of raw Python values.
+
+        Optional helper used by performance workloads.
+        """
+        if sheet not in workbook["sheets"]:
+            workbook["sheets"][sheet] = {}
+            workbook["_order"].append(sheet)
+
+        r0, c0 = _parse_cell_ref(start_cell)
+        if r0 == 0 and c0 == 0:
+            workbook.setdefault("_bulk", {})[sheet] = values
+            return
+
+        for r, row_vals in enumerate(values):
+            for c, v in enumerate(row_vals):
+                workbook["sheets"][sheet][(r0 + r, c0 + c)] = v
 
     def write_cell_value(
         self,
@@ -324,9 +348,16 @@ class TablibAdapter(ExcelAdapter):
     def save_workbook(self, workbook: WorkbookData, path: Path) -> None:
         book = tablib.Databook()
         for name in workbook["_order"]:
+            bulk = workbook.get("_bulk", {}).get(name)
             cells = workbook["sheets"].get(name, {})
             ds = tablib.Dataset(title=name)
-            if not cells:
+            if isinstance(bulk, list):
+                for row_vals in bulk:
+                    if isinstance(row_vals, list):
+                        ds.append(row_vals)
+                    else:
+                        ds.append([row_vals])
+            elif not cells:
                 # Empty dataset — add a single empty row so tablib creates the sheet
                 ds.append([""])
             else:

@@ -145,6 +145,28 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
             }
         )
 
+    def write_sheet_values(
+        self,
+        workbook: WorkbookData,
+        sheet: str,
+        start_cell: str,
+        values: list[list[Any]],
+    ) -> None:
+        """Queue a rectangular grid write.
+
+        Optional helper used by performance workloads.
+        """
+        self._ensure_sheet(workbook, sheet)
+        row, col = self._parse_cell(start_cell)
+        workbook["sheets"][sheet].append(
+            {
+                "type": "grid",
+                "row": row,
+                "col": col,
+                "values": values,
+            }
+        )
+
     def write_cell_format(
         self,
         workbook: WorkbookData,
@@ -334,6 +356,17 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
                 cell_ops: dict[tuple[int, int], dict[str, Any]] = {}
 
                 for op in operations:
+                    if op["type"] == "grid":
+                        start_row = op["row"]
+                        start_col = op["col"]
+                        grid = op.get("values")
+                        if isinstance(grid, list):
+                            for r_off, row_vals in enumerate(grid):
+                                if not isinstance(row_vals, list):
+                                    continue
+                                ws.write_row(start_row + r_off, start_col, row_vals)
+                        continue
+
                     key = (op["row"], op["col"])
                     if key not in cell_ops:
                         cell_ops[key] = {"value": None, "format": None, "border": None}

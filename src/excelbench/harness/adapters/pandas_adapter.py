@@ -238,12 +238,37 @@ class PandasAdapter(ExcelAdapter):
     # =========================================================================
 
     def create_workbook(self) -> WorkbookData:
-        return {"sheets": {}, "_order": []}
+        return {"sheets": {}, "_order": [], "_bulk": {}}
 
     def add_sheet(self, workbook: WorkbookData, name: str) -> None:
         if name not in workbook["sheets"]:
             workbook["sheets"][name] = {}
             workbook["_order"].append(name)
+
+    def write_sheet_values(
+        self,
+        workbook: WorkbookData,
+        sheet: str,
+        start_cell: str,
+        values: list[list[Any]],
+    ) -> None:
+        """Bulk write a grid of raw Python values.
+
+        Optional helper used by performance workloads.
+        """
+        if sheet not in workbook["sheets"]:
+            workbook["sheets"][sheet] = {}
+            workbook["_order"].append(sheet)
+
+        r0, c0 = _parse_cell_ref(start_cell)
+        if r0 == 0 and c0 == 0:
+            workbook.setdefault("_bulk", {})[sheet] = values
+            return
+
+        # Fallback to cell-level map with an offset.
+        for r, row_vals in enumerate(values):
+            for c, v in enumerate(row_vals):
+                workbook["sheets"][sheet][(r0 + r, c0 + c)] = v
 
     def write_cell_value(
         self,
@@ -331,6 +356,10 @@ class PandasAdapter(ExcelAdapter):
     def save_workbook(self, workbook: WorkbookData, path: Path) -> None:
         with pd.ExcelWriter(str(path), engine="openpyxl") as writer:
             for name in workbook["_order"]:
+                bulk = workbook.get("_bulk", {}).get(name)
+                if isinstance(bulk, list):
+                    pd.DataFrame(bulk).to_excel(writer, sheet_name=name, index=False, header=False)
+                    continue
                 cells = workbook["sheets"].get(name, {})
                 if not cells:
                     # Write an empty DataFrame to create the sheet
