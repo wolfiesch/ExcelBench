@@ -16,7 +16,6 @@ from excelbench.models import (
     CellType,
     CellValue,
     Diagnostic,
-    DiagnosticCategory,
     LibraryInfo,
     OperationType,
 )
@@ -41,7 +40,6 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
     def __init__(self) -> None:
         self._workbooks: dict[int, WorkbookData] = {}  # wb id -> {sheets, formats, path}
 
-
     def map_error_to_diagnostic(
         self,
         *,
@@ -63,11 +61,9 @@ class XlsxwriterAdapter(WriteOnlyAdapter):
             probable_cause=probable_cause,
         )
         if feature == "pivot_tables" and isinstance(exc, NotImplementedError):
-            diagnostic.category = DiagnosticCategory.UNSUPPORTED_FEATURE
             if not diagnostic.probable_cause:
                 diagnostic.probable_cause = (
-                    "xlsxwriter cannot generate pivot tables via this "
-                    "adapter implementation."
+                    "xlsxwriter cannot generate pivot tables via this adapter implementation."
                 )
         return diagnostic
 

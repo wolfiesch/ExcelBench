@@ -195,7 +195,8 @@ def render_markdown(results: BenchmarkResults, path: Path) -> None:
     lines.append("")
 
     for feature in features:
-        lines.append(f"### {feature} {{#{feature}-details}}")
+        lines.append(f'<a id="{feature}-details"></a>')
+        lines.append(f"### {feature}")
         lines.append("")
 
         for lib in libraries:

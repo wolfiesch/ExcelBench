@@ -24,7 +24,6 @@ from excelbench.models import (
     CellType,
     CellValue,
     Diagnostic,
-    DiagnosticCategory,
     LibraryInfo,
     OperationType,
 )
@@ -152,7 +151,6 @@ class OpenpyxlAdapter(ExcelAdapter):
     def supported_read_extensions(self) -> set[str]:
         return {".xlsx"}
 
-
     def map_error_to_diagnostic(
         self,
         *,
@@ -174,14 +172,11 @@ class OpenpyxlAdapter(ExcelAdapter):
             probable_cause=probable_cause,
         )
         if feature == "pivot_tables" and isinstance(exc, NotImplementedError):
-            diagnostic.category = DiagnosticCategory.UNSUPPORTED_FEATURE
             if not diagnostic.probable_cause:
                 diagnostic.probable_cause = (
-                    "openpyxl does not implement pivot table creation "
-                    "in this adapter."
+                    "openpyxl does not implement pivot table creation in this adapter."
                 )
         return diagnostic
-
 
     # =========================================================================
     # Read Operations

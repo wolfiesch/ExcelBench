@@ -36,6 +36,7 @@ BENCHMARK_VERSION = "0.1.0"
 
 JSONDict = dict[str, Any]
 
+
 def _build_exception_diagnostic(
     adapter: ExcelAdapter,
     *,
@@ -368,8 +369,7 @@ def test_read(
                                 operation=OperationType.READ,
                                 test_case=tc,
                                 probable_cause=(
-                                    "Workbook inspection failed before per-case "
-                                    "checks could run."
+                                    "Workbook inspection failed before per-case checks could run."
                                 ),
                             )
                         ],
@@ -405,6 +405,9 @@ def test_read_case(
     """
     expected = test_case.expected
 
+    sheet = test_case.sheet or feature or default_sheet
+    cell = test_case.cell or f"B{test_case.row}"
+
     if feature == "multiple_sheets" and "sheet_names" in expected:
         actual = read_sheet_names_actual(adapter, workbook)
         passed = compare_results(expected, actual)
@@ -424,16 +427,13 @@ def test_read_case(
                     test_case=test_case,
                     expected=expected,
                     actual=actual,
-                    sheet=None,
-                    cell=None,
+                    sheet=sheet,
+                    cell=cell,
                 )
             ),
             importance=test_case.importance,
             label=test_case.label,
         )
-
-    sheet = test_case.sheet or feature or default_sheet
-    cell = test_case.cell or f"B{test_case.row}"
 
     try:
         if feature == "cell_values":
@@ -498,8 +498,8 @@ def test_read_case(
                     test_case=test_case,
                     expected=expected,
                     actual=actual,
-                    sheet=None,
-                    cell=None,
+                    sheet=sheet,
+                    cell=cell,
                 )
             ),
             importance=test_case.importance,
@@ -521,8 +521,8 @@ def test_read_case(
                     feature=feature,
                     operation=operation,
                     test_case=test_case,
-                    sheet=None,
-                    cell=None,
+                    sheet=sheet,
+                    cell=cell,
                     probable_cause="Adapter raised an exception while evaluating this test case.",
                 )
             ],
@@ -1062,8 +1062,7 @@ def test_write(
                                 operation=OperationType.WRITE,
                                 test_case=tc,
                                 probable_cause=(
-                                    "Adapter could not create or save a workbook "
-                                    "for this feature."
+                                    "Adapter could not create or save a workbook for this feature."
                                 ),
                             )
                         ],
@@ -1093,8 +1092,7 @@ def test_write(
                                 operation=OperationType.WRITE,
                                 test_case=tc,
                                 probable_cause=(
-                                    "Output workbook could not be reopened for "
-                                    "verification."
+                                    "Output workbook could not be reopened for verification."
                                 ),
                             )
                         ],
@@ -1136,9 +1134,8 @@ def test_write(
                                     operation=OperationType.WRITE,
                                     test_case=tc,
                                     probable_cause=(
-                                    "Verifier failed while reading the generated "
-                                    "workbook."
-                                ),
+                                        "Verifier failed while reading the generated workbook."
+                                    ),
                                 )
                             ],
                             importance=tc.importance,
