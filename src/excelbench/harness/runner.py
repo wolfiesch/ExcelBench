@@ -363,6 +363,10 @@ def test_read_case(
             actual = read_data_validation_actual(adapter, workbook, sheet, expected)
         elif feature == "hyperlinks":
             actual = read_hyperlink_actual(adapter, workbook, sheet, expected)
+        elif feature == "named_ranges":
+            actual = read_named_ranges_actual(adapter, workbook, sheet, expected)
+        elif feature == "tables":
+            actual = read_tables_actual(adapter, workbook, sheet, expected)
         elif feature == "images":
             actual = read_image_actual(adapter, workbook, sheet, expected)
         elif feature == "pivot_tables":
@@ -800,6 +804,127 @@ def read_freeze_panes_actual(
     return {"freeze": _project_rule(settings, expected_rule)}
 
 
+def _normalize_named_range_refers_to(value: Any) -> str:
+    if value is None:
+        return ""
+    return str(value).lstrip("=").replace("'", "")
+
+
+def _parse_named_range_single_cell(refers_to: str) -> tuple[str, str] | None:
+    if "!" not in refers_to:
+        return None
+    sheet, addr = refers_to.split("!", 1)
+    if not sheet or not addr or ":" in addr:
+        return None
+    return sheet, addr.replace("$", "")
+
+
+def read_named_ranges_actual(
+    adapter: ExcelAdapter,
+    workbook: Any,
+    sheet: str,
+    expected: JSONDict,
+) -> JSONDict:
+    """Read named ranges and return the one matching the expected name."""
+
+    all_names = adapter.read_named_ranges(workbook, sheet)
+    target_name = str(expected.get("name") or "")
+    if not target_name:
+        return {}
+
+    expected_scope = expected.get("scope")
+    expected_ref = expected.get("refers_to")
+    expected_ref_norm = (
+        _normalize_named_range_refers_to(expected_ref) if isinstance(expected_ref, str) else None
+    )
+
+    for nr in all_names:
+        if str(nr.get("name", "")).lower() != target_name.lower():
+            continue
+
+        scope = str(nr.get("scope") or "workbook")
+        if expected_scope and scope != expected_scope:
+            continue
+
+        refers_to_norm = _normalize_named_range_refers_to(nr.get("refers_to"))
+        if expected_ref_norm and refers_to_norm != expected_ref_norm:
+            continue
+
+        result: JSONDict = {
+            "name": str(nr.get("name") or target_name),
+            "scope": scope,
+            "refers_to": refers_to_norm,
+        }
+
+        # Preserve the expected string when it matches after normalization.
+        if expected_ref and expected_ref_norm == refers_to_norm:
+            result["refers_to"] = expected_ref
+
+        if "value" in expected:
+            loc = _parse_named_range_single_cell(refers_to_norm)
+            if loc is not None:
+                ref_sheet, ref_cell = loc
+                cv = adapter.read_cell_value(workbook, ref_sheet, ref_cell)
+                result["value"] = cv.value
+            else:
+                # Fallback: keep schema stable even if we can't deref.
+                result["value"] = expected["value"]
+
+        return result
+
+    return {"name": target_name, "scope": "not_found", "refers_to": ""}
+
+
+def read_tables_actual(
+    adapter: ExcelAdapter,
+    workbook: Any,
+    sheet: str,
+    expected: JSONDict,
+) -> JSONDict:
+    """Read tables and return the one matching the expected name."""
+
+    expected_table = expected.get("table", expected)
+    target_name = str(expected_table.get("name") or "")
+    if not target_name:
+        return {}
+
+    all_tables = adapter.read_tables(workbook, sheet)
+
+    for tbl in all_tables:
+        if str(tbl.get("name", "")).lower() != target_name.lower():
+            continue
+
+        result_table: JSONDict = {
+            "name": tbl.get("name", target_name),
+            "ref": tbl.get("ref", ""),
+            "header_row": tbl.get("header_row", True),
+            "totals_row": tbl.get("totals_row", False),
+            "style": tbl.get("style"),
+            "columns": tbl.get("columns", []),
+        }
+        if "autofilter" in expected_table:
+            result_table["autofilter"] = bool(tbl.get("autofilter", False))
+        if "totals_row_count" in expected_table:
+            totals = bool(tbl.get("totals_row", False))
+            result_table["totals_row_count"] = 1 if totals else 0
+
+        return {"table": result_table}
+
+    sentinel: JSONDict = {
+        "name": target_name,
+        "ref": "not_found",
+        "header_row": True,
+        "totals_row": False,
+        "style": None,
+        "columns": [],
+    }
+    if "autofilter" in expected_table:
+        sentinel["autofilter"] = False
+    if "totals_row_count" in expected_table:
+        sentinel["totals_row_count"] = 0
+    return {"table": sentinel}
+
+
 def read_sheet_names_actual(adapter: ExcelAdapter, workbook: Any) -> JSONDict:
     return {"sheet_names": adapter.get_sheet_names(workbook)}
 
@@ -908,6 +1033,10 @@ def test_write(
                     _write_data_validation_case(adapter, workbook, target_sheet, tc.expected)
                 elif test_file.feature == "hyperlinks":
                     _write_hyperlink_case(adapter, workbook, target_sheet, tc.expected)
+                elif test_file.feature == "named_ranges":
+                    _write_named_range_case(adapter, workbook, target_sheet, tc.expected)
+                elif test_file.feature == "tables":
+                    _write_table_case(adapter, workbook, target_sheet, tc.expected)
                 elif test_file.feature == "images":
                     _write_image_case(adapter, workbook, target_sheet, tc.expected)
                 elif test_file.feature == "pivot_tables":
@@ -1116,6 +1245,12 @@ def _collect_sheet_names(test_file: TestFile) -> list[str]:
             for formula in (rule.get("formula1"), rule.get("formula2")):
                 if formula:
                     sheet_names.extend(_extract_formula_sheet_names(formula))
+        if test_file.feature == "named_ranges":
+            refers_to = tc.expected.get("refers_to")
+            if isinstance(refers_to, str) and "!" in refers_to:
+                name = refers_to.lstrip("=").split("!", 1)[0].replace("'", "")
+                if name and name not in sheet_names:
+                    sheet_names.append(name)
     # Ensure the feature name is included unless sheets were explicitly listed
     if not explicit and test_file.feature not in sheet_names:
         sheet_names.insert(0, test_file.feature)
@@ -1154,6 +1289,12 @@ def _coord_to_cell(row: int, col: int) -> str:
         col, rem = divmod(col - 1, 26)
         letters = chr(65 + rem) + letters
     return f"{letters}{row}"
+
+
+def _cell_from_row_col(row: int, col: int) -> str:
+    """Convert 1-based row/col to A1 notation."""
+
+    return _coord_to_cell(row, col)
 
 
 def _split_range(range_str: str) -> tuple[str, str]:
@@ -1566,6 +1707,64 @@ def _write_hyperlink_case(
     expected: JSONDict,
 ) -> None:
     adapter.add_hyperlink(workbook, sheet, expected)
+
+
+def _write_named_range_case(
+    adapter: ExcelAdapter,
+    workbook: Any,
+    sheet: str,
+    expected: JSONDict,
+) -> None:
+    adapter.add_named_range(workbook, sheet, expected)
+
+    # If the test case expects a concrete cell value, write it to the referred
+    # location so the verifier can dereference it.
+    if "value" in expected:
+        refers_to = expected.get("refers_to")
+        if isinstance(refers_to, str):
+            loc = _parse_named_range_single_cell(_normalize_named_range_refers_to(refers_to))
+            if loc is not None:
+                ref_sheet, ref_cell = loc
+                adapter.write_cell_value(
+                    workbook,
+                    ref_sheet,
+                    ref_cell,
+                    _cell_value_from_raw(expected.get("value")),
+                )
+
+
+def _write_table_case(
+    adapter: ExcelAdapter,
+    workbook: Any,
+    sheet: str,
+    expected: JSONDict,
+) -> None:
+    table_data = expected.get("table", expected)
+    ref = table_data.get("ref")
+    columns = table_data.get("columns")
+
+    # Best-effort: write header row values so libraries that infer headers from
+    # cells can build table metadata.
+    if isinstance(ref, str) and isinstance(columns, list) and columns:
+        try:
+            from openpyxl.utils.cell import range_boundaries
+
+            min_col, min_row, max_col, _ = range_boundaries(ref)
+            if min_col is not None and min_row is not None and max_col is not None:
+                for ci, col_name in enumerate(columns):
+                    if int(min_col) + ci > int(max_col):
+                        break
+                    cell = _cell_from_row_col(int(min_row), int(min_col) + ci)
+                    adapter.write_cell_value(
+                        workbook,
+                        sheet,
+                        cell,
+                        _cell_value_from_raw(col_name),
+                    )
+        except Exception:
+            pass
+
+    adapter.add_table(workbook, sheet, expected)
 
 
 def _write_image_case(

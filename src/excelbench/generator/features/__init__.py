@@ -14,8 +14,10 @@ from excelbench.generator.features.hyperlinks import HyperlinksGenerator
 from excelbench.generator.features.images import ImagesGenerator
 from excelbench.generator.features.merged_cells import MergedCellsGenerator
 from excelbench.generator.features.multiple_sheets import MultipleSheetsGenerator
+from excelbench.generator.features.named_ranges import NamedRangesGenerator
 from excelbench.generator.features.number_formats import NumberFormatsGenerator
 from excelbench.generator.features.pivot_tables import PivotTablesGenerator
+from excelbench.generator.features.tables import TablesGenerator
 from excelbench.generator.features.text_formatting import TextFormattingGenerator
 
 __all__ = [
@@ -33,7 +35,9 @@ __all__ = [
     "ImagesGenerator",
     "MergedCellsGenerator",
     "MultipleSheetsGenerator",
+    "NamedRangesGenerator",
     "NumberFormatsGenerator",
     "PivotTablesGenerator",
+    "TablesGenerator",
     "TextFormattingGenerator",
 ]

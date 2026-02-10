@@ -22,8 +22,10 @@ from excelbench.generator.features import (
     ImagesGenerator,
     MergedCellsGenerator,
     MultipleSheetsGenerator,
+    NamedRangesGenerator,
     NumberFormatsGenerator,
     PivotTablesGenerator,
+    TablesGenerator,
     TextFormattingGenerator,
 )
 from excelbench.models import Importance, Manifest, TestFile
@@ -52,6 +54,8 @@ def get_all_generators() -> list[FeatureGenerator]:
         PivotTablesGenerator(),
         CommentsGenerator(),
         FreezePanesGenerator(),
+        NamedRangesGenerator(),
+        TablesGenerator(),
     ]
 
 

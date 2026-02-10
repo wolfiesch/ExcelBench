@@ -584,6 +584,86 @@ class OpenpyxlAdapter(ExcelAdapter):
                 result["active_pane"] = pane.activePane
         return result
 
+    def read_named_ranges(self, workbook: Workbook, sheet: str) -> list[JSONDict]:
+        def _normalize_refers_to(value: Any) -> str:
+            if value is None:
+                return ""
+            return str(value).lstrip("=").replace("'", "")
+
+        out: list[JSONDict] = []
+
+        # Workbook-scoped names
+        for key in workbook.defined_names:
+            dn = workbook.defined_names.get(key)
+            if dn is None:
+                continue
+            out.append(
+                {
+                    "name": str(getattr(dn, "name", None) or key),
+                    "scope": "sheet"
+                    if getattr(dn, "localSheetId", None) is not None
+                    else "workbook",
+                    "refers_to": _normalize_refers_to(getattr(dn, "attr_text", None)),
+                }
+            )
+
+        # Sheet-scoped names live on each worksheet.
+        for ws in workbook.worksheets:
+            for key in ws.defined_names:
+                dn = ws.defined_names.get(key)
+                if dn is None:
+                    continue
+                out.append(
+                    {
+                        "name": str(getattr(dn, "name", None) or key),
+                        "scope": "sheet",
+                        "refers_to": _normalize_refers_to(getattr(dn, "attr_text", None)),
+                    }
+                )
+
+        return out
+
+    def read_tables(self, workbook: Workbook, sheet: str) -> list[JSONDict]:
+        from openpyxl.utils.cell import range_boundaries
+
+        ws = workbook[sheet]
+        out: list[JSONDict] = []
+        for tbl in ws.tables.values():
+            cols: list[str] = []
+            for col in getattr(tbl, "tableColumns", []) or []:
+                name = getattr(col, "name", None)
+                if name is not None:
+                    cols.append(str(name))
+
+            # Fallback: derive from header row cells if columns are not populated.
+            if not cols:
+                try:
+                    ref = getattr(tbl, "ref", None)
+                    if isinstance(ref, str) and ref:
+                        min_col, min_row, max_col, _ = range_boundaries(ref)
+                        if min_col is not None and min_row is not None and max_col is not None:
+                            for c in range(int(min_col), int(max_col) + 1):
+                                v = ws.cell(row=int(min_row), column=c).value
+                                cols.append("" if v is None else str(v))
+                except Exception:
+                    pass
+
+            out.append(
+                {
+                    "name": getattr(tbl, "displayName", None) or getattr(tbl, "name", None),
+                    "ref": getattr(tbl, "ref", None),
+                    "header_row": getattr(tbl, "headerRowCount", 1) != 0,
+                    "totals_row": (getattr(tbl, "totalsRowCount", 0) or 0) > 0,
+                    "style": tbl.tableStyleInfo.name
+                    if getattr(tbl, "tableStyleInfo", None)
+                    else None,
+                    "columns": cols,
+                    "autofilter": getattr(tbl, "autoFilter", None) is not None,
+                }
+            )
+
+        return out
+
     # =========================================================================
     # Write Operations
     # =========================================================================
@@ -951,6 +1031,84 @@ class OpenpyxlAdapter(ExcelAdapter):
             else:
                 c = c_obj
             c.comment = Comment(text, author)
+
+    def add_named_range(self, workbook: Workbook, sheet: str, named_range: JSONDict) -> None:
+        from openpyxl.workbook.defined_name import DefinedName
+
+        data = named_range.get("named_range", named_range)
+        name = data.get("name")
+        refers_to = data.get("refers_to")
+        scope = data.get("scope") or "workbook"
+
+        if not name or not refers_to:
+            return
+
+        refers_to_str = str(refers_to)
+        dn = DefinedName(
+            str(name),
+            attr_text=(f"={refers_to_str}" if not refers_to_str.startswith("=") else refers_to_str),
+        )
+        if scope == "sheet":
+            ws = workbook[sheet]
+            ws.defined_names.add(dn)
+        else:
+            workbook.defined_names.add(dn)
+
+    def add_table(self, workbook: Workbook, sheet: str, table: JSONDict) -> None:
+        from openpyxl.utils.cell import range_boundaries
+        from openpyxl.worksheet.filters import AutoFilter
+        from openpyxl.worksheet.table import Table, TableColumn, TableStyleInfo
+
+        data = table.get("table", table)
+        name = data.get("name")
+        ref = data.get("ref")
+        if not name or not ref:
+            return
+
+        style_name = data.get("style")
+        style = None
+        if style_name:
+            style = TableStyleInfo(
+                name=str(style_name),
+                showFirstColumn=False,
+                showLastColumn=False,
+                showRowStripes=True,
+                showColumnStripes=False,
+            )
+
+        tbl = Table(displayName=str(name), ref=str(ref))
+        if style is not None:
+            tbl.tableStyleInfo = style
+        if data.get("totals_row"):
+            tbl.totalsRowCount = 1
+
+        columns = data.get("columns")
+        if isinstance(columns, list) and columns:
+            tbl.tableColumns = [
+                TableColumn(id=i + 1, name=str(col)) for i, col in enumerate(columns)
+            ]
+        else:
+            # Best-effort: infer columns from header row cells.
+            try:
+                ws = workbook[sheet]
+                min_col, min_row, max_col, _ = range_boundaries(str(ref))
+                if min_col is not None and min_row is not None and max_col is not None:
+                    inferred: list[str] = []
+                    for c in range(int(min_col), int(max_col) + 1):
+                        v = ws.cell(row=int(min_row), column=c).value
+                        inferred.append("" if v is None else str(v))
+                    if inferred:
+                        tbl.tableColumns = [
+                            TableColumn(id=i + 1, name=str(col)) for i, col in enumerate(inferred)
+                        ]
+            except Exception:
+                pass
+
+        if data.get("autofilter"):
+            tbl.autoFilter = AutoFilter(ref=str(ref))
+
+        ws = workbook[sheet]
+        ws.add_table(tbl)
 
     def set_freeze_panes(self, workbook: Workbook, sheet: str, settings: JSONDict) -> None:
         ws = workbook[sheet]
