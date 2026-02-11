@@ -304,6 +304,52 @@ class ExcelAdapter(ABC):
         ...
 
     # =========================================================================
+    # Tier 3 Operations
+    # =========================================================================
+
+    def read_named_ranges(self, workbook: Any, sheet: str) -> list[JSONDict]:
+        """Read named ranges.
+
+        Returns a list of dicts with keys:
+        - name: the defined name
+        - scope: "workbook" or "sheet"
+        - refers_to: reference formula (e.g. Sheet1!$A$1)
+        """
+
+        return []
+
+    def add_named_range(self, workbook: Any, sheet: str, named_range: JSONDict) -> None:
+        """Add a named range.
+
+        named_range should include keys: name, scope, refers_to.
+        """
+
+        return None
+
+    def read_tables(self, workbook: Any, sheet: str) -> list[JSONDict]:
+        """Read table (ListObject) definitions from a sheet.
+
+        Returns a list of dicts with keys:
+        - name: table display name
+        - ref: cell range (e.g. "A1:D10")
+        - header_row: bool
+        - totals_row: bool
+        - style: style name or None
+        - columns: list of column header strings
+        - autofilter: bool (optional)
+        """
+
+        return []
+
+    def add_table(self, workbook: Any, sheet: str, table: JSONDict) -> None:
+        """Add a table (ListObject) to a sheet.
+
+        table dict should include keys: name, ref, style, columns, header_row, totals_row.
+        """
+
+        return None
+
+    # =========================================================================
     # Write Operations
     # =========================================================================
 

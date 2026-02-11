@@ -26,9 +26,16 @@ _FEATURE_TIERS: dict[str, tuple[int, str]] = {
     "pivot_tables": (2, "Advanced"),
     "comments": (2, "Advanced"),
     "freeze_panes": (2, "Advanced"),
+    "named_ranges": (3, "Workbook Metadata"),
+    "tables": (3, "Workbook Metadata"),
 }
 
-_TIER_LABELS = {0: "Tier 0 — Basic Values", 1: "Tier 1 — Formatting", 2: "Tier 2 — Advanced"}
+_TIER_LABELS = {
+    0: "Tier 0 — Basic Values",
+    1: "Tier 1 — Formatting",
+    2: "Tier 2 — Advanced",
+    3: "Tier 3 — Workbook Metadata",
+}
 
 
 def render_results(results: BenchmarkResults, output_dir: Path) -> None:
@@ -132,7 +139,7 @@ def render_markdown(results: BenchmarkResults, path: Path) -> None:
             separator += "------------|"
 
     # Group features by tier
-    tier_features: dict[int, list[str]] = {0: [], 1: [], 2: []}
+    tier_features: dict[int, list[str]] = {0: [], 1: [], 2: [], 3: []}
     for feature_name in features:
         tier = _FEATURE_TIERS.get(feature_name, (2, "Advanced"))[0]
         tier_features[tier].append(feature_name)
