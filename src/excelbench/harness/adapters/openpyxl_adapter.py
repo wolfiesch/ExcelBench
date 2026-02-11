@@ -617,38 +617,68 @@ class OpenpyxlAdapter(ExcelAdapter):
         def _normalize_refers_to(value: Any) -> str:
             if value is None:
                 return ""
-            return str(value).lstrip("=").replace("'", "")
+            raw = str(value).lstrip("=")
+            if "!" not in raw:
+                return raw
+            sheet_part, addr = raw.split("!", 1)
+            # Strip only wrapper quotes used for sheet names with spaces.
+            # Preserve embedded apostrophes by unescaping doubled quotes.
+            if sheet_part.startswith("'") and sheet_part.endswith("'") and len(sheet_part) >= 2:
+                sheet_part = sheet_part[1:-1].replace("''", "'")
+            return f"{sheet_part}!{addr}"
 
         out: list[JSONDict] = []
 
         # Workbook-scoped names
         for key in workbook.defined_names:
             dn = workbook.defined_names.get(key)
-            if dn is None:
+            if dn is None or getattr(dn, "localSheetId", None) is not None:
                 continue
             out.append(
                 {
                     "name": str(getattr(dn, "name", None) or key),
-                    "scope": "sheet"
-                    if getattr(dn, "localSheetId", None) is not None
-                    else "workbook",
+                    "scope": "workbook",
                     "refers_to": _normalize_refers_to(getattr(dn, "attr_text", None)),
                 }
             )
 
-        # Sheet-scoped names live on each worksheet.
-        for ws in workbook.worksheets:
-            for key in ws.defined_names:
-                dn = ws.defined_names.get(key)
-                if dn is None:
-                    continue
-                out.append(
-                    {
-                        "name": str(getattr(dn, "name", None) or key),
-                        "scope": "sheet",
-                        "refers_to": _normalize_refers_to(getattr(dn, "attr_text", None)),
-                    }
-                )
+        # Sheet-scoped names: only for the requested sheet.
+        ws = workbook[sheet]
+        sheet_id = workbook.worksheets.index(ws)
+        seen: set[tuple[str, str, str]] = set()
+
+        for key in ws.defined_names:
+            dn = ws.defined_names.get(key)
+            if dn is None:
+                continue
+            item = {
+                "name": str(getattr(dn, "name", None) or key),
+                "scope": "sheet",
+                "refers_to": _normalize_refers_to(getattr(dn, "attr_text", None)),
+            }
+            sig = (str(item["name"]), str(item["scope"]), str(item["refers_to"]))
+            if sig not in seen:
+                seen.add(sig)
+                out.append(item)
+
+        # Some openpyxl versions store sheet-scoped names on the workbook with
+        # localSheetId set. Include only those matching the requested sheet.
+        for key in workbook.defined_names:
+            dn = workbook.defined_names.get(key)
+            if dn is None:
+                continue
+            local_id = getattr(dn, "localSheetId", None)
+            if local_id is None or int(local_id) != int(sheet_id):
+                continue
+            item = {
+                "name": str(getattr(dn, "name", None) or key),
+                "scope": "sheet",
+                "refers_to": _normalize_refers_to(getattr(dn, "attr_text", None)),
+            }
+            sig = (str(item["name"]), str(item["scope"]), str(item["refers_to"]))
+            if sig not in seen:
+                seen.add(sig)
+                out.append(item)
 
         return out
 
@@ -675,6 +705,8 @@ class OpenpyxlAdapter(ExcelAdapter):
                                 v = ws.cell(row=int(min_row), column=c).value
                                 cols.append("" if v is None else str(v))
                 except Exception:
+                    # Best-effort derivation of header names; if it fails,
+                    # fall back to whatever openpyxl provided.
                     pass
 
             out.append(
@@ -1106,6 +1138,8 @@ class OpenpyxlAdapter(ExcelAdapter):
             )
 
         tbl = Table(displayName=str(name), ref=str(ref))
+        if data.get("header_row") is False:
+            tbl.headerRowCount = 0
         if style is not None:
             tbl.tableStyleInfo = style
         if data.get("totals_row"):
@@ -1131,6 +1165,8 @@ class OpenpyxlAdapter(ExcelAdapter):
                             TableColumn(id=i + 1, name=str(col)) for i, col in enumerate(inferred)
                         ]
             except Exception:
+                # Best-effort: if we can't infer column names from header cells,
+                # leave the tableColumns list empty.
                 pass
 
         if data.get("autofilter"):

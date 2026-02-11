@@ -501,6 +501,75 @@ class TestReadCaseFeatureDispatch:
         assert result is not None
         opxl.close_workbook(wb2)
 
+    def test_named_ranges_dispatch(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
+        path = tmp_path / "named_ranges.xlsx"
+        wb = opxl.create_workbook()
+        opxl.add_sheet(wb, "named_ranges")
+        opxl.write_cell_value(wb, "named_ranges", "B2", CellValue(type=CellType.NUMBER, value=42))
+        opxl.add_named_range(
+            wb,
+            "named_ranges",
+            {"name": "SingleCell", "scope": "workbook", "refers_to": "named_ranges!$B$2"},
+        )
+        opxl.save_workbook(wb, path)
+
+        wb2 = opxl.open_workbook(path)
+        tc = _tc(
+            "t1",
+            {
+                "name": "SingleCell",
+                "scope": "workbook",
+                "refers_to": "named_ranges!$B$2",
+                "value": 42,
+            },
+            row=2,
+        )
+        result = _test_read_case(opxl, wb2, "named_ranges", tc, "named_ranges", OperationType.READ)
+        assert result.passed is True
+        opxl.close_workbook(wb2)
+
+    def test_tables_dispatch(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
+        path = tmp_path / "tables.xlsx"
+        wb = opxl.create_workbook()
+        opxl.add_sheet(wb, "tables")
+        opxl.write_cell_value(wb, "tables", "A1", CellValue(type=CellType.STRING, value="Name"))
+        opxl.write_cell_value(wb, "tables", "B1", CellValue(type=CellType.STRING, value="Qty"))
+        opxl.write_cell_value(wb, "tables", "A2", CellValue(type=CellType.STRING, value="X"))
+        opxl.write_cell_value(wb, "tables", "B2", CellValue(type=CellType.NUMBER, value=10))
+        opxl.add_table(
+            wb,
+            "tables",
+            {
+                "table": {
+                    "name": "TestTable",
+                    "ref": "A1:B2",
+                    "style": "TableStyleMedium9",
+                    "columns": ["Name", "Qty"],
+                    "header_row": True,
+                    "totals_row": False,
+                }
+            },
+        )
+        opxl.save_workbook(wb, path)
+
+        wb2 = opxl.open_workbook(path)
+        tc = _tc(
+            "t1",
+            {
+                "table": {
+                    "name": "TestTable",
+                    "ref": "A1:B2",
+                    "header_row": True,
+                    "totals_row": False,
+                    "style": "TableStyleMedium9",
+                    "columns": ["Name", "Qty"],
+                }
+            },
+        )
+        result = _test_read_case(opxl, wb2, "tables", tc, "tables", OperationType.READ)
+        assert result.passed is True
+        opxl.close_workbook(wb2)
+
     def test_images_dispatch(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Images dispatch — no matching image returns empty actual."""
         path = tmp_path / "img.xlsx"

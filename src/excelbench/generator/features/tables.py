@@ -1,6 +1,7 @@
 """Generator for table (ListObject/structured reference) test cases (Tier 3)."""
 
 from pathlib import Path
+from typing import Any
 
 import xlwings as xw
 
@@ -36,7 +37,7 @@ class TablesGenerator(FeatureGenerator):
             autofilter: bool = False,
             importance: Importance = Importance.BASIC,
         ) -> None:
-            expected: dict[str, object] = {
+            expected: dict[str, Any] = {
                 "table": {
                     "name": name,
                     "ref": ref,
@@ -46,10 +47,11 @@ class TablesGenerator(FeatureGenerator):
                     "columns": columns,
                 }
             }
+            expected_table = expected["table"]
             if totals_row:
-                expected["table"]["totals_row_count"] = 1
+                expected_table["totals_row_count"] = 1
             if autofilter:
-                expected["table"]["autofilter"] = True
+                expected_table["autofilter"] = True
 
             self.write_test_case(sheet, row, label, expected)
             test_cases.append(

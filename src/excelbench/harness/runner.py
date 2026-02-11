@@ -933,7 +933,15 @@ def read_freeze_panes_actual(
 def _normalize_named_range_refers_to(value: Any) -> str:
     if value is None:
         return ""
-    return str(value).lstrip("=").replace("'", "")
+    raw = str(value).lstrip("=")
+    if "!" not in raw:
+        return raw
+    sheet_part, addr = raw.split("!", 1)
+    # Strip only wrapper quotes used for sheet names with spaces.
+    # Preserve embedded apostrophes by unescaping doubled quotes.
+    if sheet_part.startswith("'") and sheet_part.endswith("'") and len(sheet_part) >= 2:
+        sheet_part = sheet_part[1:-1].replace("''", "'")
+    return f"{sheet_part}!{addr}"
 
 
 def _parse_named_range_single_cell(refers_to: str) -> tuple[str, str] | None:
@@ -1410,16 +1418,17 @@ def _collect_sheet_names(test_file: TestFile) -> list[str]:
         if test_file.feature == "named_ranges":
             refers_to = tc.expected.get("refers_to")
             if isinstance(refers_to, str) and "!" in refers_to:
-                name = refers_to.lstrip("=").split("!", 1)[0].replace("'", "")
+                norm = _normalize_named_range_refers_to(refers_to)
+                name = norm.split("!", 1)[0]
                 if name and name not in sheet_names:
                     sheet_names.append(name)
     # Ensure the feature name is included unless sheets were explicitly listed
     if not explicit and test_file.feature not in sheet_names:
         sheet_names.insert(0, test_file.feature)
     for tc in test_file.test_cases:
-        name = tc.sheet
-        if name and name not in sheet_names:
-            sheet_names.append(name)
+        sheet_name = tc.sheet
+        if sheet_name and sheet_name not in sheet_names:
+            sheet_names.append(sheet_name)
     return sheet_names
 
 
@@ -1451,12 +1460,6 @@ def _coord_to_cell(row: int, col: int) -> str:
         col, rem = divmod(col - 1, 26)
         letters = chr(65 + rem) + letters
     return f"{letters}{row}"
-
-
-def _cell_from_row_col(row: int, col: int) -> str:
-    """Convert 1-based row/col to A1 notation."""
-
-    return _coord_to_cell(row, col)
 
 
 def _split_range(range_str: str) -> tuple[str, str]:
@@ -1916,7 +1919,7 @@ def _write_table_case(
                 for ci, col_name in enumerate(columns):
                     if int(min_col) + ci > int(max_col):
                         break
-                    cell = _cell_from_row_col(int(min_row), int(min_col) + ci)
+                    cell = _coord_to_cell(int(min_row), int(min_col) + ci)
                     adapter.write_cell_value(
                         workbook,
                         sheet,
@@ -1924,6 +1927,8 @@ def _write_table_case(
                         _cell_value_from_raw(col_name),
                     )
         except Exception:
+            # Best-effort write of header cells; ignore failures so adapters that
+            # don't support arbitrary cell writes can still attempt table creation.
             pass
 
     adapter.add_table(workbook, sheet, expected)

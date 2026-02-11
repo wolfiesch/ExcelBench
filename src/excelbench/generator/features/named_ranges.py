@@ -27,7 +27,7 @@ class NamedRangesGenerator(FeatureGenerator):
         # Add a second sheet for cross-sheet references.
         try:
             targets = sheet.book.sheets["Targets"]
-        except Exception:
+        except KeyError:
             targets = sheet.book.sheets.add("Targets")
         targets.range("A1").value = "Target"
 
