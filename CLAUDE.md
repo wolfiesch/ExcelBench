@@ -10,7 +10,7 @@ ExcelBench is an objective, reproducible benchmark suite that scores Python Exce
 # Install deps
 uv sync
 
-# Run tests (1084 tests)
+# Run tests
 uv run pytest
 
 # Run fidelity benchmark (requires pre-built fixtures)
@@ -92,7 +92,7 @@ fixtures/
   excel_xls/                # Canonical .xls fixtures
   throughput_xlsx/           # Scale fixtures for perf benchmarks
 
-tests/                      # 1116 tests, pytest + pytest-cov
+tests/                      # pytest + pytest-cov
 ```
 
 ## Key Patterns

@@ -7,9 +7,12 @@ from pathlib import Path
 from typing import Any
 
 import matplotlib
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.colors import ListedColormap
+
+matplotlib.use("Agg")  # Must be before pyplot import for headless environments
+
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
+from matplotlib.colors import ListedColormap  # noqa: E402
 
 # Feature display order (tier-grouped)
 _FEATURE_ORDER: list[str] = [
@@ -54,7 +57,6 @@ _FEATURE_LABELS: dict[str, str] = {
     "images": "Images",
     "comments": "Comments",
     "freeze_panes": "Freeze Panes",
-    "pivot_tables": "Pivot Tables",
     "named_ranges": "Named Ranges",
     "tables": "Tables",
 }
@@ -68,8 +70,6 @@ def render_heatmap(results_json: Path, output_dir: Path) -> list[Path]:
 
     Returns list of generated file paths.
     """
-    matplotlib.use("Agg")
-
     with open(results_json) as f:
         data = json.load(f)
 

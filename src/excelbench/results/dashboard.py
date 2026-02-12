@@ -279,6 +279,8 @@ def _generate_insights(
 
     # Find fidelity leaders
     by_green = sorted(stats.items(), key=lambda x: -x[1]["best_green"])
+    if not by_green:
+        return lines
     leaders = [lib for lib, s in by_green if s["best_green"] == by_green[0][1]["best_green"]]
     lines.append(
         f"- **Fidelity leaders**: {', '.join(leaders)} "

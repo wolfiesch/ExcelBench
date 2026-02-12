@@ -172,11 +172,15 @@ class CalamineAdapter(ReadOnlyAdapter):
                 r0, r1 = r1, r0
             if c1 < c0:
                 c0, c1 = c1, c0
-            rows = [
-                row[c0: c1 + 1]
-                for row in rows[r0: r1 + 1]
-                if len(row) > c0
-            ]
+            sliced: list[list[Any]] = []
+            for rr in range(r0, r1 + 1):
+                source = rows[rr] if rr < len(rows) else []
+                padded = [
+                    source[cc] if cc < len(source) else None
+                    for cc in range(c0, c1 + 1)
+                ]
+                sliced.append(padded)
+            rows = sliced
 
         return [[_convert_value(v) for v in row] for row in rows]
 

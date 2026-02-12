@@ -111,7 +111,7 @@ uv run excelbench heatmap
 uv run excelbench dashboard
 
 # View results
-open results/xlsx/README.md
+open results/xlsx/README.md  # macOS; use xdg-open on Linux
 ```
 
 To regenerate canonical fixtures from scratch (requires Excel installed):
