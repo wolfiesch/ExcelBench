@@ -1,8 +1,10 @@
 # Codex Handoff: Implement "Tables (Structured References)" Feature (Tier 3)
 
+> **Status: COMPLETED** — This feature was implemented via Codex handoff. This document is retained as a historical reference for the design decisions and implementation pattern.
+
 ## Context
 
-ExcelBench is a benchmark suite that scores Python Excel libraries on feature fidelity. It currently tests 18 features (Tier 1 + Tier 2 + named_ranges) across 12+ adapters. This task adds the second Tier 3 feature: **tables** (Excel ListObjects with structured references).
+ExcelBench is a benchmark suite that scores Python Excel libraries on feature fidelity. This document described adding the second Tier 3 feature: **tables** (Excel ListObjects with structured references).
 
 The codebase follows a strict pattern for adding features. The recently-added `named_ranges` feature is the most up-to-date reference. Follow its patterns exactly.
 
@@ -68,36 +70,36 @@ For each test case, write data into cells first (via xlwings in `generate`), the
 
 | ID | Label | Table Name | Range | Headers | Style | Importance |
 |----|-------|-----------|-------|---------|-------|------------|
-| `tbl_basic` | Table: basic 3-col | `SalesData` | `B2:D5` | Name, Qty, Price | `TableStyleMedium9` | basic |
-| `tbl_with_totals` | Table: with totals row | `Summary` | `B7:D11` | Item, Count, Total | `TableStyleLight1` | basic |
-| `tbl_no_style` | Table: no style | `PlainTable` | `B13:C16` | Key, Value | `None` | basic |
-| `tbl_single_col` | Table: single column | `SingleCol` | `B18:B21` | Score | `TableStyleMedium2` | edge |
-| `tbl_single_row` | Table: header only (no data rows) | `EmptyTable` | `B23:D23` | A, B, C | `TableStyleMedium9` | edge |
-| `tbl_autofilter` | Table: with autoFilter | `Filtered` | `B25:D28` | Region, Sales, Year | `TableStyleMedium9` | edge |
+| `tbl_basic` | Table: basic 3-col | `SalesData` | `E2:G5` | Name, Qty, Price | `TableStyleMedium9` | basic |
+| `tbl_with_totals` | Table: with totals row | `Summary` | `E7:G11` | Item, Count, Total | `TableStyleLight1` | basic |
+| `tbl_no_style` | Table: no style | `PlainTable` | `E13:F16` | Key, Value | `None` | basic |
+| `tbl_single_col` | Table: single column | `SingleCol` | `E18:E21` | Score | `TableStyleMedium2` | edge |
+| `tbl_single_row` | Table: header only (no data rows) | `EmptyTable` | `E23:G23` | A, B, C | `TableStyleMedium9` | edge |
+| `tbl_autofilter` | Table: with autoFilter | `Filtered` | `E25:G28` | Region, Sales, Year | `TableStyleMedium9` | edge |
 
 **Generator `generate` method** — for each test case, write the cell data into the sheet. Example for `tbl_basic`:
 
 ```python
-# Write data for SalesData table
-sheet.range("B2").value = "Name"
-sheet.range("C2").value = "Qty"
-sheet.range("D2").value = "Price"
-sheet.range("B3").value = "Widget"
-sheet.range("C3").value = 10
-sheet.range("D3").value = 4.99
-sheet.range("B4").value = "Gadget"
-sheet.range("C4").value = 5
-sheet.range("D4").value = 12.50
-sheet.range("B5").value = "Gizmo"
-sheet.range("C5").value = 8
-sheet.range("D5").value = 7.25
+# Write data for SalesData table (columns E-G to avoid A:C metadata columns)
+sheet.range("E2").value = "Name"
+sheet.range("F2").value = "Qty"
+sheet.range("G2").value = "Price"
+sheet.range("E3").value = "Widget"
+sheet.range("F3").value = 10
+sheet.range("G3").value = 4.99
+sheet.range("E4").value = "Gadget"
+sheet.range("F4").value = 5
+sheet.range("G4").value = 12.50
+sheet.range("E5").value = "Gizmo"
+sheet.range("F5").value = 8
+sheet.range("G5").value = 7.25
 ```
 
 Store each table definition in `self._ops` as:
 ```python
 self._ops.append({
     "name": "SalesData",
-    "ref": "B2:D5",
+    "ref": "E2:G5",
     "style": "TableStyleMedium9",
     "totals_row": False,
 })
@@ -108,7 +110,7 @@ Expected dict for each test case:
 expected = {
     "table": {
         "name": "SalesData",
-        "ref": "B2:D5",
+        "ref": "E2:G5",
         "header_row": True,
         "totals_row": False,
         "style": "TableStyleMedium9",
@@ -265,14 +267,14 @@ def add_table(self, workbook: Workbook, sheet: str, table: JSONDict) -> None:
 
 **File**: `src/excelbench/harness/runner.py`
 
-**Read dispatch** — in `test_read_case`, add after the `named_ranges` elif (around line 367):
+**Read dispatch** — in `test_read_case`, add after the `named_ranges` elif:
 
 ```python
 elif feature == "tables":
     actual = read_tables_actual(adapter, workbook, sheet, expected)
 ```
 
-**Write dispatch** — in `test_write`, add after the `named_ranges` elif (around line 985):
+**Write dispatch** — in `test_write`, add after the `named_ranges` elif:
 
 ```python
 elif test_file.feature == "tables":
@@ -292,7 +294,8 @@ def read_tables_actual(
     expected_table = expected.get("table", expected)
     target_name = str(expected_table.get("name") or "")
     if not target_name:
-        return {}
+        return {"table": {"name": "", "ref": "not_found", "header_row": True,
+                          "totals_row": False, "style": None, "columns": []}}
 
     all_tables = adapter.read_tables(workbook, sheet)
 
@@ -345,7 +348,7 @@ def _write_table_case(
         from openpyxl.utils import range_boundaries
         min_col, min_row, max_col, max_row = range_boundaries(ref)
         for ci, col_name in enumerate(columns):
-            cell = _cell_from_row_col(min_row, min_col + ci)
+            cell = _coord_to_cell(min_row, min_col + ci)
             adapter.write_cell_value(
                 workbook, sheet, cell,
                 _cell_value_from_raw(col_name),
@@ -354,20 +357,7 @@ def _write_table_case(
     adapter.add_table(workbook, sheet, expected)
 ```
 
-Note: `_cell_from_row_col` does not exist. Implement it as a small helper:
-
-```python
-def _cell_from_row_col(row: int, col: int) -> str:
-    """Convert 1-based row/col to A1 notation."""
-    letters = ""
-    c = col
-    while c > 0:
-        c, r = divmod(c - 1, 26)
-        letters = chr(65 + r) + letters
-    return f"{letters}{row}"
-```
-
-Place it near the other utility functions in runner.py.
+Note: `_coord_to_cell` already exists in `runner.py` — reuse it directly.
 
 ### Step 6: Register in Renderer
 
@@ -433,7 +423,7 @@ class TestOpenpyxlTables:
 | `src/excelbench/generator/generate.py` | Add import + `TablesGenerator()` to list (NO other changes) |
 | `src/excelbench/harness/adapters/base.py` | Add 2 default methods in Tier 3 section |
 | `src/excelbench/harness/adapters/openpyxl_adapter.py` | Override 2 methods |
-| `src/excelbench/harness/runner.py` | Add read/write dispatch + 3 helper functions + `_cell_from_row_col` utility |
+| `src/excelbench/harness/runner.py` | Add read/write dispatch + 3 helper functions (reuse existing `_coord_to_cell`) |
 | `src/excelbench/results/renderer.py` | Add `"tables"` to `_FEATURE_TIERS` |
 | `tests/test_tables.py` | **Create** |
 

@@ -1,8 +1,10 @@
 # Codex Handoff: Implement "Named Ranges" Feature (Tier 3)
 
+> **Status: COMPLETED** — This feature was implemented via Codex handoff. This document is retained as a historical reference for the design decisions and implementation pattern.
+
 ## Context
 
-ExcelBench is a benchmark suite that scores Python Excel libraries on feature fidelity. It currently tests 17 features (Tier 1 + Tier 2) across 12+ adapters. This task adds the first Tier 3 feature: **named ranges**.
+ExcelBench is a benchmark suite that scores Python Excel libraries on feature fidelity. This document described adding the first Tier 3 feature: **named ranges**.
 
 The codebase follows a strict pattern for adding features. Every existing feature was implemented using the same 5-step process. Follow the patterns exactly.
 
@@ -52,8 +54,8 @@ from openpyxl import load_workbook
 from openpyxl.workbook.defined_name import DefinedName
 
 wb = load_workbook(output_path)
-# Workbook-scoped: wb.defined_names.add(DefinedName(name, attr_text=refers_to))
-# Sheet-scoped: dn = DefinedName(name, attr_text=refers_to); ws = wb[sheet]; ws.defined_names.add(dn)
+# Workbook-scoped: wb.defined_names.add(DefinedName(name, attr_text=f"={refers_to}"))
+# Sheet-scoped: dn = DefinedName(name, attr_text=f"={refers_to}"); ws = wb[sheet]; ws.defined_names.append(dn)
 wb.save(output_path)
 ```
 
@@ -77,7 +79,7 @@ Find where generators are instantiated (look for the list containing `Hyperlinks
 
 **File**: `src/excelbench/harness/adapters/base.py`
 
-Add these abstract methods to the `ExcelAdapter` class. Follow the pattern of existing Tier 2 methods like `read_hyperlinks` / `add_hyperlink`:
+Add these methods (with default no-op implementations) to the `ExcelAdapter` class. Follow the pattern of existing Tier 2 methods like `read_hyperlinks` / `add_hyperlink`:
 
 ```python
 # Read
@@ -118,9 +120,8 @@ def add_named_range(self, workbook, sheet, named_range):
     scope = named_range.get("scope", "workbook")
     if scope == "sheet":
         dn = DefinedName(name, attr_text=f"={refers_to}")
-        idx = list(workbook.sheetnames).index(sheet)
-        dn.localSheetId = idx
-        workbook.defined_names.add(dn)
+        ws = workbook[sheet]
+        ws.defined_names.append(dn)
     else:
         workbook.defined_names.add(DefinedName(name, attr_text=f"={refers_to}"))
 ```
@@ -129,14 +130,14 @@ def add_named_range(self, workbook, sheet, named_range):
 
 **File**: `src/excelbench/harness/runner.py`
 
-Add read dispatch (in `test_read_case`, find the `elif feature ==` chain around line 339-373):
+Add read dispatch (in `test_read_case`, find the `elif feature ==` chain):
 
 ```python
 elif feature == "named_ranges":
     actual = read_named_ranges_actual(adapter, workbook, sheet, expected)
 ```
 
-Add write dispatch (in `test_write`, find the `elif test_file.feature ==` chain around line 853-918):
+Add write dispatch (in `test_write`, find the `elif test_file.feature ==` chain):
 
 ```python
 elif test_file.feature == "named_ranges":
@@ -161,9 +162,14 @@ def read_named_ranges_actual(
             }
             # If expected has a value key, read the cell value at the referred location
             if "value" in expected:
-                result["value"] = expected["value"]  # Placeholder; can enhance later
+                ref_str = nr.get("refers_to", "")
+                cell_ref = _parse_named_range_single_cell(ref_str, sheet)
+                if cell_ref is not None:
+                    ref_sheet, ref_cell = cell_ref
+                    cv = adapter.read_cell_value(workbook, ref_sheet, ref_cell)
+                    result["value"] = cv.value
             return result
-    return {"name": target_name, "scope": "missing", "refers_to": ""}
+    return {"name": target_name, "scope": "not_found", "refers_to": ""}
 
 
 def _write_named_range_case(
