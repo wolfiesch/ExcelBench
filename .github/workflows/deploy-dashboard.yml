@@ -1,0 +1,39 @@
+name: Deploy Dashboard
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "results/xlsx/results.json"
+      - "results/perf/results.json"
+      - "results/xlsx/*.svg"
+      - "src/excelbench/results/html_dashboard.py"
+      - ".github/workflows/deploy-dashboard.yml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: astral-sh/setup-uv@v3
+
+      - name: Install deps
+        run: uv sync
+
+      - name: Generate HTML dashboard
+        run: uv run excelbench html --output deploy/index.html
+
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel deploy deploy/ --prod --yes --token "$VERCEL_TOKEN"
