@@ -74,12 +74,12 @@ fn umya_border_style_to_str(style: &str) -> &'static str {
         "dashed" => "dashed",
         "dotted" => "dotted",
         "hair" => "hair",
-        "mediumdashed" | "mediumDashed" => "mediumDashed",
-        "dashdot" | "dashDot" => "dashDot",
-        "mediumdashdot" | "mediumDashDot" => "mediumDashDot",
-        "dashdotdot" | "dashDotDot" => "dashDotDot",
-        "mediumdashdotdot" | "mediumDashDotDot" => "mediumDashDotDot",
-        "slantdashdot" | "slantDashDot" => "slantDashDot",
+        "mediumdashed" => "mediumDashed",
+        "dashdot" => "dashDot",
+        "mediumdashdot" => "mediumDashDot",
+        "dashdotdot" => "dashDotDot",
+        "mediumdashdotdot" => "mediumDashDotDot",
+        "slantdashdot" => "slantDashDot",
         _ => "none",
     }
 }
@@ -88,13 +88,13 @@ fn col_letter_to_u32(col_str: &str) -> Result<u32, String> {
     let mut col: u32 = 0;
     for ch in col_str.chars() {
         if !ch.is_ascii_alphabetic() {
-            return Err(format!("Invalid column letter: {col_str}"));
+            return Err(format!("Invalid column string: {col_str}"));
         }
         let uc = ch.to_ascii_uppercase() as u8;
         col = col * 26 + (uc - b'A' + 1) as u32;
     }
     if col == 0 {
-        return Err(format!("Invalid column letter: {col_str}"));
+        return Err(format!("Invalid column string: {col_str}"));
     }
     Ok(col)
 }
@@ -674,7 +674,9 @@ impl UmyaBook {
             .get_item("rotation")?
             .and_then(|v| v.extract::<i64>().ok())
         {
-            style.get_alignment_mut().set_text_rotation(rot as u32);
+            if let Ok(r) = u32::try_from(rot) {
+                style.get_alignment_mut().set_text_rotation(r);
+            }
         }
 
         Ok(())

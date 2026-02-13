@@ -2,7 +2,7 @@ use pyo3::exceptions::{PyIOError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use indexmap::IndexMap;
 
@@ -90,7 +90,7 @@ fn map_h_align(s: &str) -> FormatAlign {
         "right" => FormatAlign::Right,
         "fill" => FormatAlign::Fill,
         "justify" => FormatAlign::Justify,
-        "distributed" | "centerContinuous" => FormatAlign::CenterAcross,
+        "distributed" | "centercontinuous" => FormatAlign::CenterAcross,
         _ => FormatAlign::Left,
     }
 }
@@ -115,12 +115,12 @@ fn map_border_style(s: &str) -> FormatBorder {
         "dashed" => FormatBorder::Dashed,
         "dotted" => FormatBorder::Dotted,
         "hair" => FormatBorder::Hair,
-        "mediumdashed" | "mediumDashed" => FormatBorder::MediumDashed,
-        "dashdot" | "dashDot" => FormatBorder::DashDot,
-        "mediumdashdot" | "mediumDashDot" => FormatBorder::MediumDashDot,
-        "dashdotdot" | "dashDotDot" => FormatBorder::DashDotDot,
-        "mediumdashdotdot" | "mediumDashDotDot" => FormatBorder::MediumDashDotDot,
-        "slantdashdot" | "slantDashDot" => FormatBorder::SlantDashDot,
+        "mediumdashed" => FormatBorder::MediumDashed,
+        "dashdot" => FormatBorder::DashDot,
+        "mediumdashdot" => FormatBorder::MediumDashDot,
+        "dashdotdot" => FormatBorder::DashDotDot,
+        "mediumdashdotdot" => FormatBorder::MediumDashDotDot,
+        "slantdashdot" => FormatBorder::SlantDashDot,
         "none" | "" => FormatBorder::None,
         _ => FormatBorder::Thin,
     }
@@ -130,12 +130,8 @@ fn map_underline(s: &str) -> rust_xlsxwriter::FormatUnderline {
     match s.to_ascii_lowercase().as_str() {
         "single" => rust_xlsxwriter::FormatUnderline::Single,
         "double" => rust_xlsxwriter::FormatUnderline::Double,
-        "singleaccounting" | "single_accounting" => {
-            rust_xlsxwriter::FormatUnderline::SingleAccounting
-        }
-        "doubleaccounting" | "double_accounting" => {
-            rust_xlsxwriter::FormatUnderline::DoubleAccounting
-        }
+        "singleaccounting" => rust_xlsxwriter::FormatUnderline::SingleAccounting,
+        "doubleaccounting" => rust_xlsxwriter::FormatUnderline::DoubleAccounting,
         _ => rust_xlsxwriter::FormatUnderline::Single,
     }
 }
@@ -144,7 +140,7 @@ fn map_underline(s: &str) -> rust_xlsxwriter::FormatUnderline {
 // Build a Format from optional FormatFields + BorderFields
 // ---------------------------------------------------------------------------
 
-fn build_format(fmt: Option<&FormatFields>, bdr: Option<&BorderFields>) -> Format {
+fn build_format(fmt: Option<&FormatFields>, bdr: Option<&BorderFields>) -> PyResult<Format> {
     let mut f = Format::new();
 
     if let Some(ff) = fmt {
@@ -185,10 +181,15 @@ fn build_format(fmt: Option<&FormatFields>, bdr: Option<&BorderFields>) -> Forma
             f = f.set_text_wrap();
         }
         if let Some(rot) = ff.rotation {
-            f = f.set_rotation(rot as i16);
+            let r: i16 = rot.try_into().map_err(|_| {
+                PyErr::new::<PyValueError, _>(format!("Rotation value {rot} out of range for i16"))
+            })?;
+            f = f.set_rotation(r);
         }
         if let Some(indent) = ff.indent {
-            f = f.set_indent(indent as u8);
+            if indent >= 0 && indent <= u8::MAX as i32 {
+                f = f.set_indent(indent as u8);
+            }
         }
     }
 
@@ -217,25 +218,35 @@ fn build_format(fmt: Option<&FormatFields>, bdr: Option<&BorderFields>) -> Forma
                 f = f.set_border_right_color(parse_hex_color(c));
             }
         }
-        if let Some(ref s) = bb.diagonal_up_style {
-            f = f.set_border_diagonal(map_border_style(s));
-            if let Some(ref c) = bb.diagonal_up_color {
+
+        // Diagonal borders: if both up+down are present, use BorderUpDown.
+        let has_up = bb.diagonal_up_style.is_some();
+        let has_down = bb.diagonal_down_style.is_some();
+        if has_up || has_down {
+            // Use whichever is set (prefer down if both, since it's applied second).
+            let (style_ref, color_ref) = if has_down {
+                (&bb.diagonal_down_style, &bb.diagonal_down_color)
+            } else {
+                (&bb.diagonal_up_style, &bb.diagonal_up_color)
+            };
+            if let Some(ref s) = style_ref {
+                f = f.set_border_diagonal(map_border_style(s));
+            }
+            if let Some(ref c) = color_ref {
                 f = f.set_border_diagonal_color(parse_hex_color(c));
             }
-            f = f.set_border_diagonal_type(rust_xlsxwriter::FormatDiagonalBorder::BorderUp);
-        }
-        if let Some(ref s) = bb.diagonal_down_style {
-            f = f.set_border_diagonal(map_border_style(s));
-            if let Some(ref c) = bb.diagonal_down_color {
-                f = f.set_border_diagonal_color(parse_hex_color(c));
-            }
-            // If both up + down are set, this overrides. That's a limitation
-            // but diagonal borders are rare in the benchmark.
-            f = f.set_border_diagonal_type(rust_xlsxwriter::FormatDiagonalBorder::BorderDown);
+            let diag_type = if has_up && has_down {
+                rust_xlsxwriter::FormatDiagonalBorder::BorderUpDown
+            } else if has_up {
+                rust_xlsxwriter::FormatDiagonalBorder::BorderUp
+            } else {
+                rust_xlsxwriter::FormatDiagonalBorder::BorderDown
+            };
+            f = f.set_border_diagonal_type(diag_type);
         }
     }
 
-    f
+    Ok(f)
 }
 
 // ---------------------------------------------------------------------------
@@ -411,10 +422,7 @@ fn write_cell(
         "date" => {
             let s = payload.value.as_deref().unwrap_or("");
             if let Some(d) = parse_iso_date(s) {
-                let mut combined_fmt = format.clone();
-                // Only set date number format if the user didn't already set one.
-                combined_fmt = combined_fmt.set_num_format("yyyy-mm-dd");
-                ws.write_datetime_with_format(row, col, d, &combined_fmt)
+                ws.write_datetime_with_format(row, col, d, format)
                     .map(|_| ())
                     .map_err(|e| {
                         PyErr::new::<PyIOError, _>(format!("write_datetime failed: {e}"))
@@ -430,9 +438,7 @@ fn write_cell(
         "datetime" => {
             let s = payload.value.as_deref().unwrap_or("");
             if let Some(dt) = parse_iso_datetime(s) {
-                let mut combined_fmt = format.clone();
-                combined_fmt = combined_fmt.set_num_format("yyyy-mm-dd hh:mm:ss");
-                ws.write_datetime_with_format(row, col, dt, &combined_fmt)
+                ws.write_datetime_with_format(row, col, dt, format)
                     .map(|_| ())
                     .map_err(|e| {
                         PyErr::new::<PyIOError, _>(format!("write_datetime failed: {e}"))
@@ -454,6 +460,18 @@ fn write_cell(
 // ---------------------------------------------------------------------------
 // PyO3 implementation
 // ---------------------------------------------------------------------------
+
+impl RustXlsxWriterBook {
+    fn ensure_sheet_exists(&self, sheet: &str) -> PyResult<()> {
+        if self.sheet_names.contains(&sheet.to_string()) {
+            Ok(())
+        } else {
+            Err(PyErr::new::<PyValueError, _>(format!(
+                "Unknown sheet: {sheet}"
+            )))
+        }
+    }
+}
 
 #[pymethods]
 impl RustXlsxWriterBook {
@@ -484,11 +502,7 @@ impl RustXlsxWriterBook {
         a1: &str,
         payload: &Bound<'_, PyAny>,
     ) -> PyResult<()> {
-        if !self.sheet_names.contains(&sheet.to_string()) {
-            return Err(PyErr::new::<PyValueError, _>(format!(
-                "Unknown sheet: {sheet}"
-            )));
-        }
+        self.ensure_sheet_exists(sheet)?;
 
         let key = resolve_key(sheet, a1)?;
 
@@ -532,11 +546,7 @@ impl RustXlsxWriterBook {
         a1: &str,
         format_dict: &Bound<'_, PyAny>,
     ) -> PyResult<()> {
-        if !self.sheet_names.contains(&sheet.to_string()) {
-            return Err(PyErr::new::<PyValueError, _>(format!(
-                "Unknown sheet: {sheet}"
-            )));
-        }
+        self.ensure_sheet_exists(sheet)?;
         let key = resolve_key(sheet, a1)?;
         let dict = format_dict
             .downcast::<PyDict>()
@@ -552,11 +562,7 @@ impl RustXlsxWriterBook {
         a1: &str,
         border_dict: &Bound<'_, PyAny>,
     ) -> PyResult<()> {
-        if !self.sheet_names.contains(&sheet.to_string()) {
-            return Err(PyErr::new::<PyValueError, _>(format!(
-                "Unknown sheet: {sheet}"
-            )));
-        }
+        self.ensure_sheet_exists(sheet)?;
         let key = resolve_key(sheet, a1)?;
         let dict = border_dict
             .downcast::<PyDict>()
@@ -567,21 +573,13 @@ impl RustXlsxWriterBook {
     }
 
     pub fn set_row_height(&mut self, sheet: &str, row: u32, height: f64) -> PyResult<()> {
-        if !self.sheet_names.contains(&sheet.to_string()) {
-            return Err(PyErr::new::<PyValueError, _>(format!(
-                "Unknown sheet: {sheet}"
-            )));
-        }
+        self.ensure_sheet_exists(sheet)?;
         self.row_heights.insert((sheet.to_string(), row), height);
         Ok(())
     }
 
     pub fn set_column_width(&mut self, sheet: &str, col_str: &str, width: f64) -> PyResult<()> {
-        if !self.sheet_names.contains(&sheet.to_string()) {
-            return Err(PyErr::new::<PyValueError, _>(format!(
-                "Unknown sheet: {sheet}"
-            )));
-        }
+        self.ensure_sheet_exists(sheet)?;
         let col_idx = col_letter_to_index(col_str)?;
         self.col_widths
             .insert((sheet.to_string(), col_idx), width);
@@ -631,7 +629,18 @@ impl RustXlsxWriterBook {
             let (ref sheet, row, col) = *key;
             let fmt_fields = self.formats.get(key);
             let bdr_fields = self.borders.get(key);
-            let format = build_format(fmt_fields, bdr_fields);
+            let mut format = build_format(fmt_fields, bdr_fields)?;
+
+            // Apply default date/datetime number format only if the user
+            // didn't already provide one via write_cell_format.
+            let has_user_nf = fmt_fields.and_then(|f| f.number_format.as_ref()).is_some();
+            if !has_user_nf {
+                if payload.type_str == "date" {
+                    format = format.set_num_format("yyyy-mm-dd");
+                } else if payload.type_str == "datetime" {
+                    format = format.set_num_format("yyyy-mm-dd hh:mm:ss");
+                }
+            }
 
             let ws = ws_map.get_mut(sheet).ok_or_else(|| {
                 PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}"))
@@ -640,27 +649,23 @@ impl RustXlsxWriterBook {
             write_cell(ws, row, col, payload, &format)?;
         }
 
-        // Also write formats for cells that have format/border but no value
+        // Write formats for cells that have format/border but no value
         // (e.g., blank cells with borders).
-        for (key, _) in &self.formats {
-            if !self.values.contains_key(key) {
-                let (ref sheet, row, col) = *key;
-                let fmt_fields = self.formats.get(key);
-                let bdr_fields = self.borders.get(key);
-                let format = build_format(fmt_fields, bdr_fields);
-                if let Some(ws) = ws_map.get_mut(sheet) {
-                    let _ = ws.write_blank(row, col, &format);
-                }
-            }
-        }
-        for (key, _) in &self.borders {
-            if !self.values.contains_key(key) && !self.formats.contains_key(key) {
-                let (ref sheet, row, col) = *key;
-                let bdr_fields = self.borders.get(key);
-                let format = build_format(None, bdr_fields);
-                if let Some(ws) = ws_map.get_mut(sheet) {
-                    let _ = ws.write_blank(row, col, &format);
-                }
+        let format_only_keys: HashSet<_> = self
+            .formats
+            .keys()
+            .chain(self.borders.keys())
+            .filter(|k| !self.values.contains_key(*k))
+            .collect();
+        for key in format_only_keys {
+            let (ref sheet, row, col) = *key;
+            let fmt_fields = self.formats.get(key);
+            let bdr_fields = self.borders.get(key);
+            let format = build_format(fmt_fields, bdr_fields)?;
+            if let Some(ws) = ws_map.get_mut(sheet) {
+                ws.write_blank(row, col, &format).map_err(|e| {
+                    PyErr::new::<PyIOError, _>(format!("write_blank failed: {e}"))
+                })?;
             }
         }
 
