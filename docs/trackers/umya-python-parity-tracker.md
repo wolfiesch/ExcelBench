@@ -68,9 +68,9 @@ Split the 795-line monolith before adding ~510 LOC of Phase 1 features. Avoids
 | Charts | 2+ | 0 | 0% | Missing |
 | Conditional formatting | 6+ | 2 | 33% | Partial |
 | Data validation | 6+ | 2 | 33% | Partial |
-| Formulas (named/array) | 6+ | 1 (basic only) | ~15% | Stub |
+| Formulas (named/array) | 6+ | 3 (basic + named ranges) | ~45% | Partial |
 | Auto filters | 4+ | 0 | 0% | Missing |
-| Tables (ListObjects) | 8+ | 0 | 0% | Missing |
+| Tables (ListObjects) | 8+ | 2 | 25% | Partial |
 | Pivot tables | 4+ | 0 | 0% | Missing |
 | Rich text | 6+ | 0 | 0% | Missing |
 | Print/page setup | 10+ | 0 | 0% | Missing |
@@ -84,7 +84,7 @@ Split the 795-line monolith before adding ~510 LOC of Phase 1 features. Avoids
 | Workbook views | 3+ | 0 | 0% | Missing |
 | **Documentation** | 15 guide pages | 3 | 17% | Skeleton |
 
-**Overall API coverage: ~20%** (29 of ~150+ functions)
+**Overall API coverage: ~23%** (33 of ~150+ functions)
 
 ---
 
@@ -192,10 +192,12 @@ These fill out the "power user" API surface that the Elixir wrapper provides.
 |------|--------|
 | **Elixir module** | `formula_functions.ex` |
 | **Elixir functions** | `add_defined_name/4`, `get_defined_names/1`, `remove_defined_name/2` |
-| **umya-spreadsheet API** | `spreadsheet.get_defined_names()`, `DefinedName::new()` |
-| **Rust effort** | ~40 LOC |
-| **Python adapter** | Wire `read_named_ranges()` and `add_named_range()` (Tier 3 methods, default `[]`/None) |
-| **Status** | [ ] Not started |
+| **umya-spreadsheet API** | `spreadsheet.get_defined_names()`, `Worksheet::add_defined_name()` |
+| **Rust module** | `umya/named_ranges.rs` (~137 LOC) |
+| **Python adapter** | `read_named_ranges()` and `add_named_range()` wired |
+| **ExcelBench score** | Read: 3, Write: 3 |
+| **Key insight** | `DefinedName::set_name()` is `pub(crate)` — workaround via `Worksheet::add_defined_name()` which calls it internally. umya disperses workbook-level names to worksheets on read; dual collection needed to avoid duplicates. |
+| **Status** | [x] Done |
 
 ### 1.2 Tables (ListObjects) R/W
 
@@ -203,10 +205,12 @@ These fill out the "power user" API surface that the Elixir wrapper provides.
 |------|--------|
 | **Elixir module** | `table.ex` |
 | **Elixir functions** | `add_table/5-6`, `get_tables/2`, `get_table/3`, `remove_table/3`, `add_table_column/4`, `set_table_style/4`, `set_totals_row/4`, `get_table_data_range/3` |
-| **umya-spreadsheet API** | `worksheet.get_tables()`, `Table::new()`, column/style/totals config |
-| **Rust effort** | ~120 LOC |
-| **Python adapter** | Wire `read_tables()` and `add_table()` (Tier 3 methods) |
-| **Status** | [ ] Not started |
+| **umya-spreadsheet API** | `worksheet.get_tables()`, `Table::new()`, `TableColumn::new()`, `TableStyleInfo::new()` |
+| **Rust module** | `umya/tables.rs` (~160 LOC) |
+| **Python adapter** | `read_tables()` and `add_table()` wired |
+| **ExcelBench score** | Read: 2, Write: 3 |
+| **Key insight** | Read score is 2 (not 3) because umya doesn't expose autoFilter state on Table — `tbl_autofilter` edge test fails. All public APIs (Table, TableColumn, TableStyleInfo) are fully accessible. |
+| **Status** | [x] Done |
 
 ### 1.3 Auto Filters R/W
 
@@ -260,7 +264,7 @@ These fill out the "power user" API surface that the Elixir wrapper provides.
 | **Note** | Elixir docs flag this as "basic support only" |
 | **Status** | [ ] Not started |
 
-**Tier 1 total estimate: ~670 LOC Rust**
+**Tier 1 progress: 2/7 done (~297 LOC shipped), ~373 LOC remaining**
 
 ---
 
@@ -541,7 +545,7 @@ Every public function must have:
 | **TD** | Documentation (18 guides + 4 ref + infra) | N/A (prose) | P1 — parallel |
 | **Total** | | ~1,950 LOC | |
 
-Current: 795 LOC → Target: ~2,750 LOC (3.5x growth) + docs + packaging
+Current: ~1,600 LOC (795 base + ~510 T0 + ~297 T1) → Target: ~2,750 LOC (1.7x remaining growth) + docs + packaging
 
 ---
 
@@ -563,13 +567,13 @@ Each feature → new `.rs` file in `umya/` + adapter wiring + guide page in docs
 7. 0.7 Conditional formatting (~150 LOC) → `umya/conditional_fmt.rs`
 
 ### Phase 2: Power Features (T1)
-1. 1.1 Named ranges (~40 LOC) → `umya/named_ranges.rs`
-2. 1.3 Auto filters (~40 LOC) → `umya/auto_filter.rs`
-3. 1.5 Array formulas (~20 LOC) → extend `umya/cell_values.rs`
-4. 1.4 Rich text (~100 LOC) → `umya/rich_text.rs`
-5. 1.2 Tables (~120 LOC) → `umya/tables.rs`
-6. 1.7 Pivot tables (~150 LOC) → `umya/pivot_tables.rs`
-7. 1.6 Charts (~200 LOC) → `umya/charts.rs`
+1. [x] 1.1 Named ranges (~137 LOC) → `umya/named_ranges.rs` — Score: R3/W3
+2. [ ] 1.3 Auto filters (~40 LOC) → `umya/auto_filter.rs`
+3. [ ] 1.5 Array formulas (~20 LOC) → extend `umya/cell_values.rs`
+4. [ ] 1.4 Rich text (~100 LOC) → `umya/rich_text.rs`
+5. [x] 1.2 Tables (~160 LOC) → `umya/tables.rs` — Score: R2/W3
+6. [ ] 1.7 Pivot tables (~150 LOC) → `umya/pivot_tables.rs`
+7. [ ] 1.6 Charts (~200 LOC) → `umya/charts.rs`
 
 ### Phase 3: General Library (T2) + Packaging (T3)
 1. 2.1 Sheet management → extend `umya/mod.rs`
@@ -629,6 +633,24 @@ Each feature → new `.rs` file in `umya/` + adapter wiring + guide page in docs
 - **Verified**: Dev server returns 200 on all pages (index, guides, api-reference, limitations)
 - Guide stubs contain anticipated API examples — will need updating once T0 Rust methods land
 - Next: Update guide pages as T0 features are implemented by parallel agent
+
+### 02/13/2026 ~02:00 PM PST
+- **Phase 2 (Tier 3 features) COMPLETE**: Named ranges + Tables implemented end-to-end
+- **Rust modules created** (both compile with zero warnings):
+  - `named_ranges.rs` (~137 LOC) — read/write with workbook + sheet scoping
+  - `tables.rs` (~160 LOC) — read/write with columns, styles, totals row
+- **Python adapter wired**: `read_named_ranges`, `add_named_range`, `read_tables`, `add_table`
+- **Tier 3 fixtures generated**: `fixtures/excel/tier3/18_named_ranges.xlsx`, `19_tables.xlsx` (openpyxl-generated)
+- **Benchmark scores**: named_ranges R3/W3, tables R2/W3
+- **Runner fix**: `_normalize_named_range_refers_to()` now strips `$` from addresses for fair cross-adapter comparison
+- **Key learnings**:
+  - `DefinedName::set_name()` is `pub(crate)` — workaround via `Worksheet::add_defined_name()`
+  - umya disperses workbook-level names to worksheets on read; need dual collection
+  - Tables autoFilter state not exposed publicly by umya — hardcode `false`, accept score=2
+- **Upstream issues filed**: #305 (hyperlink tooltip), #306 (CF serialization), #307 (image read)
+- **Committed**: `8c63fbb` (Phase 1) + `c1e87cc` (Phase 2) — pushed to origin
+- **Tests**: 1134 passed, 0 failed
+- Next: Auto filters (1.3), array formulas (1.5), or standalone pyumya extraction planning
 
 ### 02/13/2026 ~05:00 AM PST
 - **Phase 1 COMPLETE**: All 7 T0 features implemented end-to-end
