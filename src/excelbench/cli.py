@@ -89,6 +89,12 @@ def benchmark(
         "-f",
         help="Run benchmark only for specified feature(s).",
     ),
+    adapters: list[str] | None = typer.Option(
+        None,
+        "--adapter",
+        "-a",
+        help="Run only specified adapter(s) by name (repeatable).",
+    ),
     append_results: bool = typer.Option(
         False,
         "--append",
@@ -119,16 +125,34 @@ def benchmark(
     if profile == "xls" and test_dir.resolve() == XLSX_PROFILE_DEFAULT_TEST_DIR.resolve():
         test_dir = XLS_PROFILE_DEFAULT_TEST_DIR
 
-    adapters = None
+    # These command functions are sometimes invoked directly from tests.
+    # When called directly without overriding typer.Option defaults, parameters
+    # can arrive as non-runtime "OptionInfo" objects. Coerce those to None.
+    if features is not None and not isinstance(features, list):
+        features = None
+    if adapters is not None and not isinstance(adapters, list):
+        adapters = None
+
+    available = get_all_adapters()
     if profile == "xls":
-        adapters = [
+        available = [
             adapter
-            for adapter in get_all_adapters()
+            for adapter in available
             if adapter.supports_read_path(Path("profile_input.xls"))
         ]
-        if not adapters:
+        if not available:
             console.print("[red]Error: No adapters available for .xls profile.[/red]")
             raise typer.Exit(1)
+
+    selected = available
+    if adapters:
+        wanted = [a.strip() for a in adapters if a.strip()]
+        by_name = {a.name: a for a in available}
+        missing = [a for a in wanted if a not in by_name]
+        if missing:
+            console.print(f"[red]Error: Unknown adapters: {', '.join(missing)}[/red]")
+            raise typer.Exit(1)
+        selected = [by_name[a] for a in wanted]
 
     console.print("[bold]Running benchmark...[/bold]")
     console.print(f"  Profile: {profile}")
@@ -137,7 +161,7 @@ def benchmark(
     console.print()
 
     try:
-        results = run_benchmark(test_dir, adapters=adapters, features=features, profile=profile)
+        results = run_benchmark(test_dir, adapters=selected, features=features, profile=profile)
 
         if append_results:
             import json

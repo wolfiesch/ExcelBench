@@ -48,6 +48,13 @@ else:
     UmyaAdapter = _UmyaAdapter
 
 try:
+    from excelbench.harness.adapters.pyumya_adapter import PyumyaAdapter as _PyumyaAdapter
+except ImportError:
+    PyumyaAdapter: AdapterClass | None = None
+else:
+    PyumyaAdapter = _PyumyaAdapter
+
+try:
     from excelbench.harness.adapters.pylightxl_adapter import PylightxlAdapter as _PylightxlAdapter
 except ImportError:
     PylightxlAdapter: AdapterClass | None = None
@@ -134,6 +141,8 @@ if RustXlsxWriterAdapter is not None:
     __all__.append("RustXlsxWriterAdapter")
 if UmyaAdapter is not None:
     __all__.append("UmyaAdapter")
+if PyumyaAdapter is not None:
+    __all__.append("PyumyaAdapter")
 if PylightxlAdapter is not None:
     __all__.append("PylightxlAdapter")
 if XlrdAdapter is not None:
@@ -167,6 +176,8 @@ def get_all_adapters() -> list[ExcelAdapter]:
         adapters.append(RustXlsxWriterAdapter())
     if UmyaAdapter is not None:
         adapters.append(UmyaAdapter())
+    if PyumyaAdapter is not None:
+        adapters.append(PyumyaAdapter())
     if PylightxlAdapter is not None:
         adapters.append(PylightxlAdapter())
     if XlrdAdapter is not None:

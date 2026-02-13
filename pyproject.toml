@@ -96,6 +96,8 @@ module = [
     "matplotlib.*",
     "numpy",
     "numpy.*",
+    "pyumya",
+    "pyumya.*",
 ]
 ignore_missing_imports = true
 
