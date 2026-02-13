@@ -45,6 +45,11 @@ dev = [
 rust = [
     "maturin>=1.0",
 ]
+docs = [
+    "mkdocs-material>=9.5",
+    "mkdocs-minify-plugin>=0.7",
+    "pymdown-extensions>=10.0",
+]
 
 [project.scripts]
 excelbench = "excelbench.cli:app"

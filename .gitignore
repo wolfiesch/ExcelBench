@@ -65,6 +65,9 @@ htmlcov/
 # mypy
 .mypy_cache/
 
+# mkdocs
+docs/pyumya/site/
+
 # Logs
 logs/
 *.log

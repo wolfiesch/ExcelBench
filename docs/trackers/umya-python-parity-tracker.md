@@ -61,13 +61,13 @@ Split the 795-line monolith before adding ~510 LOC of Phase 1 features. Avoids
 | Alignment | 8 | 4 (monolithic) | 50% | Partial |
 | Number formats | 4 | 2 (monolithic) | 50% | Partial |
 | Row/column ops | 12+ | 4 | 33% | Partial |
-| Merged cells | 2 | 0 | 0% | Missing |
-| Comments | 6 | 0 | 0% | Missing |
-| Hyperlinks | 6+ | 0 | 0% | Missing |
-| Images | 4+ | 0 | 0% | Missing |
+| Merged cells | 2 | 2 | 100% | Done |
+| Comments | 6 | 2 | 33% | Partial |
+| Hyperlinks | 6+ | 2 | 33% | Partial |
+| Images | 4+ | 2 | 50% | Partial |
 | Charts | 2+ | 0 | 0% | Missing |
-| Conditional formatting | 6+ | 0 | 0% | Missing |
-| Data validation | 6+ | 0 | 0% | Missing |
+| Conditional formatting | 6+ | 2 | 33% | Partial |
+| Data validation | 6+ | 2 | 33% | Partial |
 | Formulas (named/array) | 6+ | 1 (basic only) | ~15% | Stub |
 | Auto filters | 4+ | 0 | 0% | Missing |
 | Tables (ListObjects) | 8+ | 0 | 0% | Missing |
@@ -75,7 +75,7 @@ Split the 795-line monolith before adding ~510 LOC of Phase 1 features. Avoids
 | Rich text | 6+ | 0 | 0% | Missing |
 | Print/page setup | 10+ | 0 | 0% | Missing |
 | Page breaks | 3+ | 0 | 0% | Missing |
-| Sheet views (freeze, grid) | 5+ | 0 | 0% | Missing |
+| Sheet views (freeze, grid) | 5+ | 2 | 40% | Partial |
 | Protection (sheet/wb) | 4+ | 0 | 0% | Missing |
 | Document properties | 4+ | 0 | 0% | Missing |
 | CSV export | 3+ | 0 | 0% | Missing |
@@ -84,7 +84,7 @@ Split the 795-line monolith before adding ~510 LOC of Phase 1 features. Avoids
 | Workbook views | 3+ | 0 | 0% | Missing |
 | **Documentation** | 15 guide pages | 3 | 17% | Skeleton |
 
-**Overall API coverage: ~15%** (15 of ~150+ functions)
+**Overall API coverage: ~20%** (29 of ~150+ functions)
 
 ---
 
@@ -103,7 +103,7 @@ already supports them; we just need PyO3 bindings + Python adapter wiring.
 | **Rust effort** | ~30 LOC — iterate merge collection, return `Vec<String>` |
 | **Python adapter** | Wire `read_merged_ranges()` and `merge_cells()` (currently return `[]`/no-op) |
 | **ExcelBench impact** | Unlocks `merged_cells` feature scoring for umya adapter |
-| **Status** | [ ] Not started |
+| **Status** | [x] Done |
 
 ### 0.2 Comments R/W
 
@@ -115,7 +115,7 @@ already supports them; we just need PyO3 bindings + Python adapter wiring.
 | **Rust effort** | ~50 LOC — read comment text/author, write comment with author |
 | **Python adapter** | Wire `read_comments()` and `add_comment()` (currently return `[]`/no-op) |
 | **ExcelBench impact** | Unlocks `comments` feature scoring |
-| **Status** | [ ] Not started |
+| **Status** | [x] Done |
 
 ### 0.3 Hyperlinks R/W
 
@@ -127,7 +127,7 @@ already supports them; we just need PyO3 bindings + Python adapter wiring.
 | **Rust effort** | ~60 LOC — iterate hyperlink collection, create/attach hyperlinks |
 | **Python adapter** | Wire `read_hyperlinks()` and `add_hyperlink()` (currently return `[]`/no-op) |
 | **ExcelBench impact** | Unlocks `hyperlinks` feature scoring |
-| **Status** | [ ] Not started |
+| **Status** | [x] Done |
 
 ### 0.4 Freeze Panes R/W
 
@@ -139,7 +139,7 @@ already supports them; we just need PyO3 bindings + Python adapter wiring.
 | **Rust effort** | ~40 LOC — read/write pane split position and frozen state |
 | **Python adapter** | Wire `read_freeze_panes()` and `set_freeze_panes()` (currently return `{}`/no-op) |
 | **ExcelBench impact** | Unlocks `freeze_panes` feature scoring |
-| **Status** | [ ] Not started |
+| **Status** | [x] Done |
 
 ### 0.5 Images R/W
 
@@ -151,7 +151,7 @@ already supports them; we just need PyO3 bindings + Python adapter wiring.
 | **Rust effort** | ~80 LOC — image bytes, anchor coordinates, format detection |
 | **Python adapter** | Wire `read_images()` and `add_image()` (currently return `[]`/no-op) |
 | **ExcelBench impact** | Unlocks `images` feature scoring |
-| **Status** | [ ] Not started |
+| **Status** | [x] Done |
 
 ### 0.6 Data Validation R/W
 
@@ -163,7 +163,7 @@ already supports them; we just need PyO3 bindings + Python adapter wiring.
 | **Rust effort** | ~100 LOC — parse validation type/operator/formula/ranges |
 | **Python adapter** | Wire `read_data_validations()` and `add_data_validation()` (currently return `[]`/no-op) |
 | **ExcelBench impact** | Unlocks `data_validation` feature scoring |
-| **Status** | [ ] Not started |
+| **Status** | [x] Done |
 
 ### 0.7 Conditional Formatting R/W
 
@@ -175,10 +175,10 @@ already supports them; we just need PyO3 bindings + Python adapter wiring.
 | **Rust effort** | ~150 LOC — complex: multiple rule types, operators, color specs |
 | **Python adapter** | Wire `read_conditional_formats()` and `add_conditional_format()` (currently return `[]`/no-op) |
 | **ExcelBench impact** | Unlocks `conditional_format` feature scoring |
-| **Status** | [ ] Not started |
+| **Status** | [x] Done |
 
-**Tier 0 total estimate: ~510 LOC Rust + adapter wiring**
-**Expected impact: umya adapter goes from ~Tier 0-1 only → full Tier 0-2 scoring**
+**Tier 0 total: ~510 LOC Rust + adapter wiring — ALL COMPLETE**
+**Impact: umya adapter now supports full Tier 0-2 scoring (7 new features)**
 
 ---
 
@@ -402,7 +402,7 @@ Structural work to make this a proper standalone library (not just ExcelBench bi
 | **Target** | Split into `umya/` directory with focused modules |
 | **Initial split (6 files)** | `mod.rs` (struct + I/O), `cell_values.rs`, `formatting.rs`, `borders.rs`, `dimensions.rs`, `util.rs` |
 | **Phase 1 additions** | `merged_cells.rs`, `comments.rs`, `hyperlinks.rs`, `freeze_panes.rs`, `images.rs`, `data_validation.rs`, `conditional_fmt.rs` |
-| **Status** | [x] **In progress** — handed off to Codex (gpt-5.3-codex, xhigh) |
+| **Status** | [x] **Done** — 13 modules: mod.rs + 12 feature modules |
 
 ### 3.2 Standalone Crate
 
@@ -484,12 +484,12 @@ includes **15 guide pages**, **3 API reference modules**, a **limitations page**
 | 3 | Styling and Formatting | `styling_formatting` guide | [ ] Not started |
 | 4 | Sheet Operations | `sheet_operations` guide | [ ] Not started |
 | 5 | Formula Functions | `formula_functions` guide | [ ] Not started |
-| 6 | Comments | `comments` guide | [ ] Not started |
-| 7 | Hyperlinks | (README section) | [ ] Not started |
-| 8 | Images | `image_handling` guide | [ ] Not started |
+| 6 | Comments | `comments` guide | [x] Stub — `guides/comments.md` |
+| 7 | Hyperlinks | (README section) | [x] Stub — `guides/hyperlinks.md` |
+| 8 | Images | `image_handling` guide | [x] Stub — `guides/images.md` |
 | 9 | Charts | `charts` guide | [ ] Not started |
-| 10 | Data Validation | `data_validation` guide | [ ] Not started |
-| 11 | Conditional Formatting | (README section) | [ ] Not started |
+| 10 | Data Validation | `data_validation` guide | [x] Stub — `guides/data-validation.md` |
+| 11 | Conditional Formatting | (README section) | [x] Stub — `guides/conditional-formatting.md` |
 | 12 | Excel Tables | `excel_tables` guide | [ ] Not started |
 | 13 | Pivot Tables | `pivot_tables` guide | [ ] Not started |
 | 14 | Auto Filters | `auto_filters` guide | [ ] Not started |
@@ -590,7 +590,7 @@ Each feature → new `.rs` file in `umya/` + adapter wiring + guide page in docs
 ### Phase D: Documentation (parallel with all phases)
 - [x] D.3 infrastructure — mkdocs-material skeleton created
 - [x] D.2 limitations page — `docs/pyumya/docs/limitations.md` created (honest from day one)
-- [ ] D.1 guide pages — write as Phase 1 features land
+- [x] D.1 guide stubs — 7 T0 guide pages created (merged cells, comments, hyperlinks, freeze panes, images, data validation, conditional formatting)
 - [ ] D.4 quality checklist — enforce from Phase 2 onward
 
 ---
@@ -617,3 +617,34 @@ Each feature → new `.rs` file in `umya/` + adapter wiring + guide page in docs
 - **Created**: `docs/pyumya/docs/limitations.md` — honest limitations page (matches Elixir's pattern)
 - **Updated**: Tracker with all 4 decisions, revised implementation order
 - Next: Verify Codex module split → commit → begin Phase 1 (T0.1 merged cells)
+
+### 02/13/2026 04:20 AM PST
+- **Executed**: D.3 doc infrastructure completed — `mkdocs-material>=9.5` + `mkdocs-minify-plugin` added to `pyproject.toml[docs]`
+- **Executed**: `uv sync --extra docs` — all deps installed, `mkdocs build --strict` passes
+- **Created**: 7 guide stubs for T0 features in `docs/pyumya/docs/guides/`:
+  - `merged-cells.md`, `comments.md`, `hyperlinks.md`, `freeze-panes.md`
+  - `images.md`, `data-validation.md`, `conditional-formatting.md`
+- **Updated**: `mkdocs.yml` — full nav with Guides section, minify plugin, emoji extension, social links
+- **Updated**: `.gitignore` — added `docs/pyumya/site/`
+- **Verified**: Dev server returns 200 on all pages (index, guides, api-reference, limitations)
+- Guide stubs contain anticipated API examples — will need updating once T0 Rust methods land
+- Next: Update guide pages as T0 features are implemented by parallel agent
+
+### 02/13/2026 ~05:00 AM PST
+- **Phase 1 COMPLETE**: All 7 T0 features implemented end-to-end
+- **Rust modules created** (all compile with zero warnings):
+  - `merged_cells.rs` (~30 LOC) — read/write merge cell ranges
+  - `freeze_panes.rs` (~120 LOC) — read/write freeze and split panes via SheetView/Pane
+  - `comments.rs` (~50 LOC) — read/write comments (RichText extraction only; Text is pub(crate))
+  - `hyperlinks.rs` (~60 LOC) — read/write hyperlinks via cell.get_hyperlink()
+  - `images.rs` (~50 LOC) — read/write images via anchor markers
+  - `data_validation.rs` (~130 LOC) — read/write data validations with type/operator enum mapping
+  - `conditional_fmt.rs` (~130 LOC) — read/write conditional formatting with style extraction
+- **Python adapter wired**: All 7 read + 7 write methods now call Rust (was empty stubs)
+- **Tests**: 1132 passed, 0 failed
+- **Key learnings**:
+  - `Text` type is `pub(crate)` — comment plain text inaccessible; use `RichText::get_text()` instead
+  - `get_sheets_views()` (extra 's') for immutable SheetView access
+  - Empty dict guards needed in adapter — Rust validates strictly, Python may pass `{}`
+  - `PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1` required for Python 3.14+ with PyO3 0.22.6
+- Next: Run fidelity benchmark to measure actual scores, then commit

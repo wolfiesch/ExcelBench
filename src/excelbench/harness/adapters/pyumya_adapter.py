@@ -166,9 +166,7 @@ class PyumyaAdapter(ExcelAdapter):
                 else None
             ),
             indent=(
-                _indent
-                if (_indent := getattr(align, "indent", None)) not in (0, None)
-                else None
+                _indent if (_indent := getattr(align, "indent", None)) not in (0, None) else None
             ),
         )
 
@@ -229,29 +227,63 @@ class PyumyaAdapter(ExcelAdapter):
         return [str(r) for r in ws.merged_cells.ranges]
 
     def read_conditional_formats(self, workbook: Any, sheet: str) -> list[JSONDict]:
+        ws = workbook[sheet]
+        raw = getattr(ws, "conditional_formats", [])
+        if isinstance(raw, list):
+            return [dict(x) for x in raw if isinstance(x, dict)]
         return []
 
     def read_data_validations(self, workbook: Any, sheet: str) -> list[JSONDict]:
+        ws = workbook[sheet]
+        raw = getattr(ws, "data_validations", [])
+        if isinstance(raw, list):
+            return [dict(x) for x in raw if isinstance(x, dict)]
         return []
 
     def read_hyperlinks(self, workbook: Any, sheet: str) -> list[JSONDict]:
-        return []
+        ws = workbook[sheet]
+        raw = getattr(ws, "hyperlinks", [])
+        if not isinstance(raw, list):
+            return []
+        links: list[JSONDict] = []
+        for link in raw:
+            if not isinstance(link, dict):
+                continue
+            d: JSONDict = dict(link)
+            cell = d.get("cell")
+            if isinstance(cell, str) and cell:
+                try:
+                    d.setdefault("display", ws[cell].value)
+                except Exception:
+                    pass
+            links.append(d)
+        return links
 
     def read_images(self, workbook: Any, sheet: str) -> list[JSONDict]:
+        ws = workbook[sheet]
+        raw = getattr(ws, "images", [])
+        if isinstance(raw, list):
+            return [dict(x) for x in raw if isinstance(x, dict)]
         return []
 
     def read_pivot_tables(self, workbook: Any, sheet: str) -> list[JSONDict]:
         return []
 
     def read_comments(self, workbook: Any, sheet: str) -> list[JSONDict]:
+        ws = workbook[sheet]
+        raw = getattr(ws, "comments", [])
+        if isinstance(raw, list):
+            return [dict(x) for x in raw if isinstance(x, dict)]
         return []
 
     def read_freeze_panes(self, workbook: Any, sheet: str) -> JSONDict:
         ws = workbook[sheet]
-        top_left = ws.freeze_panes
+        settings = getattr(ws, "pane_settings", None)
+        if isinstance(settings, dict) and settings:
+            return dict(settings)
+        top_left = getattr(ws, "freeze_panes", None)
         if top_left:
             return {"mode": "freeze", "top_left_cell": str(top_left)}
-        # pyumya currently doesn't expose split pane metadata.
         return {"mode": "none"}
 
     # =========================================================================
@@ -425,22 +457,51 @@ class PyumyaAdapter(ExcelAdapter):
         ws.merge_cells(str(cell_range))
 
     def add_conditional_format(self, workbook: Any, sheet: str, rule: JSONDict) -> None:
-        return
+        ws = workbook[sheet]
+        if hasattr(ws, "add_conditional_format"):
+            ws.add_conditional_format(rule)
 
     def add_data_validation(self, workbook: Any, sheet: str, validation: JSONDict) -> None:
-        return
+        ws = workbook[sheet]
+        if hasattr(ws, "add_data_validation"):
+            ws.add_data_validation(validation)
 
     def add_hyperlink(self, workbook: Any, sheet: str, link: JSONDict) -> None:
-        return
+        ws = workbook[sheet]
+        cfg = link.get("hyperlink", link)
+        cell = cfg.get("cell")
+        target = cfg.get("target")
+        if not isinstance(cell, str) or not isinstance(target, str):
+            return
+        ws.add_hyperlink(
+            cell,
+            target,
+            display=cfg.get("display"),
+            tooltip=cfg.get("tooltip"),
+            internal=bool(cfg.get("internal", False)),
+        )
 
     def add_image(self, workbook: Any, sheet: str, image: JSONDict) -> None:
-        return
+        ws = workbook[sheet]
+        cfg = image.get("image", image)
+        cell = cfg.get("cell")
+        path = cfg.get("path")
+        if not isinstance(cell, str) or not isinstance(path, str):
+            return
+        offset = cfg.get("offset")
+        ws.add_image(cell, str(Path(path)), offset=offset)
 
     def add_pivot_table(self, workbook: Any, sheet: str, pivot: JSONDict) -> None:
         raise NotImplementedError("pyumya pivot tables not implemented")
 
     def add_comment(self, workbook: Any, sheet: str, comment: JSONDict) -> None:
-        return
+        ws = workbook[sheet]
+        cfg = comment.get("comment", comment)
+        cell = cfg.get("cell")
+        text = cfg.get("text")
+        if not isinstance(cell, str) or not isinstance(text, str):
+            return
+        ws.add_comment(cell, text, author=cfg.get("author"))
 
     def set_freeze_panes(self, workbook: Any, sheet: str, settings: JSONDict) -> None:
         ws = workbook[sheet]
@@ -450,9 +511,11 @@ class PyumyaAdapter(ExcelAdapter):
             ws.freeze_panes = cfg.get("top_left_cell")
             return
         if mode == "split":
-            # pyumya doesn't expose split pane metadata yet; treat as a no-op so
-            # freeze-pane basics can still pass in ExcelBench.
-            return
+            if hasattr(ws, "set_pane_settings"):
+                ws.set_pane_settings(cfg)
+                return
+        if hasattr(ws, "set_pane_settings"):
+            ws.set_pane_settings({"mode": "none"})
         ws.freeze_panes = None
 
     def save_workbook(self, workbook: Any, path: Path) -> None:

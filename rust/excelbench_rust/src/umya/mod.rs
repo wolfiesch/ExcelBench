@@ -7,8 +7,15 @@ use umya_spreadsheet::{new_file, reader, writer, Spreadsheet};
 
 mod borders;
 mod cell_values;
+mod comments;
+mod conditional_fmt;
+mod data_validation;
 mod dimensions;
 mod formatting;
+mod freeze_panes;
+mod hyperlinks;
+mod images;
+mod merged_cells;
 mod util;
 
 #[pyclass(unsendable)]
