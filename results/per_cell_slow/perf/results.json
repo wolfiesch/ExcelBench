@@ -1,0 +1,76 @@
+{
+  "metadata": {
+    "benchmark_version": "0.1.0",
+    "run_date": "2026-02-12T12:42:48.810135+00:00",
+    "excel_version": "xlsxwriter-generated",
+    "platform": "Darwin-arm64",
+    "profile": "xlsx",
+    "python": "3.12.3",
+    "commit": "bbe3330",
+    "config": {
+      "warmup": 1,
+      "iters": 5,
+      "breakdown": false
+    }
+  },
+  "libraries": {
+    "python-calamine": {
+      "name": "python-calamine",
+      "version": "0.6.1",
+      "language": "python",
+      "capabilities": [
+        "read"
+      ]
+    }
+  },
+  "results": [
+    {
+      "feature": "cell_values_1k",
+      "library": "python-calamine",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 368.418208,
+            "p50": 369.996458,
+            "p95": 372.222084
+          },
+          "cpu_ms": {
+            "min": 367.88,
+            "p50": 369.099,
+            "p95": 371.31
+          },
+          "rss_peak_mb": 141.984375,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": null
+      },
+      "notes": "Write unsupported"
+    },
+    {
+      "feature": "formulas_1k",
+      "library": "python-calamine",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 459.303167,
+            "p50": 462.299542,
+            "p95": 462.817708
+          },
+          "cpu_ms": {
+            "min": 458.357,
+            "p50": 461.212,
+            "p95": 461.651
+          },
+          "rss_peak_mb": 141.984375,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": null
+      },
+      "notes": "Write unsupported"
+    }
+  ]
+}

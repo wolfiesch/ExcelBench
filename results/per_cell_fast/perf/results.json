@@ -1,0 +1,1183 @@
+{
+  "metadata": {
+    "benchmark_version": "0.1.0",
+    "run_date": "2026-02-12T12:42:40.696360+00:00",
+    "excel_version": "xlsxwriter-generated",
+    "platform": "Darwin-arm64",
+    "profile": "xlsx",
+    "python": "3.12.3",
+    "commit": "bbe3330",
+    "config": {
+      "warmup": 1,
+      "iters": 5,
+      "breakdown": false
+    }
+  },
+  "libraries": {
+    "openpyxl": {
+      "name": "openpyxl",
+      "version": "3.1.5",
+      "language": "python",
+      "capabilities": [
+        "read",
+        "write"
+      ]
+    },
+    "xlsxwriter": {
+      "name": "xlsxwriter",
+      "version": "3.2.9",
+      "language": "python",
+      "capabilities": [
+        "write"
+      ]
+    },
+    "pylightxl": {
+      "name": "pylightxl",
+      "version": "1.61",
+      "language": "python",
+      "capabilities": [
+        "read",
+        "write"
+      ]
+    },
+    "pyexcel": {
+      "name": "pyexcel",
+      "version": "0.7.4",
+      "language": "python",
+      "capabilities": [
+        "read",
+        "write"
+      ]
+    }
+  },
+  "results": [
+    {
+      "feature": "cell_values_10k",
+      "library": "openpyxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 36.713333,
+            "p50": 37.17375,
+            "p95": 37.862083
+          },
+          "cpu_ms": {
+            "min": 36.628,
+            "p50": 37.107,
+            "p95": 37.799
+          },
+          "rss_peak_mb": 155.703125,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 39.362542,
+            "p50": 39.647916,
+            "p95": 40.009584
+          },
+          "cpu_ms": {
+            "min": 39.274,
+            "p50": 39.524,
+            "p95": 39.864
+          },
+          "rss_peak_mb": 162.75,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 31.34525,
+            "p50": 32.978125,
+            "p95": 53.858416
+          },
+          "cpu_ms": {
+            "min": 31.294,
+            "p50": 32.837,
+            "p95": 53.506
+          },
+          "rss_peak_mb": 162.828125,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": "Read unsupported"
+    },
+    {
+      "feature": "cell_values_10k",
+      "library": "pylightxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 38.696167,
+            "p50": 39.123333,
+            "p95": 39.181708
+          },
+          "cpu_ms": {
+            "min": 38.601,
+            "p50": 39.045,
+            "p95": 39.1
+          },
+          "rss_peak_mb": 163.15625,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 32.93125,
+            "p50": 33.339834,
+            "p95": 33.389459
+          },
+          "cpu_ms": {
+            "min": 32.726,
+            "p50": 33.077,
+            "p95": 33.177
+          },
+          "rss_peak_mb": 163.171875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k",
+      "library": "pyexcel",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 161.268,
+            "p50": 162.791083,
+            "p95": 169.275375
+          },
+          "cpu_ms": {
+            "min": 161.083,
+            "p50": 162.071,
+            "p95": 164.964
+          },
+          "rss_peak_mb": 163.59375,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 32.115625,
+            "p50": 32.75075,
+            "p95": 32.804708
+          },
+          "cpu_ms": {
+            "min": 32.075,
+            "p50": 32.664,
+            "p95": 32.757
+          },
+          "rss_peak_mb": 164.953125,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_1k",
+      "library": "openpyxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 4.358667,
+            "p50": 4.57475,
+            "p95": 4.600125
+          },
+          "cpu_ms": {
+            "min": 4.36,
+            "p50": 4.556,
+            "p95": 4.6
+          },
+          "rss_peak_mb": 164.953125,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 5.208125,
+            "p50": 5.47175,
+            "p95": 5.494166
+          },
+          "cpu_ms": {
+            "min": 5.2,
+            "p50": 5.431,
+            "p95": 5.482
+          },
+          "rss_peak_mb": 164.953125,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_1k",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 4.702292,
+            "p50": 5.291667,
+            "p95": 5.327459
+          },
+          "cpu_ms": {
+            "min": 4.702,
+            "p50": 5.275,
+            "p95": 5.293
+          },
+          "rss_peak_mb": 165.09375,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": "Read unsupported"
+    },
+    {
+      "feature": "cell_values_1k",
+      "library": "pylightxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 4.893666,
+            "p50": 5.074708,
+            "p95": 5.282667
+          },
+          "cpu_ms": {
+            "min": 4.892,
+            "p50": 5.067,
+            "p95": 5.283
+          },
+          "rss_peak_mb": 165.40625,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 3.322417,
+            "p50": 3.568,
+            "p95": 3.61025
+          },
+          "cpu_ms": {
+            "min": 3.322,
+            "p50": 3.561,
+            "p95": 3.603
+          },
+          "rss_peak_mb": 165.40625,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_1k",
+      "library": "pyexcel",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 8.325375,
+            "p50": 8.609,
+            "p95": 8.618042
+          },
+          "cpu_ms": {
+            "min": 8.32,
+            "p50": 8.598,
+            "p95": 8.61
+          },
+          "rss_peak_mb": 165.421875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 4.262875,
+            "p50": 4.52325,
+            "p95": 4.671458
+          },
+          "cpu_ms": {
+            "min": 4.263,
+            "p50": 4.524,
+            "p95": 4.657
+          },
+          "rss_peak_mb": 165.4375,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "formulas_10k",
+      "library": "openpyxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 45.163333,
+            "p50": 45.613334,
+            "p95": 46.081208
+          },
+          "cpu_ms": {
+            "min": 45.08,
+            "p50": 45.513,
+            "p95": 46.002
+          },
+          "rss_peak_mb": 169.125,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 39.702708,
+            "p50": 40.054125,
+            "p95": 40.15
+          },
+          "cpu_ms": {
+            "min": 39.645,
+            "p50": 39.76,
+            "p95": 39.858
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "formulas_10k",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 82.785541,
+            "p50": 84.00725,
+            "p95": 105.299083
+          },
+          "cpu_ms": {
+            "min": 82.409,
+            "p50": 83.793,
+            "p95": 105.068
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": "Read unsupported"
+    },
+    {
+      "feature": "formulas_10k",
+      "library": "pylightxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 43.130292,
+            "p50": 44.245416,
+            "p95": 45.095042
+          },
+          "cpu_ms": {
+            "min": 43.07,
+            "p50": 44.137,
+            "p95": 45.016
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 30.259708,
+            "p50": 31.0665,
+            "p95": 31.084958
+          },
+          "cpu_ms": {
+            "min": 30.053,
+            "p50": 30.862,
+            "p95": 31.037
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "formulas_10k",
+      "library": "pyexcel",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 158.44375,
+            "p50": 161.501417,
+            "p95": 163.376917
+          },
+          "cpu_ms": {
+            "min": 158.157,
+            "p50": 160.898,
+            "p95": 162.437
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 32.519167,
+            "p50": 33.777083,
+            "p95": 38.323667
+          },
+          "cpu_ms": {
+            "min": 32.411,
+            "p50": 32.862,
+            "p95": 33.555
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "formulas_1k",
+      "library": "openpyxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 5.43675,
+            "p50": 5.757375,
+            "p95": 5.928875
+          },
+          "cpu_ms": {
+            "min": 5.437,
+            "p50": 5.744,
+            "p95": 5.853
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 6.296833,
+            "p50": 6.57175,
+            "p95": 7.096125
+          },
+          "cpu_ms": {
+            "min": 6.161,
+            "p50": 6.551,
+            "p95": 6.784
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "formulas_1k",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 11.543917,
+            "p50": 12.441459,
+            "p95": 12.877291
+          },
+          "cpu_ms": {
+            "min": 11.299,
+            "p50": 11.936,
+            "p95": 12.354
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": "Read unsupported"
+    },
+    {
+      "feature": "formulas_1k",
+      "library": "pylightxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 5.548083,
+            "p50": 5.859625,
+            "p95": 6.061666
+          },
+          "cpu_ms": {
+            "min": 5.549,
+            "p50": 5.84,
+            "p95": 6.062
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 3.355833,
+            "p50": 3.734792,
+            "p95": 3.775666
+          },
+          "cpu_ms": {
+            "min": 3.357,
+            "p50": 3.681,
+            "p95": 3.734
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "formulas_1k",
+      "library": "pyexcel",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 9.20075,
+            "p50": 9.267584,
+            "p95": 9.454167
+          },
+          "cpu_ms": {
+            "min": 9.186,
+            "p50": 9.237,
+            "p95": 9.439
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 5.24775,
+            "p50": 5.389083,
+            "p95": 5.477167
+          },
+          "cpu_ms": {
+            "min": 5.187,
+            "p50": 5.309,
+            "p95": 5.465
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "background_colors_1k",
+      "library": "openpyxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 8.174875,
+            "p50": 8.274792,
+            "p95": 8.413917
+          },
+          "cpu_ms": {
+            "min": 8.159,
+            "p50": 8.262,
+            "p95": 8.404
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 21.704458,
+            "p50": 21.851958,
+            "p95": 22.284666
+          },
+          "cpu_ms": {
+            "min": 21.435,
+            "p50": 21.734,
+            "p95": 21.993
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "background_colors_1k",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 13.325958,
+            "p50": 13.710083,
+            "p95": 13.730083
+          },
+          "cpu_ms": {
+            "min": 13.269,
+            "p50": 13.548,
+            "p95": 13.571
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": "Read unsupported"
+    },
+    {
+      "feature": "background_colors_1k",
+      "library": "pylightxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 4.983917,
+            "p50": 5.284083,
+            "p95": 5.334625
+          },
+          "cpu_ms": {
+            "min": 4.985,
+            "p50": 5.266,
+            "p95": 5.322
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 3.869292,
+            "p50": 3.896666,
+            "p95": 3.958125
+          },
+          "cpu_ms": {
+            "min": 3.814,
+            "p50": 3.885,
+            "p95": 3.954
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "background_colors_1k",
+      "library": "pyexcel",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 5.026542,
+            "p50": 5.065334,
+            "p95": 5.281083
+          },
+          "cpu_ms": {
+            "min": 5.024,
+            "p50": 5.057,
+            "p95": 5.278
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 5.578708,
+            "p50": 7.283666,
+            "p95": 9.289958
+          },
+          "cpu_ms": {
+            "min": 5.579,
+            "p50": 6.137,
+            "p95": 6.459
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "number_formats_1k",
+      "library": "openpyxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 7.719375,
+            "p50": 8.082875,
+            "p95": 8.403667
+          },
+          "cpu_ms": {
+            "min": 7.711,
+            "p50": 8.061,
+            "p95": 8.362
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 7.368791,
+            "p50": 8.183833,
+            "p95": 9.243375
+          },
+          "cpu_ms": {
+            "min": 7.369,
+            "p50": 8.119,
+            "p95": 9.002
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "number_formats_1k",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 11.446333,
+            "p50": 11.934209,
+            "p95": 11.957208
+          },
+          "cpu_ms": {
+            "min": 11.44,
+            "p50": 11.891,
+            "p95": 11.911
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": "Read unsupported"
+    },
+    {
+      "feature": "number_formats_1k",
+      "library": "pylightxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 4.946833,
+            "p50": 5.207167,
+            "p95": 5.841375
+          },
+          "cpu_ms": {
+            "min": 4.947,
+            "p50": 5.189,
+            "p95": 5.842
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 3.451084,
+            "p50": 3.761917,
+            "p95": 4.056292
+          },
+          "cpu_ms": {
+            "min": 3.451,
+            "p50": 3.743,
+            "p95": 3.748
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "number_formats_1k",
+      "library": "pyexcel",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 4.478333,
+            "p50": 4.604458,
+            "p95": 4.67825
+          },
+          "cpu_ms": {
+            "min": 4.462,
+            "p50": 4.605,
+            "p95": 4.666
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 5.086209,
+            "p50": 5.322959,
+            "p95": 5.392334
+          },
+          "cpu_ms": {
+            "min": 5.037,
+            "p50": 5.09,
+            "p95": 5.163
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "alignment_1k",
+      "library": "openpyxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 8.03975,
+            "p50": 8.3425,
+            "p95": 8.418292
+          },
+          "cpu_ms": {
+            "min": 8.034,
+            "p50": 8.329,
+            "p95": 8.396
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 18.189709,
+            "p50": 18.373041,
+            "p95": 18.876
+          },
+          "cpu_ms": {
+            "min": 18.06,
+            "p50": 18.112,
+            "p95": 18.242
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "alignment_1k",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 11.934666,
+            "p50": 13.15725,
+            "p95": 13.512
+          },
+          "cpu_ms": {
+            "min": 11.851,
+            "p50": 12.644,
+            "p95": 13.423
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": "Read unsupported"
+    },
+    {
+      "feature": "alignment_1k",
+      "library": "pylightxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 5.114667,
+            "p50": 5.260333,
+            "p95": 5.305292
+          },
+          "cpu_ms": {
+            "min": 5.108,
+            "p50": 5.255,
+            "p95": 5.295
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 3.52425,
+            "p50": 3.653583,
+            "p95": 3.71325
+          },
+          "cpu_ms": {
+            "min": 3.506,
+            "p50": 3.61,
+            "p95": 3.612
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "alignment_1k",
+      "library": "pyexcel",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 4.811209,
+            "p50": 4.888584,
+            "p95": 4.978375
+          },
+          "cpu_ms": {
+            "min": 4.811,
+            "p50": 4.874,
+            "p95": 4.961
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 5.497208,
+            "p50": 5.793042,
+            "p95": 6.194791
+          },
+          "cpu_ms": {
+            "min": 5.466,
+            "p50": 5.664,
+            "p95": 5.705
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "borders_200",
+      "library": "openpyxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 2.285625,
+            "p50": 2.761041,
+            "p95": 2.822292
+          },
+          "cpu_ms": {
+            "min": 2.285,
+            "p50": 2.755,
+            "p95": 2.811
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 200,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 10.78,
+            "p50": 11.325542,
+            "p95": 11.733708
+          },
+          "cpu_ms": {
+            "min": 10.765,
+            "p50": 11.309,
+            "p95": 11.434
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 200,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "borders_200",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 5.680292,
+            "p50": 5.984084,
+            "p95": 6.300292
+          },
+          "cpu_ms": {
+            "min": 5.454,
+            "p50": 5.861,
+            "p95": 5.893
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 200,
+          "op_unit": "cells"
+        }
+      },
+      "notes": "Read unsupported"
+    },
+    {
+      "feature": "borders_200",
+      "library": "pylightxl",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 1.621792,
+            "p50": 1.707334,
+            "p95": 2.000291
+          },
+          "cpu_ms": {
+            "min": 1.623,
+            "p50": 1.708,
+            "p95": 1.995
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 200,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 1.098542,
+            "p50": 1.115791,
+            "p95": 1.232459
+          },
+          "cpu_ms": {
+            "min": 1.035,
+            "p50": 1.094,
+            "p95": 1.156
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 200,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "borders_200",
+      "library": "pyexcel",
+      "perf": {
+        "read": {
+          "wall_ms": {
+            "min": 1.644875,
+            "p50": 1.905458,
+            "p95": 2.031583
+          },
+          "cpu_ms": {
+            "min": 1.644,
+            "p50": 1.906,
+            "p95": 2.025
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 200,
+          "op_unit": "cells"
+        },
+        "write": {
+          "wall_ms": {
+            "min": 2.349916,
+            "p50": 2.507042,
+            "p95": 2.80375
+          },
+          "cpu_ms": {
+            "min": 2.351,
+            "p50": 2.476,
+            "p95": 2.714
+          },
+          "rss_peak_mb": 170.921875,
+          "breakdown_ms": null,
+          "op_count": 200,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    }
+  ]
+}

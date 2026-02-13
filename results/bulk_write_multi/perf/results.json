@@ -1,0 +1,1111 @@
+{
+  "metadata": {
+    "benchmark_version": "0.1.0",
+    "run_date": "2026-02-12T12:42:33.289056+00:00",
+    "excel_version": "xlsxwriter-generated",
+    "platform": "Darwin-arm64",
+    "profile": "xlsx",
+    "python": "3.12.3",
+    "commit": "bbe3330",
+    "config": {
+      "warmup": 1,
+      "iters": 5,
+      "breakdown": false
+    }
+  },
+  "libraries": {
+    "xlsxwriter": {
+      "name": "xlsxwriter",
+      "version": "3.2.9",
+      "language": "python",
+      "capabilities": [
+        "write"
+      ]
+    },
+    "openpyxl": {
+      "name": "openpyxl",
+      "version": "3.1.5",
+      "language": "python",
+      "capabilities": [
+        "read",
+        "write"
+      ]
+    },
+    "pandas": {
+      "name": "pandas",
+      "version": "3.0.0",
+      "language": "python",
+      "capabilities": [
+        "read",
+        "write"
+      ]
+    },
+    "tablib": {
+      "name": "tablib",
+      "version": "3.9.0",
+      "language": "python",
+      "capabilities": [
+        "read",
+        "write"
+      ]
+    }
+  },
+  "results": [
+    {
+      "feature": "cell_values_10k_bulk_write",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 20.74275,
+            "p50": 21.461708,
+            "p95": 21.66875
+          },
+          "cpu_ms": {
+            "min": 20.303,
+            "p50": 20.483,
+            "p95": 20.954
+          },
+          "rss_peak_mb": 147.96875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_bulk_write",
+      "library": "openpyxl",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 31.221292,
+            "p50": 33.124791,
+            "p95": 33.3195
+          },
+          "cpu_ms": {
+            "min": 30.237,
+            "p50": 30.83,
+            "p95": 30.838
+          },
+          "rss_peak_mb": 154.796875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_bulk_write",
+      "library": "pandas",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 41.447083,
+            "p50": 46.0035,
+            "p95": 46.274291
+          },
+          "cpu_ms": {
+            "min": 41.302,
+            "p50": 42.951,
+            "p95": 43.129
+          },
+          "rss_peak_mb": 157.625,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_bulk_write",
+      "library": "tablib",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 38.201375,
+            "p50": 39.870167,
+            "p95": 39.873375
+          },
+          "cpu_ms": {
+            "min": 37.682,
+            "p50": 38.547,
+            "p95": 38.659
+          },
+          "rss_peak_mb": 158.03125,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_sparse_1pct_bulk_write",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 3.099625,
+            "p50": 3.257541,
+            "p95": 3.3575
+          },
+          "cpu_ms": {
+            "min": 3.028,
+            "p50": 3.155,
+            "p95": 3.244
+          },
+          "rss_peak_mb": 158.0625,
+          "breakdown_ms": null,
+          "op_count": 100,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_sparse_1pct_bulk_write",
+      "library": "openpyxl",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 2.14425,
+            "p50": 2.28675,
+            "p95": 2.470541
+          },
+          "cpu_ms": {
+            "min": 2.145,
+            "p50": 2.287,
+            "p95": 2.456
+          },
+          "rss_peak_mb": 158.0625,
+          "breakdown_ms": null,
+          "op_count": 100,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_sparse_1pct_bulk_write",
+      "library": "pandas",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 38.426833,
+            "p50": 45.077209,
+            "p95": 46.546208
+          },
+          "cpu_ms": {
+            "min": 36.45,
+            "p50": 39.819,
+            "p95": 40.564
+          },
+          "rss_peak_mb": 158.4375,
+          "breakdown_ms": null,
+          "op_count": 100,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_sparse_1pct_bulk_write",
+      "library": "tablib",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 23.031167,
+            "p50": 24.279292,
+            "p95": 24.651875
+          },
+          "cpu_ms": {
+            "min": 22.994,
+            "p50": 23.911,
+            "p95": 24.232
+          },
+          "rss_peak_mb": 159.078125,
+          "breakdown_ms": null,
+          "op_count": 100,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_1k_bulk_write",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 4.014041,
+            "p50": 4.479792,
+            "p95": 4.500542
+          },
+          "cpu_ms": {
+            "min": 4.007,
+            "p50": 4.198,
+            "p95": 4.285
+          },
+          "rss_peak_mb": 159.390625,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_1k_bulk_write",
+      "library": "openpyxl",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 5.376792,
+            "p50": 5.4945,
+            "p95": 5.668958
+          },
+          "cpu_ms": {
+            "min": 4.856,
+            "p50": 5.14,
+            "p95": 5.482
+          },
+          "rss_peak_mb": 159.390625,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_1k_bulk_write",
+      "library": "pandas",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 6.018417,
+            "p50": 6.910875,
+            "p95": 7.103667
+          },
+          "cpu_ms": {
+            "min": 5.948,
+            "p50": 6.862,
+            "p95": 6.892
+          },
+          "rss_peak_mb": 159.453125,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_1k_bulk_write",
+      "library": "tablib",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 5.147125,
+            "p50": 5.675875,
+            "p95": 5.715042
+          },
+          "cpu_ms": {
+            "min": 5.148,
+            "p50": 5.428,
+            "p95": 5.523
+          },
+          "rss_peak_mb": 159.453125,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_1000x10_bulk_write",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 21.403375,
+            "p50": 21.611042,
+            "p95": 22.24225
+          },
+          "cpu_ms": {
+            "min": 21.079,
+            "p50": 21.334,
+            "p95": 21.793
+          },
+          "rss_peak_mb": 159.453125,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_1000x10_bulk_write",
+      "library": "openpyxl",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 31.443292,
+            "p50": 32.535,
+            "p95": 37.456084
+          },
+          "cpu_ms": {
+            "min": 31.217,
+            "p50": 32.16,
+            "p95": 34.336
+          },
+          "rss_peak_mb": 159.578125,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_1000x10_bulk_write",
+      "library": "pandas",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 41.230417,
+            "p50": 43.881292,
+            "p95": 44.428959
+          },
+          "cpu_ms": {
+            "min": 40.966,
+            "p50": 42.272,
+            "p95": 43.127
+          },
+          "rss_peak_mb": 160.9375,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_1000x10_bulk_write",
+      "library": "tablib",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 39.172125,
+            "p50": 41.130875,
+            "p95": 41.157208
+          },
+          "cpu_ms": {
+            "min": 38.826,
+            "p50": 40.16,
+            "p95": 40.165
+          },
+          "rss_peak_mb": 160.9375,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_10x1000_bulk_write",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 20.484375,
+            "p50": 21.202709,
+            "p95": 22.645917
+          },
+          "cpu_ms": {
+            "min": 19.89,
+            "p50": 20.477,
+            "p95": 20.499
+          },
+          "rss_peak_mb": 161.0,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_10x1000_bulk_write",
+      "library": "openpyxl",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 30.028042,
+            "p50": 30.561416,
+            "p95": 31.263417
+          },
+          "cpu_ms": {
+            "min": 29.727,
+            "p50": 30.065,
+            "p95": 30.697
+          },
+          "rss_peak_mb": 161.4375,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_10x1000_bulk_write",
+      "library": "pandas",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 54.228958,
+            "p50": 56.265583,
+            "p95": 80.393625
+          },
+          "cpu_ms": {
+            "min": 53.883,
+            "p50": 55.643,
+            "p95": 80.135
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "cell_values_10k_10x1000_bulk_write",
+      "library": "tablib",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 36.887791,
+            "p50": 38.235625,
+            "p95": 38.471042
+          },
+          "cpu_ms": {
+            "min": 36.831,
+            "p50": 37.915,
+            "p95": 38.01
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_1k_bulk_write",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 4.991792,
+            "p50": 5.651208,
+            "p95": 5.652584
+          },
+          "cpu_ms": {
+            "min": 4.89,
+            "p50": 5.437,
+            "p95": 5.531
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_1k_bulk_write",
+      "library": "openpyxl",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 5.485791,
+            "p50": 5.702208,
+            "p95": 5.822958
+          },
+          "cpu_ms": {
+            "min": 5.392,
+            "p50": 5.59,
+            "p95": 5.695
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_1k_bulk_write",
+      "library": "pandas",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 7.555667,
+            "p50": 8.090958,
+            "p95": 8.271667
+          },
+          "cpu_ms": {
+            "min": 7.425,
+            "p50": 7.769,
+            "p95": 7.877
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_1k_bulk_write",
+      "library": "tablib",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 6.347541,
+            "p50": 6.87175,
+            "p95": 7.029875
+          },
+          "cpu_ms": {
+            "min": 6.225,
+            "p50": 6.678,
+            "p95": 6.822
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_1k_len64_bulk_write",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 6.553875,
+            "p50": 6.973791,
+            "p95": 7.366791
+          },
+          "cpu_ms": {
+            "min": 6.162,
+            "p50": 6.737,
+            "p95": 6.739
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_1k_len64_bulk_write",
+      "library": "openpyxl",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 6.205208,
+            "p50": 7.042333,
+            "p95": 7.049542
+          },
+          "cpu_ms": {
+            "min": 6.092,
+            "p50": 6.514,
+            "p95": 6.6
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_1k_len64_bulk_write",
+      "library": "pandas",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 8.711667,
+            "p50": 8.920167,
+            "p95": 9.265625
+          },
+          "cpu_ms": {
+            "min": 8.17,
+            "p50": 8.459,
+            "p95": 8.65
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_1k_len64_bulk_write",
+      "library": "tablib",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 7.432042,
+            "p50": 7.694834,
+            "p95": 8.740791
+          },
+          "cpu_ms": {
+            "min": 7.002,
+            "p50": 7.28,
+            "p95": 7.437
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_1k_len256_bulk_write",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 12.48575,
+            "p50": 13.391375,
+            "p95": 13.422875
+          },
+          "cpu_ms": {
+            "min": 10.489,
+            "p50": 10.9,
+            "p95": 11.087
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_1k_len256_bulk_write",
+      "library": "openpyxl",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 8.940333,
+            "p50": 9.729,
+            "p95": 10.055667
+          },
+          "cpu_ms": {
+            "min": 8.337,
+            "p50": 8.96,
+            "p95": 9.029
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_1k_len256_bulk_write",
+      "library": "pandas",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 10.239834,
+            "p50": 10.70825,
+            "p95": 10.912292
+          },
+          "cpu_ms": {
+            "min": 10.101,
+            "p50": 10.403,
+            "p95": 10.577
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_1k_len256_bulk_write",
+      "library": "tablib",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 9.2275,
+            "p50": 9.458417,
+            "p95": 9.852542
+          },
+          "cpu_ms": {
+            "min": 9.066,
+            "p50": 9.17,
+            "p95": 9.582
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_repeated_1k_len256_bulk_write",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 4.046791,
+            "p50": 4.14775,
+            "p95": 4.551
+          },
+          "cpu_ms": {
+            "min": 4.039,
+            "p50": 4.14,
+            "p95": 4.316
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_repeated_1k_len256_bulk_write",
+      "library": "openpyxl",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 8.350375,
+            "p50": 11.392208,
+            "p95": 11.462625
+          },
+          "cpu_ms": {
+            "min": 8.298,
+            "p50": 9.131,
+            "p95": 9.142
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_repeated_1k_len256_bulk_write",
+      "library": "pandas",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 12.131417,
+            "p50": 12.543625,
+            "p95": 12.771292
+          },
+          "cpu_ms": {
+            "min": 10.889,
+            "p50": 11.113,
+            "p95": 11.3
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_repeated_1k_len256_bulk_write",
+      "library": "tablib",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 9.334208,
+            "p50": 9.874292,
+            "p95": 9.919125
+          },
+          "cpu_ms": {
+            "min": 9.066,
+            "p50": 9.422,
+            "p95": 9.476
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 1000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_10k_bulk_write",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 29.403125,
+            "p50": 32.412,
+            "p95": 34.055792
+          },
+          "cpu_ms": {
+            "min": 29.231,
+            "p50": 30.316,
+            "p95": 30.336
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_10k_bulk_write",
+      "library": "openpyxl",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 41.722625,
+            "p50": 42.286583,
+            "p95": 53.677625
+          },
+          "cpu_ms": {
+            "min": 38.99,
+            "p50": 39.969,
+            "p95": 45.291
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_10k_bulk_write",
+      "library": "pandas",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 52.802042,
+            "p50": 54.549709,
+            "p95": 56.583042
+          },
+          "cpu_ms": {
+            "min": 52.201,
+            "p50": 53.02,
+            "p95": 53.416
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_unique_10k_bulk_write",
+      "library": "tablib",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 45.804917,
+            "p50": 46.900292,
+            "p95": 49.455875
+          },
+          "cpu_ms": {
+            "min": 45.705,
+            "p50": 46.016,
+            "p95": 46.41
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_repeated_10k_bulk_write",
+      "library": "xlsxwriter",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 18.647625,
+            "p50": 19.41725,
+            "p95": 19.748625
+          },
+          "cpu_ms": {
+            "min": 18.507,
+            "p50": 18.994,
+            "p95": 19.038
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_repeated_10k_bulk_write",
+      "library": "openpyxl",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 34.789042,
+            "p50": 35.241667,
+            "p95": 38.408541
+          },
+          "cpu_ms": {
+            "min": 34.499,
+            "p50": 35.061,
+            "p95": 37.578
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_repeated_10k_bulk_write",
+      "library": "pandas",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 49.073792,
+            "p50": 49.566958,
+            "p95": 50.729083
+          },
+          "cpu_ms": {
+            "min": 48.952,
+            "p50": 49.457,
+            "p95": 50.574
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    },
+    {
+      "feature": "strings_repeated_10k_bulk_write",
+      "library": "tablib",
+      "perf": {
+        "read": null,
+        "write": {
+          "wall_ms": {
+            "min": 42.313041,
+            "p50": 43.173459,
+            "p95": 43.418542
+          },
+          "cpu_ms": {
+            "min": 42.234,
+            "p50": 43.029,
+            "p95": 43.087
+          },
+          "rss_peak_mb": 161.796875,
+          "breakdown_ms": null,
+          "op_count": 10000,
+          "op_unit": "cells"
+        }
+      },
+      "notes": null
+    }
+  ]
+}
