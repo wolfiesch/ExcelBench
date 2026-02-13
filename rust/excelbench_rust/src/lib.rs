@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 
+#[cfg(any(feature = "calamine", feature = "rust_xlsxwriter", feature = "umya"))]
 mod util;
 
 #[cfg(feature = "calamine")]
@@ -10,7 +11,7 @@ mod calamine_backend;
 mod rust_xlsxwriter_backend;
 
 #[cfg(feature = "umya")]
-mod umya_backend;
+mod umya;
 
 fn enabled_backends() -> Vec<&'static str> {
     let mut out: Vec<&'static str> = Vec::new();
@@ -97,7 +98,7 @@ fn excelbench_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     #[cfg(feature = "umya")]
     {
-        m.add_class::<umya_backend::UmyaBook>()?;
+        m.add_class::<umya::UmyaBook>()?;
     }
 
     Ok(())

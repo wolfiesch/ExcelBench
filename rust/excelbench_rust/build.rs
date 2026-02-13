@@ -36,6 +36,11 @@ fn parse_lock_version(lock: &str, name: &str) -> Option<String> {
 }
 
 fn main() {
+    // This crate uses PyO3 and also has a custom build script. When a crate has its own
+    // `build.rs`, we must forward PyO3's configuration + linker args ourselves.
+    pyo3_build_config::use_pyo3_cfgs();
+    pyo3_build_config::add_extension_module_link_args();
+
     println!("cargo:rerun-if-changed=Cargo.toml");
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=Cargo.lock");

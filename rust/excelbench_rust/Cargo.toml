@@ -16,7 +16,7 @@ rust_xlsxwriter = ["dep:rust_xlsxwriter", "dep:indexmap", "dep:chrono"]
 umya = ["dep:umya-spreadsheet", "dep:chrono"]
 
 [dependencies]
-pyo3 = { version = "0.22", features = ["extension-module"] }
+pyo3 = { version = "0.22", features = ["extension-module", "multiple-pymethods"] }
 
 # Optional backend dependencies (enabled via crate features)
 calamine = { version = "0.25", optional = true, features = ["dates"] }
@@ -26,3 +26,6 @@ indexmap = { version = "2.2", optional = true }
 
 # Used for parsing/formatting calamine date/datetime values.
 chrono = { version = "0.4", optional = true }
+
+[build-dependencies]
+pyo3-build-config = "0.22"
