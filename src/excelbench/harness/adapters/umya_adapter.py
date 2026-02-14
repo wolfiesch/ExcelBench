@@ -90,40 +90,42 @@ class UmyaAdapter(ExcelAdapter):
         return dict_to_border(d)
 
     def read_row_height(self, workbook: Any, sheet: str, row: int) -> float | None:
-        return workbook.read_row_height(sheet, row - 1)
+        result: Any = workbook.read_row_height(sheet, row - 1)
+        return None if result is None else float(result)
 
     def read_column_width(self, workbook: Any, sheet: str, column: str) -> float | None:
-        return workbook.read_column_width(sheet, column)
+        result: Any = workbook.read_column_width(sheet, column)
+        return None if result is None else float(result)
 
     def read_merged_ranges(self, workbook: Any, sheet: str) -> list[str]:
-        return workbook.read_merged_ranges(sheet)
+        return list(workbook.read_merged_ranges(sheet))
 
     def read_conditional_formats(self, workbook: Any, sheet: str) -> list[JSONDict]:
-        return workbook.read_conditional_formats(sheet)
+        return list(workbook.read_conditional_formats(sheet))
 
     def read_data_validations(self, workbook: Any, sheet: str) -> list[JSONDict]:
-        return workbook.read_data_validations(sheet)
+        return list(workbook.read_data_validations(sheet))
 
     def read_hyperlinks(self, workbook: Any, sheet: str) -> list[JSONDict]:
-        return workbook.read_hyperlinks(sheet)
+        return list(workbook.read_hyperlinks(sheet))
 
     def read_images(self, workbook: Any, sheet: str) -> list[JSONDict]:
-        return workbook.read_images(sheet)
+        return list(workbook.read_images(sheet))
 
     def read_pivot_tables(self, workbook: Any, sheet: str) -> list[JSONDict]:
         return []
 
     def read_comments(self, workbook: Any, sheet: str) -> list[JSONDict]:
-        return workbook.read_comments(sheet)
+        return list(workbook.read_comments(sheet))
 
     def read_freeze_panes(self, workbook: Any, sheet: str) -> JSONDict:
-        return workbook.read_freeze_panes(sheet)
+        return dict(workbook.read_freeze_panes(sheet))
 
     def read_named_ranges(self, workbook: Any, sheet: str) -> list[JSONDict]:
-        return workbook.read_named_ranges(sheet)
+        return list(workbook.read_named_ranges(sheet))
 
     def read_tables(self, workbook: Any, sheet: str) -> list[JSONDict]:
-        return workbook.read_tables(sheet)
+        return list(workbook.read_tables(sheet))
 
     # =========================================================================
     # Write

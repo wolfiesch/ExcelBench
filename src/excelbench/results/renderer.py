@@ -3,6 +3,7 @@
 import json
 import subprocess
 from pathlib import Path
+from collections.abc import Callable
 from typing import Any
 
 from excelbench.models import BenchmarkResults, Diagnostic, FeatureScore, OperationType, TestResult
@@ -432,7 +433,7 @@ def _render_tier_list(
     lib_stats.sort(key=lambda x: (-x[1], x[0]))
 
     # Assign tiers
-    tier_defs = [
+    tier_defs: list[tuple[str, str, Callable[[int, int], bool]]] = [
         ("S", "Full Fidelity", lambda g, t: g >= t and t > 0),
         ("A", "Near-Complete", lambda g, t: g >= t * 0.8 and g < t),
         ("B", "Partial", lambda g, _t: g >= 4),

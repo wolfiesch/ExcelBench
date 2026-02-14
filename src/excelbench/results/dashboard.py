@@ -295,14 +295,14 @@ def _generate_insights(
                        if t.get("write_rate") is not None]
 
         if read_rates:
-            fastest_reader = max(read_rates, key=lambda x: x[1])  # type: ignore[arg-type]
+            fastest_reader = max(read_rates, key=lambda x: x[1])  # type: ignore[arg-type, return-value]
             lines.append(
                 f"- **Fastest reader**: {fastest_reader[0]} "
                 f"({_fmt_rate(fastest_reader[1])} cells/s on cell_values)"
             )
 
         if write_rates:
-            fastest_writer = max(write_rates, key=lambda x: x[1])  # type: ignore[arg-type]
+            fastest_writer = max(write_rates, key=lambda x: x[1])  # type: ignore[arg-type, return-value]
             lines.append(
                 f"- **Fastest writer**: {fastest_writer[0]} "
                 f"({_fmt_rate(fastest_writer[1])} cells/s on cell_values)"

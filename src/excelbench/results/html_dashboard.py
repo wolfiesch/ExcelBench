@@ -384,7 +384,7 @@ def _section_nav() -> str:
     )
 
 
-def _section_overview(fidelity: dict, perf: dict | None) -> str:
+def _section_overview(fidelity: dict[str, Any], perf: dict[str, Any] | None) -> str:
     meta = fidelity.get("metadata", {})
     libs = fidelity.get("libraries", {})
     results = fidelity.get("results", [])
@@ -445,7 +445,7 @@ def _section_overview(fidelity: dict, perf: dict | None) -> str:
     )
 
 
-def _section_matrix(fidelity: dict) -> str:
+def _section_matrix(fidelity: dict[str, Any]) -> str:
     results = fidelity.get("results", [])
     libs_info = fidelity.get("libraries", {})
 
@@ -525,7 +525,7 @@ def _section_scatter(svgs: dict[str, str]) -> str:
     return "\n".join(parts)
 
 
-def _section_comparison(fidelity: dict, perf: dict | None) -> str:
+def _section_comparison(fidelity: dict[str, Any], perf: dict[str, Any] | None) -> str:
     results = fidelity.get("results", [])
     libs_info = fidelity.get("libraries", {})
 
@@ -558,7 +558,7 @@ def _section_comparison(fidelity: dict, perf: dict | None) -> str:
     # Perf throughput
     lib_tp: dict[str, dict[str, str]] = {}
     if perf:
-        perf_lookup: dict[tuple[str, str], dict] = {}
+        perf_lookup: dict[tuple[str, str], dict[str, Any]] = {}
         for e in perf.get("results", []):
             perf_lookup[(e["feature"], e["library"])] = e.get("perf", {})
         for lib in libs_info:
@@ -615,11 +615,11 @@ def _section_comparison(fidelity: dict, perf: dict | None) -> str:
     return "\n".join(rows)
 
 
-def _section_features(fidelity: dict) -> str:
+def _section_features(fidelity: dict[str, Any]) -> str:
     results = fidelity.get("results", [])
 
     # Group by feature
-    by_feat: dict[str, list[dict]] = {}
+    by_feat: dict[str, list[dict[str, Any]]] = {}
     for entry in results:
         by_feat.setdefault(entry["feature"], []).append(entry)
 
@@ -760,7 +760,7 @@ def _section_features(fidelity: dict) -> str:
     return "\n".join(rows)
 
 
-def _section_performance(perf: dict | None) -> str:
+def _section_performance(perf: dict[str, Any] | None) -> str:
     if not perf:
         return (
             '<section id="perf" class="container">'
@@ -772,7 +772,7 @@ def _section_performance(perf: dict | None) -> str:
     results = perf.get("results", [])
 
     # Group by workload
-    by_wl: dict[str, list[dict]] = {}
+    by_wl: dict[str, list[dict[str, Any]]] = {}
     for entry in results:
         by_wl.setdefault(entry["feature"], []).append(entry)
 
@@ -833,7 +833,7 @@ def _section_performance(perf: dict | None) -> str:
                 "</tr></thead><tbody>"
             )
 
-            def _sort_key(e: dict) -> float:
+            def _sort_key(e: dict[str, Any]) -> float:
                 p = e.get("perf") or {}
                 o = p.get(op) or {}
                 w = o.get("wall_ms") or {}
@@ -888,10 +888,10 @@ def _section_performance(perf: dict | None) -> str:
     return "\n".join(rows)
 
 
-def _section_diagnostics(fidelity: dict) -> str:
+def _section_diagnostics(fidelity: dict[str, Any]) -> str:
     results = fidelity.get("results", [])
 
-    diags: list[dict] = []
+    diags: list[dict[str, Any]] = []
     for entry in results:
         for tc in entry.get("test_cases", {}).values():
             if not isinstance(tc, dict):

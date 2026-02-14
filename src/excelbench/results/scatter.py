@@ -25,6 +25,8 @@ matplotlib.use("Agg")  # headless-safe, before pyplot import
 
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
+from matplotlib.axes import Axes  # noqa: E402
+from matplotlib.figure import Figure  # noqa: E402
 from matplotlib.lines import Line2D  # noqa: E402
 
 # ── Feature ↔ perf-workload mapping ────────────────────────────────
@@ -118,7 +120,8 @@ _ZONE_BANDS: list[tuple[float, float, str, str]] = [
 
 def _load_json(path: Path) -> dict[str, Any]:
     with open(path) as f:
-        return json.load(f)
+        result: dict[str, Any] = json.load(f)
+        return result
 
 
 def _compute_pass_rates(data: dict[str, Any]) -> dict[str, dict[str, float]]:
@@ -326,7 +329,7 @@ def _feature_points(
 # ====================================================================
 
 
-def _draw_panel(ax: plt.Axes, title: str, points: list[Point]) -> None:
+def _draw_panel(ax: Axes, title: str, points: list[Point]) -> None:
     """Render a single scatter panel with zone bands and labelled points."""
 
     # ── Score-zone background bands ──
@@ -449,7 +452,7 @@ def _stagger_offset(
     return 0.0
 
 
-def _style_axes(ax: plt.Axes, title: str) -> None:
+def _style_axes(ax: Axes, title: str) -> None:
     """Apply shared axis styling."""
     ax.set_xscale("log")
     ax.set_ylim(-5, 110)
@@ -467,7 +470,7 @@ def _style_axes(ax: plt.Axes, title: str) -> None:
 # ====================================================================
 
 
-def _add_capability_legend(fig: plt.Figure) -> None:
+def _add_capability_legend(fig: Figure) -> None:
     """Add a small marker-shape legend for capabilities at the bottom."""
     handles = [
         Line2D(
@@ -526,7 +529,7 @@ def render_scatter_tiers(
 
     _add_capability_legend(fig)
 
-    plt.tight_layout(rect=[0, 0.06, 1, 0.93])
+    plt.tight_layout(rect=(0, 0.06, 1, 0.93))
 
     # Jitter footnote (after tight_layout so positioning is stable)
     fig.text(
@@ -582,7 +585,7 @@ def render_scatter_features(
 
     _add_capability_legend(fig)
 
-    plt.tight_layout(rect=[0, 0.05, 1, 0.93])
+    plt.tight_layout(rect=(0, 0.05, 1, 0.93))
 
     fig.text(
         0.5, 0.005,
