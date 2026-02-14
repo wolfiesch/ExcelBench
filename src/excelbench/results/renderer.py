@@ -2,8 +2,8 @@
 
 import json
 import subprocess
-from pathlib import Path
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 from excelbench.models import BenchmarkResults, Diagnostic, FeatureScore, OperationType, TestResult

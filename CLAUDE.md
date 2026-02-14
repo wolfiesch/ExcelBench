@@ -145,14 +145,14 @@ tests/                      # pytest + pytest-cov
 - **Build backend**: hatchling (pure Python); Rust via maturin (separate crate)
 - **Commit style**: conventional commits (`feat`/`fix`/`refactor`/`test`/`docs`/`chore`)
 
-## Current State (as of 2026-02-12)
+## Current State (as of 2026-02-13)
 
-- **Fidelity**: Tier 0 (3) + Tier 1 (6) + Tier 2 (7 scored + pivot_tables pending) = 16 scored features
-- **Adapters**: 12 Python xlsx + 2 xls + 3 Rust/PyO3 = 17 total
+- **Fidelity**: Tier 0 (3) + Tier 1 (6) + Tier 2 (7 + pivot_tables=0) + Tier 3 (2) = 18 scored features
+- **Adapters**: 12 Python xlsx + 2 xls + 3 Rust/PyO3 (pyumya at Tier A: 16/18 green) = 17 total
 - **Performance**: Runner + renderer + throughput dashboard operational
-- **Visualizations**: Heatmap (PNG/SVG), combined fidelity+perf dashboard, tier list
-- **Rust adapters**: Built locally, not in CI benchmark; cell values only (no formatting)
-- **Tier 3 features**: named_ranges + tables have generators/tests, not yet in official scored results
+- **Visualizations**: Heatmap (PNG/SVG), combined fidelity+perf dashboard, tier list, scatter plots
+- **Rust adapters**: Built locally via maturin; pyo3 0.24; pyumya has full Tier 0-2 fidelity (formatting, borders, images, etc.)
+- **Tier 3 features**: named_ranges + tables scored — openpyxl 3/3, pyumya 0/0 (Rust backend returns not_found)
 - **CLI commands**: generate, generate-xls, benchmark, benchmark-profiles, perf, report, heatmap, dashboard, html, scatter
 - **CI/CD**: GitHub Actions CI (lint/test/benchmark on all pushes) + deploy-dashboard (auto-deploys HTML to Vercel on results/generator changes)
 

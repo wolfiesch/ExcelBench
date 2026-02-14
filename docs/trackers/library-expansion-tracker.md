@@ -6,8 +6,8 @@ Created: 02/08/2026 02:09 PM PST (via pst-timestamp)
 
 Tracks the status of all Excel library adapters in ExcelBench — implemented,
 planned, and rejected. Each adapter wraps a specific library behind the
-`ExcelAdapter` interface to produce comparable fidelity scores across 17
-features (Tier 0/1/2).
+`ExcelAdapter` interface to produce comparable fidelity scores across 18
+features (Tier 0/1/2/3).
 
 Quick links:
 - Benchmark results (xlsx): `results/xlsx/README.md`
@@ -43,11 +43,11 @@ Quick links:
 
 ### Implemented — Rust/PyO3 (3 adapters, require compiled extension)
 
-| # | Library | Lang | Caps | Status | Notes |
-|---|---------|------|------|--------|-------|
-| 1 | calamine (rust) | rust | R | Built, not in CI benchmark | PyO3 binding via excelbench_rust |
-| 2 | rust_xlsxwriter | rust | W | Built, not in CI benchmark | PyO3 binding via excelbench_rust |
-| 3 | umya-spreadsheet | rust | R+W | Built, not in CI benchmark | PyO3 binding via excelbench_rust |
+| # | Library | Lang | Caps | Green | Status | Notes |
+|---|---------|------|------|-------|--------|-------|
+| 1 | calamine (rust) | rust | R | 1/18 | Built, not in CI | Cell values + sheet names only |
+| 2 | rust_xlsxwriter | rust | W | ~16/18 | Built, not in CI | Full formatting, no Tier 3 |
+| 3 | **pyumya** (umya-spreadsheet) | rust | R+W | **16/18** | **Tier A** | Full Tier 0-2 fidelity, Tier 3 returning not_found |
 
 ### Planned / Candidate
 
@@ -169,3 +169,15 @@ All four wrap openpyxl or calamine internally. Key differences:
   - tablib: 10/48 R + 12/48 W, 2/16 green R + 3/16 green W (matches pyexcel)
 - Key findings: See Abstraction Cost Analysis section above
 - Total adapters: 12 Python xlsx + 2 xls + 3 Rust/PyO3 = 17
+
+### 02/13/2026 — CI fixes + pyo3 bump + Tier 3 scoring
+- Fixed all 31 mypy strict-mode errors across 5 Python files
+- Bumped pyo3 0.22 → 0.24 (security fix + API modernization)
+  - Replaced ToPyObject → IntoPyObject, renamed new_bound → new, empty_bound → empty
+  - Closed Dependabot PR #7 (superseded)
+- Tier 3 features (named_ranges + tables) now officially scored: 18 total features
+  - openpyxl: 18/18 (S tier, only library with full Tier 3 support)
+  - pyumya: 16/18 (A tier, Tier 3 returning not_found — Rust backend limitation)
+  - xlsxwriter: 16/18 (A tier, write-only)
+- Regenerated HTML dashboard with latest results
+- Updated CLAUDE.md and tracker docs with current state
