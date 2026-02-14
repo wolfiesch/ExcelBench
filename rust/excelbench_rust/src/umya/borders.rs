@@ -74,10 +74,18 @@ impl UmyaBook {
                 d.set_item("right", edge)?;
             }
             if let Some((s, c)) = read_edge(borders.get_diagonal()) {
-                let edge = PyDict::new(py);
-                edge.set_item("style", s)?;
-                edge.set_item("color", c)?;
-                d.set_item("diagonal_up", edge)?;
+                if *borders.get_diagonal_up() {
+                    let edge = PyDict::new(py);
+                    edge.set_item("style", &s)?;
+                    edge.set_item("color", &c)?;
+                    d.set_item("diagonal_up", edge)?;
+                }
+                if *borders.get_diagonal_down() {
+                    let edge = PyDict::new(py);
+                    edge.set_item("style", &s)?;
+                    edge.set_item("color", &c)?;
+                    d.set_item("diagonal_down", edge)?;
+                }
             }
         }
 
@@ -144,11 +152,13 @@ impl UmyaBook {
         if let Some(sub) = dict.get_item("diagonal_up")? {
             if let Ok(d) = sub.downcast::<PyDict>() {
                 apply_edge(borders.get_diagonal_mut(), d)?;
+                borders.set_diagonal_up(true);
             }
         }
         if let Some(sub) = dict.get_item("diagonal_down")? {
             if let Ok(d) = sub.downcast::<PyDict>() {
                 apply_edge(borders.get_diagonal_mut(), d)?;
+                borders.set_diagonal_down(true);
             }
         }
 
