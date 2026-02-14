@@ -38,16 +38,6 @@ but not yet exposed through pyumya's Python bindings.
 
 | Feature | Priority | Tracking |
 |---------|----------|----------|
-| Merged cells | P0 | T0.1 |
-| Comments | P0 | T0.2 |
-| Hyperlinks | P0 | T0.3 |
-| Freeze panes | P0 | T0.4 |
-| Images | P0 | T0.5 |
-| Data validation | P0 | T0.6 |
-| Conditional formatting | P0 | T0.7 |
-| Named ranges | P1 | T1.1 |
-| Tables (ListObjects) | P1 | T1.2 |
-| Auto filters | P1 | T1.3 |
 | Rich text | P1 | T1.4 |
 | Charts | P1 | T1.6 |
 | Pivot tables | P1 | T1.7 |
@@ -58,6 +48,24 @@ but not yet exposed through pyumya's Python bindings.
 | Document properties | P2 | T2.5 |
 | CSV export | P2 | T2.6 |
 | Shapes and drawings | P2 | T2.10 |
+
+### Newly Exposed / Partial Support
+
+These features are now exposed in `excelbench_rust.UmyaBook`, but some have
+known limitations or partial read/write coverage.
+
+| Feature | Read | Write | Notes |
+|---------|:----:|:-----:|-------|
+| Merged cells | Yes | Merge only | Unmerge not exposed |
+| Comments (notes) | Yes | Yes | Text extraction is best-effort; threaded comments not supported |
+| Hyperlinks | Yes | Yes | Internal links require `internal=True` |
+| Freeze panes | Yes | Yes | `mode/top_left_cell` is canonical; row/column aliases supported for convenience |
+| Images | Anchor metadata only | By file path | Does not expose image bytes/format on read |
+| Data validation | Yes | Yes | Uses `range` + `validation_type` keys (aliases accepted) |
+| Conditional formatting | Yes | Limited | Write supports rule_type/operator/formula + basic colors |
+| Named ranges | Yes | Yes | Supports workbook- and sheet-scoped names |
+| Tables | Yes | Yes | AutoFilter is worksheet-level; table autofilter is emulated via sheet auto filter |
+| Auto filters | Yes | Yes | Can set/remove/inspect a sheet's auto filter range |
 
 ### Not Supported (umya-spreadsheet limitations)
 

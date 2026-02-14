@@ -6,6 +6,10 @@ pyumya is a Python wrapper around [umya-spreadsheet](https://github.com/MathNya/
 a pure Rust library for reading and writing `.xlsx` and `.xlsm` files. It provides the speed of
 Rust with the ergonomics of Python.
 
+!!! note "Source of truth (current)"
+    The current API documented here is the in-repo `excelbench_rust.UmyaBook` class.
+    A standalone PyPI package named `pyumya` is planned, but not the primary source of truth yet.
+
 ## Why pyumya?
 
 | Feature | openpyxl | python-calamine | XlsxWriter | **pyumya** |
@@ -91,7 +95,7 @@ book.save("output.xlsx")
 
 ## Current API Coverage
 
-pyumya currently exposes **15 methods** covering:
+`excelbench_rust.UmyaBook` currently exposes **30+ methods** covering:
 
 - **File I/O**: Create, open, save workbooks
 - **Sheet management**: List and add sheets
@@ -99,6 +103,9 @@ pyumya currently exposes **15 methods** covering:
 - **Cell formatting**: Read/write font, fill, alignment, number format properties
 - **Borders**: Read/write all edge styles and colors
 - **Dimensions**: Read/write row heights and column widths
+- **Phase 1 workbook features**: Merged cells, comments, hyperlinks, freeze panes, images (anchor metadata),
+  data validation, conditional formatting (limited write support)
+- **Phase 2 workbook features (early)**: Named ranges, tables, and worksheet auto filters
 
 See the [API Reference](api-reference.md) for details and the
 [Limitations](limitations.md) page for what's not yet supported.

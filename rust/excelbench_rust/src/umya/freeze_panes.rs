@@ -17,6 +17,30 @@ fn get_f64(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<f64>> {
     Ok(dict.get_item(key)?.and_then(|v| v.extract::<f64>().ok()))
 }
 
+fn get_i64(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<i64>> {
+    Ok(dict.get_item(key)?.and_then(|v| v.extract::<i64>().ok()))
+}
+
+/// Convert a 0-based column index to Excel letters (0 -> A, 25 -> Z, 26 -> AA).
+fn col_to_letters(col0: u32) -> String {
+    // Convert to 1-based for the usual base-26 algorithm.
+    let mut n = col0 + 1;
+    let mut out = String::new();
+    while n > 0 {
+        let rem = ((n - 1) % 26) as u8;
+        out.push((b'A' + rem) as char);
+        n = (n - 1) / 26;
+    }
+    out.chars().rev().collect()
+}
+
+/// Convert split counts (row/column frozen counts) into the first scrollable cell.
+fn split_to_top_left(row: u32, col: u32) -> String {
+    let col_letters = col_to_letters(col);
+    let row_1based = row + 1;
+    format!("{col_letters}{row_1based}")
+}
+
 #[pymethods]
 impl UmyaBook {
     pub fn read_freeze_panes(&self, py: Python<'_>, sheet: &str) -> PyResult<PyObject> {
@@ -88,7 +112,24 @@ impl UmyaBook {
             None => dict,
         };
 
-        let mode = get_str(cfg, "mode")?.unwrap_or_default();
+        // Canonical input uses `mode` + `top_left_cell`.
+        // For ergonomics, also accept `{row, column}` as aliases for freeze mode.
+        let mut mode = get_str(cfg, "mode")?.unwrap_or_default();
+        let mut top_left_cell = get_str(cfg, "top_left_cell")?;
+
+        if mode.is_empty() && top_left_cell.is_none() {
+            let row = get_i64(cfg, "row")?;
+            let col = get_i64(cfg, "column")?;
+            if let (Some(r), Some(c)) = (row, col) {
+                if r < 0 || c < 0 {
+                    return Err(PyErr::new::<PyValueError, _>(
+                        "row/column must be non-negative",
+                    ));
+                }
+                mode = "freeze".to_string();
+                top_left_cell = Some(split_to_top_left(r as u32, c as u32));
+            }
+        }
 
         let views = ws.get_sheet_views_mut();
         let view_list = views.get_sheet_view_list_mut();
@@ -101,7 +142,7 @@ impl UmyaBook {
 
         if mode == "freeze" {
             pane.set_state(PaneStateValues::Frozen);
-            if let Some(s) = get_str(cfg, "top_left_cell")? {
+            if let Some(s) = top_left_cell {
                 pane.get_top_left_cell_mut().set_coordinate(&s);
                 let (row, col) = parse_top_left(&s);
                 if col > 0 {

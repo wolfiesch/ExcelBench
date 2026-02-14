@@ -168,10 +168,33 @@ impl UmyaBook {
 
         let mut rule = ConditionalFormattingRule::default();
 
-        if let Some(rt) = cfg
+        // Canonical: rule_type, range
+        // Aliases: type -> rule_type, ranges (list) -> range (string, only if len==1)
+        let rule_type: Option<String> = cfg
             .get_item("rule_type")?
             .and_then(|v| v.extract::<String>().ok())
-        {
+            .or_else(|| {
+                cfg.get_item("type")
+                    .ok()
+                    .flatten()
+                    .and_then(|v| v.extract::<String>().ok())
+            });
+
+        let range: Option<String> = cfg
+            .get_item("range")?
+            .and_then(|v| v.extract::<String>().ok())
+            .or_else(|| {
+                let v = cfg.get_item("ranges").ok().flatten()?;
+                let lst = v.downcast::<PyList>().ok()?;
+                if lst.len() != 1 {
+                    return None;
+                }
+                lst.get_item(0)
+                    .ok()
+                    .and_then(|x| x.extract::<String>().ok())
+            });
+
+        if let Some(rt) = rule_type {
             rule.set_type(str_to_cf_type(&rt));
         }
         if let Some(op) = cfg
@@ -226,11 +249,12 @@ impl UmyaBook {
 
         // Build ConditionalFormatting container
         let mut cf = ConditionalFormatting::default();
-        if let Some(range) = cfg
-            .get_item("range")?
-            .and_then(|v| v.extract::<String>().ok())
-        {
+        if let Some(range) = range {
             cf.get_sequence_of_references_mut().set_sqref(range);
+        } else {
+            return Err(PyErr::new::<PyValueError, _>(
+                "conditional format missing 'range' (or single-element 'ranges')",
+            ));
         }
         cf.add_conditional_collection(rule);
         ws.add_conditional_formatting_collection(cf);

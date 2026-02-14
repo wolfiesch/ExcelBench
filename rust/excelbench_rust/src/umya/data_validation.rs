@@ -142,10 +142,34 @@ impl UmyaBook {
 
         let mut dv = DataValidation::default();
 
-        if let Some(vt) = cfg
+        // Canonical: validation_type, range, error
+        // Aliases: type -> validation_type, ranges (list) -> range (string, only if len==1),
+        //          error_message -> error
+        let validation_type: Option<String> = cfg
             .get_item("validation_type")?
             .and_then(|v| v.extract::<String>().ok())
-        {
+            .or_else(|| {
+                cfg.get_item("type")
+                    .ok()
+                    .flatten()
+                    .and_then(|v| v.extract::<String>().ok())
+            });
+
+        let range: Option<String> = cfg
+            .get_item("range")?
+            .and_then(|v| v.extract::<String>().ok())
+            .or_else(|| {
+                let v = cfg.get_item("ranges").ok().flatten()?;
+                let lst = v.downcast::<PyList>().ok()?;
+                if lst.len() != 1 {
+                    return None;
+                }
+                lst.get_item(0)
+                    .ok()
+                    .and_then(|x| x.extract::<String>().ok())
+            });
+
+        if let Some(vt) = validation_type {
             dv.set_type(str_to_dv_type(&vt));
         }
         if let Some(op) = cfg
@@ -202,19 +226,26 @@ impl UmyaBook {
         {
             dv.set_error_title(et);
         }
-        if let Some(e) = cfg
+        let error: Option<String> = cfg
             .get_item("error")?
             .and_then(|v| v.extract::<String>().ok())
-        {
+            .or_else(|| {
+                cfg.get_item("error_message")
+                    .ok()
+                    .flatten()
+                    .and_then(|v| v.extract::<String>().ok())
+            });
+        if let Some(e) = error {
             dv.set_error_message(e);
         }
 
         // Set range
-        if let Some(range) = cfg
-            .get_item("range")?
-            .and_then(|v| v.extract::<String>().ok())
-        {
+        if let Some(range) = range {
             dv.get_sequence_of_references_mut().set_sqref(range);
+        } else {
+            return Err(PyErr::new::<PyValueError, _>(
+                "data validation missing 'range' (or single-element 'ranges')",
+            ));
         }
 
         // Add to worksheet
