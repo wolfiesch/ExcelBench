@@ -18,6 +18,7 @@ from excelbench.harness.runner import (
     _deep_compare,
     _extract_column,
     _extract_formula_sheet_names,
+    _failure_note_from_actual,
     _find_by_key,
     _find_range,
     _find_rule,
@@ -619,3 +620,22 @@ def test_border_from_expected_edge_color_no_style() -> None:
     assert border.top is not None
     assert border.top.style == BorderStyle.THIN
     assert border.top.color == "#FF0000"
+
+
+# ─────────────────────────────────────────────────
+# failure note mapping
+# ─────────────────────────────────────────────────
+
+
+def test_failure_note_from_actual_not_implemented() -> None:
+    assert _failure_note_from_actual({"error": "NotImplementedError: foo"}) == "Not implemented"
+
+
+def test_failure_note_from_actual_unsupported() -> None:
+    actual = _failure_note_from_actual({"error": "feature unsupported by adapter"})
+    assert actual == "Not implemented"
+
+
+def test_failure_note_from_actual_incorrect() -> None:
+    assert _failure_note_from_actual({"value": 1}) == "Incorrect result"
+    assert _failure_note_from_actual({"error": "ValueError: mismatch"}) == "Incorrect result"

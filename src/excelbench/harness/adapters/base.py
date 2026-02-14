@@ -316,7 +316,7 @@ class ExcelAdapter(ABC):
         - refers_to: reference formula (e.g. Sheet1!$A$1)
         """
 
-        return []
+        raise NotImplementedError(f"{self.name} does not implement named range reads")
 
     def add_named_range(self, workbook: Any, sheet: str, named_range: JSONDict) -> None:
         """Add a named range.
@@ -324,7 +324,7 @@ class ExcelAdapter(ABC):
         named_range should include keys: name, scope, refers_to.
         """
 
-        return None
+        raise NotImplementedError(f"{self.name} does not implement named range writes")
 
     def read_tables(self, workbook: Any, sheet: str) -> list[JSONDict]:
         """Read table (ListObject) definitions from a sheet.
@@ -339,7 +339,7 @@ class ExcelAdapter(ABC):
         - autofilter: bool (optional)
         """
 
-        return []
+        raise NotImplementedError(f"{self.name} does not implement table reads")
 
     def add_table(self, workbook: Any, sheet: str, table: JSONDict) -> None:
         """Add a table (ListObject) to a sheet.
@@ -347,7 +347,7 @@ class ExcelAdapter(ABC):
         table dict should include keys: name, ref, style, columns, header_row, totals_row.
         """
 
-        return None
+        raise NotImplementedError(f"{self.name} does not implement table writes")
 
     # =========================================================================
     # Write Operations

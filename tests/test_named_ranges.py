@@ -16,13 +16,15 @@ FIXTURE = Path("fixtures/excel/tier3/18_named_ranges.xlsx")
 class TestNamedRangesBase:
     """Base adapter API surface for named ranges."""
 
-    def test_read_named_ranges_default_returns_empty(self) -> None:
+    def test_read_named_ranges_default_raises(self) -> None:
         adapter = StubExcelAdapter()
-        assert adapter.read_named_ranges(object(), "S1") == []
+        with pytest.raises(NotImplementedError, match="named range reads"):
+            adapter.read_named_ranges(object(), "S1")
 
-    def test_add_named_range_default_is_noop(self) -> None:
+    def test_add_named_range_default_raises(self) -> None:
         adapter = StubExcelAdapter()
-        adapter.add_named_range(object(), "S1", {"name": "X", "refers_to": "S1!$A$1"})
+        with pytest.raises(NotImplementedError, match="named range writes"):
+            adapter.add_named_range(object(), "S1", {"name": "X", "refers_to": "S1!$A$1"})
 
 
 class TestOpenpyxlNamedRanges:

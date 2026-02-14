@@ -20,13 +20,15 @@ class _StubAdapter(StubExcelAdapter):
 class TestTablesBase:
     """Base adapter API surface for tables."""
 
-    def test_read_tables_default_returns_empty(self) -> None:
+    def test_read_tables_default_raises(self) -> None:
         adapter = _StubAdapter()
-        assert adapter.read_tables(object(), "S1") == []
+        with pytest.raises(NotImplementedError, match="table reads"):
+            adapter.read_tables(object(), "S1")
 
-    def test_add_table_default_is_noop(self) -> None:
+    def test_add_table_default_raises(self) -> None:
         adapter = _StubAdapter()
-        adapter.add_table(object(), "S1", {"table": {"name": "T", "ref": "A1:B2"}})
+        with pytest.raises(NotImplementedError, match="table writes"):
+            adapter.add_table(object(), "S1", {"table": {"name": "T", "ref": "A1:B2"}})
 
 
 class TestOpenpyxlTables:
