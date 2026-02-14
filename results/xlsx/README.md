@@ -1,6 +1,6 @@
 # ExcelBench Results
 
-*Generated: 2026-02-14 14:02 UTC*
+*Generated: 2026-02-14 15:25 UTC*
 *Profile: xlsx*
 *Excel Version: 16.105.3*
 *Platform: Darwin-arm64*
@@ -23,7 +23,7 @@
 |---------|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | Alignment | 🟠 | 🟢 | 🟠 | 🟠 | 🟠 | 🟠 | 🟠 | 🟠 | 🟢 | 🟠 | 🟠 | 🟢 | 🟢 | 🟢 |
 | Bg Colors | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟠 |
-| Borders | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟠 | 🟢 | 🟢 | 🟠 |
+| Borders | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟠 |
 | Dimensions | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🟠 | 🟠 |
 | Num Fmt | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🟠 | 🔴 | 🔴 | 🟢 | 🟠 | 🟢 | 🟢 | 🟢 | 🟢 |
 | Text Fmt | 🔴 | 🟢 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🟢 | 🔴 | 🟢 | 🟢 | 🟢 | 🟠 |
@@ -55,7 +55,7 @@
 |:----:|---------|:----:|:--------------:|---------|
 | **S** | openpyxl | R+W | 18/18 | Reference adapter — full read + write fidelity |
 | **A** | xlsxwriter | W | 16/18 | Best write-only option — full formatting support |
-| **B** | umya-spreadsheet | R+W | 14/18 | 14/18 features with full fidelity |
+| **A** | umya-spreadsheet | R+W | 15/18 | 15/18 features with full fidelity |
 | **B** | xlsxwriter-constmem | W | 13/18 | Memory-optimized write — loses images, comments, row height |
 | **B** | rust_xlsxwriter | W | 8/18 | 8/18 features with full fidelity |
 | **B** | xlwt | W | 4/18 | Legacy .xls writer — basic formatting subset |
@@ -94,7 +94,7 @@
 |---------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|
 | [alignment](#alignment-details) | 🟠 1 | 🟢 3 | 🟢 3 | 🟠 1 | 🟠 1 | 🟠 1 | 🟠 1 | 🟠 1 | 🟠 1 | 🔴 0 | 🟠 1 | 🟠 1 | 🟢 3 | 🟠 1 | 🟠 1 | 🟠 1 | 🟠 1 | ➖ | 🟢 3 | 🟢 3 | 🟢 3 |
 | [background_colors](#background_colors-details) | 🔴 0 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 | 🔴 0 | 🔴 0 | 🟢 3 | 🟢 3 | ➖ | 🟢 3 | 🟢 3 | 🟠 1 |
-| [borders](#borders-details) | 🔴 0 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 | 🔴 0 | 🔴 0 | 🟠 1 | 🟠 1 | ➖ | 🟢 3 | 🟢 3 | 🟠 1 |
+| [borders](#borders-details) | 🔴 0 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 | 🔴 0 | 🔴 0 | 🟢 3 | 🟢 3 | ➖ | 🟢 3 | 🟢 3 | 🟠 1 |
 | [dimensions](#dimensions-details) | 🔴 0 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 | 🔴 0 | 🔴 0 | 🟠 1 | 🟢 3 | ➖ | 🟢 3 | 🟠 1 | 🟠 1 |
 | [number_formats](#number_formats-details) | 🔴 0 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟠 1 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 | 🔴 0 | 🟠 1 | 🟢 3 | 🟢 3 | ➖ | 🟢 3 | 🟢 3 | 🟢 3 |
 | [text_formatting](#text_formatting-details) | 🔴 0 | 🟢 3 | 🟢 3 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🔴 0 | 🟢 3 | 🔴 0 | 🔴 0 | 🟢 3 | 🟢 3 | ➖ | 🟢 3 | 🟢 3 | 🟠 1 |
@@ -147,8 +147,8 @@
 | rust_xlsxwriter | W | 125 | 85 | 40 | 68% | 8/18 |
 | tablib | R | 125 | 23 | 102 | 18% | 2/18 |
 | tablib | W | 125 | 28 | 97 | 22% | 3/18 |
-| umya-spreadsheet | R | 125 | 113 | 12 | 90% | 12/18 |
-| umya-spreadsheet | W | 125 | 111 | 14 | 89% | 14/18 |
+| umya-spreadsheet | R | 125 | 115 | 10 | 92% | 13/18 |
+| umya-spreadsheet | W | 125 | 114 | 11 | 91% | 15/18 |
 | xlsxwriter | W | 125 | 113 | 12 | 90% | 16/18 |
 | xlsxwriter-constmem | W | 125 | 106 | 19 | 85% | 13/18 |
 | xlwt | W | 125 | 72 | 53 | 58% | 4/18 |
@@ -175,11 +175,11 @@
 
 | Group | Value | Count |
 |-------|-------|-------|
-| category | data_mismatch | 1093 |
+| category | data_mismatch | 1082 |
 | category | internal | 35 |
-| category | invalid_input | 61 |
+| category | invalid_input | 67 |
 | category | unsupported_feature | 180 |
-| severity | error | 1189 |
+| severity | error | 1184 |
 | severity | warning | 180 |
 
 ### Diagnostic Details
@@ -698,11 +698,6 @@
 | borders | calamine | color_custom | read | data_mismatch | error | Expected values did not match actual values: expected={'border_style': 'thin', 'border_color': '#8B4513'}, actual={} |
 | borders | calamine | mixed_styles | read | data_mismatch | error | Expected values did not match actual values: expected={'border_top': 'thick', 'border_bottom': 'thin', 'border_left': 'medium', 'border_right': 'dashed'}, actual={} |
 | borders | calamine | mixed_colors | read | data_mismatch | error | Expected values did not match actual values: expected={'border_top_color': '#FF0000', 'border_bottom_color': '#00FF00', 'border_left_color': '#0000FF', 'border_right_color': '#FFFF00'}, actual={} |
-| borders | umya-spreadsheet | diagonal_up | write | data_mismatch | error | Expected values did not match actual values: expected={'border_diagonal_up': 'thin'}, actual={} |
-| borders | umya-spreadsheet | diagonal_down | read | data_mismatch | error | Expected values did not match actual values: expected={'border_diagonal_down': 'thin'}, actual={'border_diagonal_up': 'thin'} |
-| borders | umya-spreadsheet | diagonal_down | write | data_mismatch | error | Expected values did not match actual values: expected={'border_diagonal_down': 'thin'}, actual={} |
-| borders | umya-spreadsheet | diagonal_both | read | data_mismatch | error | Expected values did not match actual values: expected={'border_diagonal_up': 'thin', 'border_diagonal_down': 'thin'}, actual={'border_diagonal_up': 'thin'} |
-| borders | umya-spreadsheet | diagonal_both | write | data_mismatch | error | Expected values did not match actual values: expected={'border_diagonal_up': 'thin', 'border_diagonal_down': 'thin'}, actual={} |
 | borders | pylightxl | thin_all | read | invalid_input | error | TypeError: expected string or bytes-like object, got 'NoneType' |
 | borders | pylightxl | thin_all | write | data_mismatch | error | Expected values did not match actual values: expected={'border_style': 'thin', 'border_color': '#000000'}, actual={} |
 | borders | pylightxl | medium_all | read | invalid_input | error | TypeError: expected string or bytes-like object, got 'NoneType' |
@@ -1037,12 +1032,12 @@
 | conditional_formatting | rust_xlsxwriter | cf_data_bar | write | data_mismatch | error | Expected values did not match actual values: expected={'cf_rule': {'range': 'B2:B6', 'rule_type': 'dataBar', 'priority': 4}}, actual={} |
 | conditional_formatting | rust_xlsxwriter | cf_color_scale | write | data_mismatch | error | Expected values did not match actual values: expected={'cf_rule': {'range': 'B2:B6', 'rule_type': 'colorScale', 'priority': 5}}, actual={} |
 | conditional_formatting | rust_xlsxwriter | cf_stop_if_true | write | data_mismatch | error | Expected values did not match actual values: expected={'cf_rule': {'range': 'B7:B9', 'rule_type': 'cellIs', 'operator': 'lessThan', 'formula': '3', 'priority': 1, 'stop_if_true': True, 'format': {'bg_color': '#FF0000'}}}, actual={} |
-| conditional_formatting | umya-spreadsheet | cf_cell_gt | write | data_mismatch | error | Expected values did not match actual values: expected={'cf_rule': {'range': 'B2:B6', 'rule_type': 'cellIs', 'operator': 'greaterThan', 'formula': '5', 'priority': 1, 'format': {'bg_color': '#FFFF00'}}}, actual={} |
-| conditional_formatting | umya-spreadsheet | cf_formula_cross_sheet | write | data_mismatch | error | Expected values did not match actual values: expected={'cf_rule': {'range': 'B2:B6', 'rule_type': 'expression', 'formula': '=Ref!$A$1>5', 'priority': 2, 'format': {'bg_color': '#FF00FF'}}}, actual={} |
-| conditional_formatting | umya-spreadsheet | cf_text_contains | write | data_mismatch | error | Expected values did not match actual values: expected={'cf_rule': {'range': 'B2:B6', 'rule_type': 'expression', 'formula': '=ISNUMBER(SEARCH("foo",B2))', 'priority': 3, 'format': {'bg_color': '#FFFF00'}}}, actual={} |
-| conditional_formatting | umya-spreadsheet | cf_data_bar | write | data_mismatch | error | Expected values did not match actual values: expected={'cf_rule': {'range': 'B2:B6', 'rule_type': 'dataBar', 'priority': 4}}, actual={} |
-| conditional_formatting | umya-spreadsheet | cf_color_scale | write | data_mismatch | error | Expected values did not match actual values: expected={'cf_rule': {'range': 'B2:B6', 'rule_type': 'colorScale', 'priority': 5}}, actual={} |
-| conditional_formatting | umya-spreadsheet | cf_stop_if_true | write | data_mismatch | error | Expected values did not match actual values: expected={'cf_rule': {'range': 'B7:B9', 'rule_type': 'cellIs', 'operator': 'lessThan', 'formula': '3', 'priority': 1, 'stop_if_true': True, 'format': {'bg_color': '#FF0000'}}}, actual={} |
+| conditional_formatting | umya-spreadsheet | cf_cell_gt | write | invalid_input | error | ValueError: conditional format missing 'range' (or single-element 'ranges') |
+| conditional_formatting | umya-spreadsheet | cf_formula_cross_sheet | write | invalid_input | error | ValueError: conditional format missing 'range' (or single-element 'ranges') |
+| conditional_formatting | umya-spreadsheet | cf_text_contains | write | invalid_input | error | ValueError: conditional format missing 'range' (or single-element 'ranges') |
+| conditional_formatting | umya-spreadsheet | cf_data_bar | write | invalid_input | error | ValueError: conditional format missing 'range' (or single-element 'ranges') |
+| conditional_formatting | umya-spreadsheet | cf_color_scale | write | invalid_input | error | ValueError: conditional format missing 'range' (or single-element 'ranges') |
+| conditional_formatting | umya-spreadsheet | cf_stop_if_true | write | invalid_input | error | ValueError: conditional format missing 'range' (or single-element 'ranges') |
 | conditional_formatting | pylightxl | cf_cell_gt | read | invalid_input | error | TypeError: expected string or bytes-like object, got 'NoneType' |
 | conditional_formatting | pylightxl | cf_cell_gt | write | data_mismatch | error | Expected values did not match actual values: expected={'cf_rule': {'range': 'B2:B6', 'rule_type': 'cellIs', 'operator': 'greaterThan', 'formula': '5', 'priority': 1, 'format': {'bg_color': '#FFFF00'}}}, actual={} |
 | conditional_formatting | pylightxl | cf_formula_cross_sheet | read | invalid_input | error | TypeError: expected string or bytes-like object, got 'NoneType' |
@@ -2006,30 +2001,7 @@
 | Border - mixed styles per edge | basic | ❌ | ❌ |
 | Border - mixed colors per edge | basic | ❌ | ❌ |
 
-**umya-spreadsheet** — Read: 🟠 1 | Write: 🟠 1
-
-| Test | Importance | Read | Write |
-|------|-----------|------|-------|
-| Border - thin all edges | basic | ✅ | ✅ |
-| Border - medium all edges | basic | ✅ | ✅ |
-| Border - thick all edges | basic | ✅ | ✅ |
-| Border - double line | basic | ✅ | ✅ |
-| Border - dashed | basic | ✅ | ✅ |
-| Border - dotted | basic | ✅ | ✅ |
-| Border - dash-dot | basic | ✅ | ✅ |
-| Border - dash-dot-dot | basic | ✅ | ✅ |
-| Border - top only | basic | ✅ | ✅ |
-| Border - bottom only | basic | ✅ | ✅ |
-| Border - left only | basic | ✅ | ✅ |
-| Border - right only | basic | ✅ | ✅ |
-| Border - diagonal up | basic | ✅ | ❌ |
-| Border - diagonal down | basic | ❌ | ❌ |
-| Border - diagonal both | basic | ❌ | ❌ |
-| Border - red color | basic | ✅ | ✅ |
-| Border - blue color | basic | ✅ | ✅ |
-| Border - custom color (#8B4513) | basic | ✅ | ✅ |
-| Border - mixed styles per edge | basic | ✅ | ✅ |
-| Border - mixed colors per edge | basic | ✅ | ✅ |
+**umya-spreadsheet** — Read: 🟢 3 | Write: 🟢 3
 
 **xlrd**
 - Notes: Not applicable: xlrd does not support .xlsx input

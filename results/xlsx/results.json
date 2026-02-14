@@ -1,7 +1,7 @@
 {
   "metadata": {
     "benchmark_version": "0.1.0",
-    "run_date": "2026-02-14T14:02:54.129276+00:00",
+    "run_date": "2026-02-14T15:25:20.758972+00:00",
     "excel_version": "16.105.3",
     "platform": "Darwin-arm64",
     "profile": "xlsx"
@@ -27862,8 +27862,8 @@
       "feature": "borders",
       "library": "umya-spreadsheet",
       "scores": {
-        "read": 1,
-        "write": 1
+        "read": 3,
+        "write": 3
       },
       "test_cases": {
         "thin_all": {
@@ -28281,137 +28281,75 @@
             "label": "Border - diagonal up"
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "border_diagonal_up": "thin"
             },
-            "actual": {},
-            "notes": "Incorrect result",
-            "diagnostics": [
-              {
-                "category": "data_mismatch",
-                "severity": "error",
-                "location": {
-                  "feature": "borders",
-                  "operation": "write",
-                  "test_case_id": "diagonal_up",
-                  "sheet": "borders",
-                  "cell": "B14"
-                },
-                "adapter_message": "Expected values did not match actual values: expected={'border_diagonal_up': 'thin'}, actual={}",
-                "probable_cause": "Adapter returned a value that differs from benchmark expectations."
-              }
-            ],
+            "actual": {
+              "border_diagonal_up": "thin"
+            },
+            "notes": null,
+            "diagnostics": [],
             "importance": "basic",
             "label": "Border - diagonal up"
           }
         },
         "diagonal_down": {
           "read": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "border_diagonal_down": "thin"
             },
             "actual": {
-              "border_diagonal_up": "thin"
+              "border_diagonal_down": "thin"
             },
-            "notes": "Incorrect result",
-            "diagnostics": [
-              {
-                "category": "data_mismatch",
-                "severity": "error",
-                "location": {
-                  "feature": "borders",
-                  "operation": "read",
-                  "test_case_id": "diagonal_down",
-                  "sheet": "borders",
-                  "cell": "B15"
-                },
-                "adapter_message": "Expected values did not match actual values: expected={'border_diagonal_down': 'thin'}, actual={'border_diagonal_up': 'thin'}",
-                "probable_cause": "Adapter returned a value that differs from benchmark expectations."
-              }
-            ],
+            "notes": null,
+            "diagnostics": [],
             "importance": "basic",
             "label": "Border - diagonal down"
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "border_diagonal_down": "thin"
             },
-            "actual": {},
-            "notes": "Incorrect result",
-            "diagnostics": [
-              {
-                "category": "data_mismatch",
-                "severity": "error",
-                "location": {
-                  "feature": "borders",
-                  "operation": "write",
-                  "test_case_id": "diagonal_down",
-                  "sheet": "borders",
-                  "cell": "B15"
-                },
-                "adapter_message": "Expected values did not match actual values: expected={'border_diagonal_down': 'thin'}, actual={}",
-                "probable_cause": "Adapter returned a value that differs from benchmark expectations."
-              }
-            ],
+            "actual": {
+              "border_diagonal_down": "thin"
+            },
+            "notes": null,
+            "diagnostics": [],
             "importance": "basic",
             "label": "Border - diagonal down"
           }
         },
         "diagonal_both": {
           "read": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "border_diagonal_up": "thin",
               "border_diagonal_down": "thin"
             },
             "actual": {
-              "border_diagonal_up": "thin"
+              "border_diagonal_up": "thin",
+              "border_diagonal_down": "thin"
             },
-            "notes": "Incorrect result",
-            "diagnostics": [
-              {
-                "category": "data_mismatch",
-                "severity": "error",
-                "location": {
-                  "feature": "borders",
-                  "operation": "read",
-                  "test_case_id": "diagonal_both",
-                  "sheet": "borders",
-                  "cell": "B16"
-                },
-                "adapter_message": "Expected values did not match actual values: expected={'border_diagonal_up': 'thin', 'border_diagonal_down': 'thin'}, actual={'border_diagonal_up': 'thin'}",
-                "probable_cause": "Adapter returned a value that differs from benchmark expectations."
-              }
-            ],
+            "notes": null,
+            "diagnostics": [],
             "importance": "basic",
             "label": "Border - diagonal both"
           },
           "write": {
-            "passed": false,
+            "passed": true,
             "expected": {
               "border_diagonal_up": "thin",
               "border_diagonal_down": "thin"
             },
-            "actual": {},
-            "notes": "Incorrect result",
-            "diagnostics": [
-              {
-                "category": "data_mismatch",
-                "severity": "error",
-                "location": {
-                  "feature": "borders",
-                  "operation": "write",
-                  "test_case_id": "diagonal_both",
-                  "sheet": "borders",
-                  "cell": "B16"
-                },
-                "adapter_message": "Expected values did not match actual values: expected={'border_diagonal_up': 'thin', 'border_diagonal_down': 'thin'}, actual={}",
-                "probable_cause": "Adapter returned a value that differs from benchmark expectations."
-              }
-            ],
+            "actual": {
+              "border_diagonal_up": "thin",
+              "border_diagonal_down": "thin"
+            },
+            "notes": null,
+            "diagnostics": [],
             "importance": "basic",
             "label": "Border - diagonal both"
           }
@@ -42218,21 +42156,23 @@
                 }
               }
             },
-            "actual": {},
-            "notes": "Incorrect result",
+            "actual": {
+              "error": "conditional format missing 'range' (or single-element 'ranges')"
+            },
+            "notes": "Write failed: ValueError",
             "diagnostics": [
               {
-                "category": "data_mismatch",
+                "category": "invalid_input",
                 "severity": "error",
                 "location": {
                   "feature": "conditional_formatting",
                   "operation": "write",
                   "test_case_id": "cf_cell_gt",
-                  "sheet": "conditional_formatting",
-                  "cell": "B2"
+                  "sheet": null,
+                  "cell": null
                 },
-                "adapter_message": "Expected values did not match actual values: expected={'cf_rule': {'range': 'B2:B6', 'rule_type': 'cellIs', 'operator': 'greaterThan', 'formula': '5', 'priority': 1, 'format': {'bg_color': '#FFFF00'}}}, actual={}",
-                "probable_cause": "Adapter returned a value that differs from benchmark expectations."
+                "adapter_message": "ValueError: conditional format missing 'range' (or single-element 'ranges')",
+                "probable_cause": "Adapter could not create or save a workbook for this feature."
               }
             ],
             "importance": "basic",
@@ -42281,21 +42221,23 @@
                 }
               }
             },
-            "actual": {},
-            "notes": "Incorrect result",
+            "actual": {
+              "error": "conditional format missing 'range' (or single-element 'ranges')"
+            },
+            "notes": "Write failed: ValueError",
             "diagnostics": [
               {
-                "category": "data_mismatch",
+                "category": "invalid_input",
                 "severity": "error",
                 "location": {
                   "feature": "conditional_formatting",
                   "operation": "write",
                   "test_case_id": "cf_formula_cross_sheet",
-                  "sheet": "conditional_formatting",
-                  "cell": "B3"
+                  "sheet": null,
+                  "cell": null
                 },
-                "adapter_message": "Expected values did not match actual values: expected={'cf_rule': {'range': 'B2:B6', 'rule_type': 'expression', 'formula': '=Ref!$A$1>5', 'priority': 2, 'format': {'bg_color': '#FF00FF'}}}, actual={}",
-                "probable_cause": "Adapter returned a value that differs from benchmark expectations."
+                "adapter_message": "ValueError: conditional format missing 'range' (or single-element 'ranges')",
+                "probable_cause": "Adapter could not create or save a workbook for this feature."
               }
             ],
             "importance": "edge",
@@ -42344,21 +42286,23 @@
                 }
               }
             },
-            "actual": {},
-            "notes": "Incorrect result",
+            "actual": {
+              "error": "conditional format missing 'range' (or single-element 'ranges')"
+            },
+            "notes": "Write failed: ValueError",
             "diagnostics": [
               {
-                "category": "data_mismatch",
+                "category": "invalid_input",
                 "severity": "error",
                 "location": {
                   "feature": "conditional_formatting",
                   "operation": "write",
                   "test_case_id": "cf_text_contains",
-                  "sheet": "conditional_formatting",
-                  "cell": "B4"
+                  "sheet": null,
+                  "cell": null
                 },
-                "adapter_message": "Expected values did not match actual values: expected={'cf_rule': {'range': 'B2:B6', 'rule_type': 'expression', 'formula': '=ISNUMBER(SEARCH(\"foo\",B2))', 'priority': 3, 'format': {'bg_color': '#FFFF00'}}}, actual={}",
-                "probable_cause": "Adapter returned a value that differs from benchmark expectations."
+                "adapter_message": "ValueError: conditional format missing 'range' (or single-element 'ranges')",
+                "probable_cause": "Adapter could not create or save a workbook for this feature."
               }
             ],
             "importance": "edge",
@@ -42395,21 +42339,23 @@
                 "priority": 4
               }
             },
-            "actual": {},
-            "notes": "Incorrect result",
+            "actual": {
+              "error": "conditional format missing 'range' (or single-element 'ranges')"
+            },
+            "notes": "Write failed: ValueError",
             "diagnostics": [
               {
-                "category": "data_mismatch",
+                "category": "invalid_input",
                 "severity": "error",
                 "location": {
                   "feature": "conditional_formatting",
                   "operation": "write",
                   "test_case_id": "cf_data_bar",
-                  "sheet": "conditional_formatting",
-                  "cell": "B5"
+                  "sheet": null,
+                  "cell": null
                 },
-                "adapter_message": "Expected values did not match actual values: expected={'cf_rule': {'range': 'B2:B6', 'rule_type': 'dataBar', 'priority': 4}}, actual={}",
-                "probable_cause": "Adapter returned a value that differs from benchmark expectations."
+                "adapter_message": "ValueError: conditional format missing 'range' (or single-element 'ranges')",
+                "probable_cause": "Adapter could not create or save a workbook for this feature."
               }
             ],
             "importance": "edge",
@@ -42446,21 +42392,23 @@
                 "priority": 5
               }
             },
-            "actual": {},
-            "notes": "Incorrect result",
+            "actual": {
+              "error": "conditional format missing 'range' (or single-element 'ranges')"
+            },
+            "notes": "Write failed: ValueError",
             "diagnostics": [
               {
-                "category": "data_mismatch",
+                "category": "invalid_input",
                 "severity": "error",
                 "location": {
                   "feature": "conditional_formatting",
                   "operation": "write",
                   "test_case_id": "cf_color_scale",
-                  "sheet": "conditional_formatting",
-                  "cell": "B6"
+                  "sheet": null,
+                  "cell": null
                 },
-                "adapter_message": "Expected values did not match actual values: expected={'cf_rule': {'range': 'B2:B6', 'rule_type': 'colorScale', 'priority': 5}}, actual={}",
-                "probable_cause": "Adapter returned a value that differs from benchmark expectations."
+                "adapter_message": "ValueError: conditional format missing 'range' (or single-element 'ranges')",
+                "probable_cause": "Adapter could not create or save a workbook for this feature."
               }
             ],
             "importance": "edge",
@@ -42515,21 +42463,23 @@
                 }
               }
             },
-            "actual": {},
-            "notes": "Incorrect result",
+            "actual": {
+              "error": "conditional format missing 'range' (or single-element 'ranges')"
+            },
+            "notes": "Write failed: ValueError",
             "diagnostics": [
               {
-                "category": "data_mismatch",
+                "category": "invalid_input",
                 "severity": "error",
                 "location": {
                   "feature": "conditional_formatting",
                   "operation": "write",
                   "test_case_id": "cf_stop_if_true",
-                  "sheet": "conditional_formatting",
-                  "cell": "B7"
+                  "sheet": null,
+                  "cell": null
                 },
-                "adapter_message": "Expected values did not match actual values: expected={'cf_rule': {'range': 'B7:B9', 'rule_type': 'cellIs', 'operator': 'lessThan', 'formula': '3', 'priority': 1, 'stop_if_true': True, 'format': {'bg_color': '#FF0000'}}}, actual={}",
-                "probable_cause": "Adapter returned a value that differs from benchmark expectations."
+                "adapter_message": "ValueError: conditional format missing 'range' (or single-element 'ranges')",
+                "probable_cause": "Adapter could not create or save a workbook for this feature."
               }
             ],
             "importance": "edge",

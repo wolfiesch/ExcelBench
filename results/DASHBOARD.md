@@ -1,6 +1,6 @@
 # ExcelBench Dashboard
 
-*Profile: xlsx | Generated: 2026-02-14T14:02:54.129276+00:00*
+*Profile: xlsx | Generated: 2026-02-14T15:25:20.758972+00:00*
 
 > Combined fidelity and performance view. Fidelity shows correctness;
 > throughput shows speed. Use this to find the right library for your needs.
@@ -11,7 +11,7 @@
 |---------|:----:|:--------------:|:---------:|----------|
 | openpyxl | R+W | 18/18 | 100% | Full-fidelity read + write |
 | xlsxwriter | W | 16/18 | 90% | High-fidelity write-only workflows |
-| umya-spreadsheet | R+W | 14/18 | 90% | General use |
+| umya-spreadsheet | R+W | 15/18 | 92% | General use |
 | xlsxwriter-constmem | W | 13/18 | 85% | Large file writes with memory limits |
 | rust_xlsxwriter | W | 8/18 | 68% | General use |
 | xlwt | W | 4/18 | 58% | Legacy .xls file writes |

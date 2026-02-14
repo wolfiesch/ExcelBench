@@ -40,7 +40,7 @@ jobs:
           --cov=excelbench
           --cov-report=term-missing
           --cov-report=xml:coverage.xml
-          --cov-fail-under=50
+          --cov-fail-under=65
           -v
       - name: Upload coverage report
         if: always() && matrix.python-version == '3.11'

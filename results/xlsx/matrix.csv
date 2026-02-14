@@ -94,7 +94,7 @@ xlsxwriter,borders,,3
 python-calamine,borders,0,
 calamine,borders,0,
 rust_xlsxwriter,borders,,3
-umya-spreadsheet,borders,1,1
+umya-spreadsheet,borders,3,3
 pylightxl,borders,0,0
 xlrd,borders,,
 pyexcel,borders,0,0
