@@ -7,6 +7,9 @@ mod util;
 #[cfg(feature = "calamine")]
 mod calamine_backend;
 
+#[cfg(feature = "calamine")]
+mod calamine_styled_backend;
+
 #[cfg(feature = "rust_xlsxwriter")]
 mod rust_xlsxwriter_backend;
 
@@ -89,6 +92,7 @@ fn excelbench_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     #[cfg(feature = "calamine")]
     {
         m.add_class::<calamine_backend::CalamineBook>()?;
+        m.add_class::<calamine_styled_backend::CalamineStyledBook>()?;
     }
 
     #[cfg(feature = "rust_xlsxwriter")]

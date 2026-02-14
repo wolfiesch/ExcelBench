@@ -19,7 +19,8 @@ umya = ["dep:umya-spreadsheet", "dep:chrono"]
 pyo3 = { version = "0.24", features = ["extension-module", "multiple-pymethods"] }
 
 # Optional backend dependencies (enabled via crate features)
-calamine = { version = "0.25", optional = true, features = ["dates"] }
+# Using our fork with styles PR #538 merged (Font/Fill/Borders/Alignment/NumberFormat parsing)
+calamine = { git = "https://github.com/wolfiesch/calamine.git", branch = "styles", optional = true, features = ["dates"] }
 rust_xlsxwriter = { version = "0.79", optional = true, features = ["chrono"] }
 umya-spreadsheet = { version = "2.2", optional = true }
 indexmap = { version = "2.2", optional = true }

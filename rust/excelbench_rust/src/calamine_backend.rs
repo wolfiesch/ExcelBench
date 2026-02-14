@@ -122,6 +122,8 @@ impl CalamineBook {
             }
             Data::DurationIso(s) => cell_with_value(py, "string", s.clone())?,
 
+            Data::RichText(rt) => cell_with_value(py, "string", rt.plain_text())?,
+
             Data::Error(e) => {
                 let normalized = map_error_value(&format!("{e:?}"));
                 let d = PyDict::new(py);
