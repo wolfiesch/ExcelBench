@@ -16,8 +16,10 @@ from excelbench.models import (
     TestResult,
 )
 from excelbench.results.renderer import (
+    _compute_fidelity_deltas,
     _get_git_commit,
     _group_test_cases,
+    _render_fidelity_deltas,
     _render_per_test_table,
     render_markdown,
     score_emoji,
@@ -260,3 +262,55 @@ def test_render_markdown_write_only_lib_stats(tmp_path: Path) -> None:
     content = out.read_text()
     assert "xlsxwriter" in content
     assert "Write" in content
+
+
+# ─────────────────────────────────────────────────
+# fidelity deltas
+# ─────────────────────────────────────────────────
+
+
+def test_compute_fidelity_deltas_detects_changes() -> None:
+    previous = {
+        "scores": {"openpyxl": {"cell_values": {"read": 3, "write": 3}}},
+    }
+    current = {
+        "scores": {"openpyxl": {"cell_values": {"read": 2, "write": 3}}},
+    }
+    deltas = _compute_fidelity_deltas(previous, current)
+    assert deltas == [
+        {
+            "library": "openpyxl",
+            "feature": "cell_values",
+            "mode": "read",
+            "previous": 3,
+            "current": 2,
+            "delta": -1,
+        }
+    ]
+
+
+def test_render_fidelity_deltas_needs_two_runs(tmp_path: Path) -> None:
+    out_dir = tmp_path / "results"
+    out_dir.mkdir(parents=True)
+    (out_dir / "history.jsonl").write_text('{"scores": {}}\n')
+    _render_fidelity_deltas(out_dir)
+    content = (out_dir / "FIDELITY_DELTAS.md").read_text()
+    assert "Need at least two runs" in content
+
+
+def test_render_fidelity_deltas_writes_regression_table(tmp_path: Path) -> None:
+    out_dir = tmp_path / "results"
+    out_dir.mkdir(parents=True)
+    (out_dir / "history.jsonl").write_text(
+        "\n".join(
+            [
+                '{"run_date":"2026-01-01T00:00:00Z","scores":{"openpyxl":{"cell_values":{"read":3,"write":3}}}}',
+                '{"run_date":"2026-01-02T00:00:00Z","scores":{"openpyxl":{"cell_values":{"read":2,"write":3}}}}',
+            ]
+        )
+        + "\n"
+    )
+    _render_fidelity_deltas(out_dir)
+    content = (out_dir / "FIDELITY_DELTAS.md").read_text()
+    assert "Regressions: **1**" in content
+    assert "| openpyxl | cell_values | read | 3 | 2 | -1 |" in content

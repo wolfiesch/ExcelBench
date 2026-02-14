@@ -332,3 +332,15 @@ def test_build_mismatch_diagnostic() -> None:
     )
     assert diag.category == DiagnosticCategory.DATA_MISMATCH
     assert "expected" in diag.adapter_message
+
+
+def test_tier3_defaults_raise_not_implemented() -> None:
+    adapter = ConcreteReadOnly()
+    with pytest.raises(NotImplementedError, match="named range reads"):
+        adapter.read_named_ranges(None, "S")
+    with pytest.raises(NotImplementedError, match="named range writes"):
+        adapter.add_named_range(None, "S", {})
+    with pytest.raises(NotImplementedError, match="table reads"):
+        adapter.read_tables(None, "S")
+    with pytest.raises(NotImplementedError, match="table writes"):
+        adapter.add_table(None, "S", {})

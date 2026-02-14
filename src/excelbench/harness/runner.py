@@ -37,6 +37,23 @@ BENCHMARK_VERSION = "0.1.0"
 JSONDict = dict[str, Any]
 
 
+def _failure_note_from_actual(actual: JSONDict) -> str:
+    if "error" in actual:
+        error_text = str(actual.get("error", "")).lower()
+        unsupported_markers = (
+            "notimplemented",
+            "not implemented",
+            "unsupported",
+            "not supported",
+            "read-only",
+            "write-only",
+        )
+        if any(marker in error_text for marker in unsupported_markers):
+            return "Not implemented"
+        return "Incorrect result"
+    return "Incorrect result"
+
+
 def _build_exception_diagnostic(
     adapter: ExcelAdapter,
     *,
@@ -417,6 +434,7 @@ def test_read_case(
             passed=passed,
             expected=expected,
             actual=actual,
+            notes=None if passed else _failure_note_from_actual(actual),
             diagnostics=(
                 []
                 if passed
@@ -492,6 +510,7 @@ def test_read_case(
             passed=passed,
             expected=expected,
             actual=actual,
+            notes=None if passed else _failure_note_from_actual(actual),
             diagnostics=(
                 []
                 if passed

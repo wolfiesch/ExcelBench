@@ -87,6 +87,7 @@ def render_results(results: BenchmarkResults, output_dir: Path) -> None:
     render_markdown(results, output_dir / "README.md")
     render_csv(results, output_dir / "matrix.csv")
     _append_history(results, output_dir)
+    _render_fidelity_deltas(output_dir)
 
 
 def render_json(results: BenchmarkResults, path: Path) -> None:
@@ -717,6 +718,103 @@ def _append_history(results: BenchmarkResults, output_dir: Path) -> None:
 
     with open(history_path, "a") as f:
         f.write(json.dumps(entry) + "\n")
+
+
+def _render_fidelity_deltas(output_dir: Path) -> None:
+    """Render a markdown report comparing the two most recent fidelity runs."""
+    history_path = output_dir / "history.jsonl"
+    out_path = output_dir / "FIDELITY_DELTAS.md"
+    if not history_path.exists():
+        out_path.write_text("# Fidelity Deltas\n\nNo history available.\n")
+        return
+
+    entries: list[dict[str, Any]] = []
+    for line in history_path.read_text().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            parsed = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(parsed, dict):
+            entries.append(parsed)
+
+    if len(entries) < 2:
+        out_path.write_text("# Fidelity Deltas\n\nNeed at least two runs in history.jsonl.\n")
+        return
+
+    previous = entries[-2]
+    current = entries[-1]
+    deltas = _compute_fidelity_deltas(previous, current)
+
+    lines: list[str] = ["# Fidelity Deltas", ""]
+    lines.append(f"- Previous run: `{previous.get('run_date', 'unknown')}`")
+    lines.append(f"- Current run: `{current.get('run_date', 'unknown')}`")
+    lines.append("")
+
+    if not deltas:
+        lines.append("No score changes detected.")
+        lines.append("")
+        out_path.write_text("\n".join(lines))
+        return
+
+    regressions = [d for d in deltas if d["delta"] < 0]
+    improvements = [d for d in deltas if d["delta"] > 0]
+
+    lines.append("## Summary")
+    lines.append("")
+    lines.append(f"- Regressions: **{len(regressions)}**")
+    lines.append(f"- Improvements: **{len(improvements)}**")
+    lines.append(f"- Net score change: **{sum(d['delta'] for d in deltas):+d}**")
+    lines.append("")
+
+    lines.append("## Changed Scores")
+    lines.append("")
+    lines.append("| Library | Feature | Mode | Previous | Current | Δ |")
+    lines.append("|---------|---------|------|----------|---------|---|")
+    for item in sorted(deltas, key=lambda d: (d["delta"], d["library"], d["feature"], d["mode"])):
+        lines.append(
+            f"| {item['library']} | {item['feature']} | {item['mode']} | "
+            f"{item['previous']} | {item['current']} | {item['delta']:+d} |"
+        )
+    lines.append("")
+
+    out_path.write_text("\n".join(lines))
+
+
+def _compute_fidelity_deltas(
+    previous: dict[str, Any], current: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Compute score deltas between two history entries."""
+    deltas: list[dict[str, Any]] = []
+    prev_scores: dict[str, Any] = previous.get("scores", {})
+    curr_scores: dict[str, Any] = current.get("scores", {})
+
+    for library in sorted(set(prev_scores) | set(curr_scores)):
+        prev_lib = prev_scores.get(library, {})
+        curr_lib = curr_scores.get(library, {})
+        for feature in sorted(set(prev_lib) | set(curr_lib)):
+            prev_feature = prev_lib.get(feature, {})
+            curr_feature = curr_lib.get(feature, {})
+            for mode in ("read", "write"):
+                prev_value = prev_feature.get(mode)
+                curr_value = curr_feature.get(mode)
+                if prev_value is None or curr_value is None:
+                    continue
+                if prev_value == curr_value:
+                    continue
+                deltas.append(
+                    {
+                        "library": library,
+                        "feature": feature,
+                        "mode": mode,
+                        "previous": int(prev_value),
+                        "current": int(curr_value),
+                        "delta": int(curr_value) - int(prev_value),
+                    }
+                )
+    return deltas
 
 
 def _diagnostic_to_json(diagnostic: Diagnostic) -> dict[str, Any]:
