@@ -25,7 +25,7 @@ impl UmyaBook {
             .get_sheet_by_name(sheet)
             .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
 
-        let d = PyDict::new_bound(py);
+        let d = PyDict::new(py);
 
         let views = ws.get_sheets_views();
         let view_list = views.get_sheet_view_list();

@@ -77,13 +77,13 @@ impl UmyaBook {
             .get_sheet_by_name(sheet)
             .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
 
-        let result = PyList::empty_bound(py);
+        let result = PyList::empty(py);
 
         for cf in ws.get_conditional_formatting_collection() {
             let range = cf.get_sequence_of_references().get_sqref();
 
             for rule in cf.get_conditional_collection() {
-                let d = PyDict::new_bound(py);
+                let d = PyDict::new(py);
                 d.set_item("range", &range)?;
                 d.set_item("rule_type", cf_type_to_str(rule.get_type()))?;
 
@@ -122,7 +122,7 @@ impl UmyaBook {
                 }
 
                 // Format (bg_color, font_color)
-                let fmt = PyDict::new_bound(py);
+                let fmt = PyDict::new(py);
                 if let Some(style) = rule.get_style() {
                     if let Some(bg) = style.get_background_color() {
                         if let Some(hex) = argb_to_hex(bg) {

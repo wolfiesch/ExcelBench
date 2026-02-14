@@ -30,16 +30,16 @@ fn enabled_backends() -> Vec<&'static str> {
 #[pyfunction]
 fn build_info(py: Python<'_>) -> PyResult<PyObject> {
     // Stable keys so Python adapters can depend on this shape.
-    let info = PyDict::new_bound(py);
+    let info = PyDict::new(py);
     info.set_item("package", "excelbench_rust")?;
     info.set_item("package_version", env!("CARGO_PKG_VERSION"))?;
 
     let enabled = enabled_backends();
-    info.set_item("enabled_backends", PyList::new_bound(py, enabled))?;
+    info.set_item("enabled_backends", PyList::new(py, enabled)?)?;
 
     // Backend version reporting can be filled in later.
     // Keep a dict in place now so consumers can read it unconditionally.
-    let backends = PyDict::new_bound(py);
+    let backends = PyDict::new(py);
     backends.set_item(
         "calamine",
         if cfg!(feature = "calamine") {
@@ -66,7 +66,7 @@ fn build_info(py: Python<'_>) -> PyResult<PyObject> {
     )?;
     info.set_item("backends", backends)?;
 
-    let versions = PyDict::new_bound(py);
+    let versions = PyDict::new(py);
     versions.set_item("calamine", option_env!("EXCELBENCH_DEP_CALAMINE_VERSION"))?;
     versions.set_item(
         "rust_xlsxwriter",

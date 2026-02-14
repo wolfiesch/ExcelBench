@@ -32,14 +32,14 @@ impl UmyaBook {
             .get_sheet_by_name(sheet)
             .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
 
-        let result = PyList::empty_bound(py);
+        let result = PyList::empty(py);
 
         for table in ws.get_tables() {
             if !table.is_ok() {
                 continue;
             }
 
-            let d = PyDict::new_bound(py);
+            let d = PyDict::new(py);
             let name = table.get_display_name();
             let name = if name.is_empty() {
                 table.get_name()
@@ -65,7 +65,7 @@ impl UmyaBook {
             }
 
             // Columns
-            let cols = PyList::empty_bound(py);
+            let cols = PyList::empty(py);
             for col in table.get_columns() {
                 cols.append(col.get_name())?;
             }

@@ -14,7 +14,7 @@ impl UmyaBook {
             .get_sheet_by_name(sheet)
             .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
 
-        let result = PyList::empty_bound(py);
+        let result = PyList::empty(py);
 
         for cell in ws.get_cell_collection() {
             if let Some(h) = cell.get_hyperlink() {
@@ -22,7 +22,7 @@ impl UmyaBook {
                 if url.is_empty() {
                     continue;
                 }
-                let d = PyDict::new_bound(py);
+                let d = PyDict::new(py);
                 d.set_item("cell", cell.get_coordinate().to_string())?;
                 let is_location = *h.get_location();
                 d.set_item("target", url)?;

@@ -29,7 +29,7 @@ impl UmyaBook {
         let (row0, col0) = a1_to_row_col(a1).map_err(|msg| PyErr::new::<PyValueError, _>(msg))?;
         let coord = (col0 + 1, row0 + 1);
 
-        let d = PyDict::new_bound(py);
+        let d = PyDict::new(py);
 
         let cell = match ws.get_cell(coord) {
             Some(c) => c,

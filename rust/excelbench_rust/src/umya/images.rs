@@ -15,23 +15,23 @@ impl UmyaBook {
             .get_sheet_by_name(sheet)
             .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
 
-        let result = PyList::empty_bound(py);
+        let result = PyList::empty(py);
 
         for img in ws.get_image_collection() {
-            let d = PyDict::new_bound(py);
+            let d = PyDict::new(py);
 
             // Determine anchor type and cell from the image's anchor
             if let Some(two_cell) = img.get_two_cell_anchor() {
                 let from = two_cell.get_from_marker();
                 d.set_item("cell", from.get_coordinate())?;
                 d.set_item("anchor", "twoCell")?;
-                let offsets = PyList::new_bound(py, [*from.get_col_off(), *from.get_row_off()]);
+                let offsets = PyList::new(py, [*from.get_col_off(), *from.get_row_off()])?;
                 d.set_item("offset", offsets)?;
             } else if let Some(one_cell) = img.get_one_cell_anchor() {
                 let from = one_cell.get_from_marker();
                 d.set_item("cell", from.get_coordinate())?;
                 d.set_item("anchor", "oneCell")?;
-                let offsets = PyList::new_bound(py, [*from.get_col_off(), *from.get_row_off()]);
+                let offsets = PyList::new(py, [*from.get_col_off(), *from.get_row_off()])?;
                 d.set_item("offset", offsets)?;
             } else {
                 d.set_item("cell", py.None())?;

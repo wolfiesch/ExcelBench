@@ -48,7 +48,7 @@ impl UmyaBook {
                 return cell_with_value(py, "error", t);
             }
 
-            let d = PyDict::new_bound(py);
+            let d = PyDict::new(py);
             d.set_item("type", "formula")?;
             d.set_item("formula", &norm)?;
             d.set_item("value", &norm)?;

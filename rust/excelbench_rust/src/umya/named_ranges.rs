@@ -28,14 +28,14 @@ fn normalize_address(raw: &str) -> String {
 #[pymethods]
 impl UmyaBook {
     pub fn read_named_ranges(&self, py: Python<'_>, sheet: &str) -> PyResult<PyObject> {
-        let result = PyList::empty_bound(py);
+        let result = PyList::empty(py);
 
         // 1. Workbook-level defined names (no localSheetId).
         for dn in self.book.get_defined_names() {
             if dn.has_local_sheet_id() {
                 continue;
             }
-            let d = PyDict::new_bound(py);
+            let d = PyDict::new(py);
             d.set_item("name", dn.get_name())?;
             d.set_item("scope", "workbook")?;
             d.set_item("refers_to", normalize_address(&dn.get_address()))?;
@@ -48,7 +48,7 @@ impl UmyaBook {
         //    We need the sheet index to detect localSheetId.
         if let Some(ws) = self.book.get_sheet_by_name(sheet) {
             for dn in ws.get_defined_names() {
-                let d = PyDict::new_bound(py);
+                let d = PyDict::new(py);
                 d.set_item("name", dn.get_name())?;
                 // If localSheetId is set, it's sheet-scoped;
                 // otherwise it's a workbook-scoped name stored on the sheet.

@@ -68,7 +68,7 @@ impl UmyaBook {
             .get_sheet_by_name(sheet)
             .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
 
-        let result = PyList::empty_bound(py);
+        let result = PyList::empty(py);
 
         let dvs = match ws.get_data_validations() {
             Some(v) => v,
@@ -76,7 +76,7 @@ impl UmyaBook {
         };
 
         for dv in dvs.get_data_validation_list() {
-            let d = PyDict::new_bound(py);
+            let d = PyDict::new(py);
             d.set_item("range", dv.get_sequence_of_references().get_sqref())?;
             d.set_item("validation_type", dv_type_to_str(dv.get_type()))?;
 

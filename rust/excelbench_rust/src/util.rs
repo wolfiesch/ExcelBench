@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
+use pyo3::IntoPyObject;
 
 #[cfg(any(feature = "calamine", feature = "rust_xlsxwriter", feature = "umya"))]
 use chrono::{NaiveDate, NaiveDateTime};
@@ -35,18 +36,18 @@ pub fn a1_to_row_col(a1: &str) -> Result<(u32, u32), String> {
 }
 
 pub(crate) fn cell_blank(py: Python<'_>) -> PyResult<PyObject> {
-    let d = PyDict::new_bound(py);
+    let d = PyDict::new(py);
     // The Python harness treats missing "value" as blank.
     d.set_item("type", "blank")?;
     Ok(d.into())
 }
 
-pub(crate) fn cell_with_value<V: ToPyObject>(
-    py: Python<'_>,
+pub(crate) fn cell_with_value<'py, V: IntoPyObject<'py>>(
+    py: Python<'py>,
     t: &str,
     value: V,
 ) -> PyResult<PyObject> {
-    let d = PyDict::new_bound(py);
+    let d = PyDict::new(py);
     d.set_item("type", t)?;
     d.set_item("value", value)?;
     Ok(d.into())

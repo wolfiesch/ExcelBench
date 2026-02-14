@@ -124,7 +124,7 @@ impl CalamineBook {
 
             Data::Error(e) => {
                 let normalized = map_error_value(&format!("{e:?}"));
-                let d = PyDict::new_bound(py);
+                let d = PyDict::new(py);
                 d.set_item("type", "error")?;
                 d.set_item("value", normalized)?;
                 d.into()

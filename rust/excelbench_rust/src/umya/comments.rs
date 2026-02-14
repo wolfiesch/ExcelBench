@@ -29,10 +29,10 @@ impl UmyaBook {
             .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
 
         let comments = ws.get_comments();
-        let result = PyList::empty_bound(py);
+        let result = PyList::empty(py);
 
         for comment in comments {
-            let d = PyDict::new_bound(py);
+            let d = PyDict::new(py);
             d.set_item("cell", comment.get_coordinate().to_string())?;
             d.set_item("text", extract_comment_text(comment))?;
             d.set_item("author", comment.get_author())?;

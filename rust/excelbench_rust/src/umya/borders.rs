@@ -23,7 +23,7 @@ impl UmyaBook {
         let (row0, col0) = a1_to_row_col(a1).map_err(|msg| PyErr::new::<PyValueError, _>(msg))?;
         let coord = (col0 + 1, row0 + 1);
 
-        let d = PyDict::new_bound(py);
+        let d = PyDict::new(py);
 
         let cell = match ws.get_cell(coord) {
             Some(c) => c,
@@ -50,31 +50,31 @@ impl UmyaBook {
             };
 
             if let Some((s, c)) = read_edge(borders.get_top()) {
-                let edge = PyDict::new_bound(py);
+                let edge = PyDict::new(py);
                 edge.set_item("style", s)?;
                 edge.set_item("color", c)?;
                 d.set_item("top", edge)?;
             }
             if let Some((s, c)) = read_edge(borders.get_bottom()) {
-                let edge = PyDict::new_bound(py);
+                let edge = PyDict::new(py);
                 edge.set_item("style", s)?;
                 edge.set_item("color", c)?;
                 d.set_item("bottom", edge)?;
             }
             if let Some((s, c)) = read_edge(borders.get_left()) {
-                let edge = PyDict::new_bound(py);
+                let edge = PyDict::new(py);
                 edge.set_item("style", s)?;
                 edge.set_item("color", c)?;
                 d.set_item("left", edge)?;
             }
             if let Some((s, c)) = read_edge(borders.get_right()) {
-                let edge = PyDict::new_bound(py);
+                let edge = PyDict::new(py);
                 edge.set_item("style", s)?;
                 edge.set_item("color", c)?;
                 d.set_item("right", edge)?;
             }
             if let Some((s, c)) = read_edge(borders.get_diagonal()) {
-                let edge = PyDict::new_bound(py);
+                let edge = PyDict::new(py);
                 edge.set_item("style", s)?;
                 edge.set_item("color", c)?;
                 d.set_item("diagonal_up", edge)?;
