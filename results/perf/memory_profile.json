@@ -1,0 +1,302 @@
+[
+  {
+    "adapter": "pycalumya",
+    "op": "read",
+    "cells": 1000,
+    "rss_before_mb": 138.91,
+    "rss_after_mb": 140.61,
+    "rss_delta_mb": 1.7,
+    "tracemalloc_peak_mb": 0.44,
+    "scale": "1k"
+  },
+  {
+    "adapter": "calamine-styled",
+    "op": "read",
+    "cells": 1000,
+    "rss_before_mb": 139.05,
+    "rss_after_mb": 140.84,
+    "rss_delta_mb": 1.8,
+    "tracemalloc_peak_mb": 0.44,
+    "scale": "1k"
+  },
+  {
+    "adapter": "openpyxl",
+    "op": "read",
+    "cells": 1000,
+    "rss_before_mb": 138.5,
+    "rss_after_mb": 139.95,
+    "rss_delta_mb": 1.45,
+    "tracemalloc_peak_mb": 0.61,
+    "scale": "1k"
+  },
+  {
+    "adapter": "python-calamine",
+    "op": "read",
+    "cells": 1000,
+    "rss_before_mb": 138.78,
+    "rss_after_mb": 139.5,
+    "rss_delta_mb": 0.72,
+    "tracemalloc_peak_mb": 0.13,
+    "scale": "1k"
+  },
+  {
+    "adapter": "pycalumya",
+    "op": "write",
+    "cells": 1000,
+    "rss_before_mb": 140.25,
+    "rss_after_mb": 141.83,
+    "rss_delta_mb": 1.58,
+    "tracemalloc_peak_mb": 0.01,
+    "scale": "1k"
+  },
+  {
+    "adapter": "rust_xlsxwriter",
+    "op": "write",
+    "cells": 1000,
+    "rss_before_mb": 140.3,
+    "rss_after_mb": 141.86,
+    "rss_delta_mb": 1.56,
+    "tracemalloc_peak_mb": 0.01,
+    "scale": "1k"
+  },
+  {
+    "adapter": "openpyxl",
+    "op": "write",
+    "cells": 1000,
+    "rss_before_mb": 139.88,
+    "rss_after_mb": 140.38,
+    "rss_delta_mb": 0.5,
+    "tracemalloc_peak_mb": 0.62,
+    "scale": "1k"
+  },
+  {
+    "adapter": "xlsxwriter",
+    "op": "write",
+    "cells": 1000,
+    "rss_before_mb": 139.94,
+    "rss_after_mb": 140.06,
+    "rss_delta_mb": 0.12,
+    "tracemalloc_peak_mb": 0.45,
+    "scale": "1k"
+  },
+  {
+    "adapter": "pandas",
+    "op": "write",
+    "cells": 1000,
+    "rss_before_mb": 140.72,
+    "rss_after_mb": 141.48,
+    "rss_delta_mb": 0.77,
+    "tracemalloc_peak_mb": 0.78,
+    "scale": "1k"
+  },
+  {
+    "adapter": "tablib",
+    "op": "write",
+    "cells": 1000,
+    "rss_before_mb": 140.72,
+    "rss_after_mb": 141.25,
+    "rss_delta_mb": 0.53,
+    "tracemalloc_peak_mb": 0.68,
+    "scale": "1k"
+  },
+  {
+    "adapter": "pycalumya",
+    "op": "read",
+    "cells": 10000,
+    "rss_before_mb": 138.95,
+    "rss_after_mb": 151.91,
+    "rss_delta_mb": 12.95,
+    "tracemalloc_peak_mb": 4.32,
+    "scale": "10k"
+  },
+  {
+    "adapter": "calamine-styled",
+    "op": "read",
+    "cells": 10000,
+    "rss_before_mb": 138.88,
+    "rss_after_mb": 151.84,
+    "rss_delta_mb": 12.97,
+    "tracemalloc_peak_mb": 4.32,
+    "scale": "10k"
+  },
+  {
+    "adapter": "openpyxl",
+    "op": "read",
+    "cells": 10000,
+    "rss_before_mb": 138.48,
+    "rss_after_mb": 149.39,
+    "rss_delta_mb": 10.91,
+    "tracemalloc_peak_mb": 4.23,
+    "scale": "10k"
+  },
+  {
+    "adapter": "python-calamine",
+    "op": "read",
+    "cells": 10000,
+    "rss_before_mb": 139.45,
+    "rss_after_mb": 143.77,
+    "rss_delta_mb": 4.31,
+    "tracemalloc_peak_mb": 1.24,
+    "scale": "10k"
+  },
+  {
+    "adapter": "pycalumya",
+    "op": "write",
+    "cells": 10000,
+    "rss_before_mb": 150.12,
+    "rss_after_mb": 153.69,
+    "rss_delta_mb": 3.56,
+    "tracemalloc_peak_mb": 0.01,
+    "scale": "10k"
+  },
+  {
+    "adapter": "rust_xlsxwriter",
+    "op": "write",
+    "cells": 10000,
+    "rss_before_mb": 149.86,
+    "rss_after_mb": 153.64,
+    "rss_delta_mb": 3.78,
+    "tracemalloc_peak_mb": 0.01,
+    "scale": "10k"
+  },
+  {
+    "adapter": "openpyxl",
+    "op": "write",
+    "cells": 10000,
+    "rss_before_mb": 149.5,
+    "rss_after_mb": 153.0,
+    "rss_delta_mb": 3.5,
+    "tracemalloc_peak_mb": 2.58,
+    "scale": "10k"
+  },
+  {
+    "adapter": "xlsxwriter",
+    "op": "write",
+    "cells": 10000,
+    "rss_before_mb": 149.52,
+    "rss_after_mb": 150.64,
+    "rss_delta_mb": 1.12,
+    "tracemalloc_peak_mb": 1.43,
+    "scale": "10k"
+  },
+  {
+    "adapter": "pandas",
+    "op": "write",
+    "cells": 10000,
+    "rss_before_mb": 149.8,
+    "rss_after_mb": 153.61,
+    "rss_delta_mb": 3.81,
+    "tracemalloc_peak_mb": 3.01,
+    "scale": "10k"
+  },
+  {
+    "adapter": "tablib",
+    "op": "write",
+    "cells": 10000,
+    "rss_before_mb": 149.89,
+    "rss_after_mb": 153.59,
+    "rss_delta_mb": 3.7,
+    "tracemalloc_peak_mb": 2.72,
+    "scale": "10k"
+  },
+  {
+    "adapter": "pycalumya",
+    "op": "read",
+    "cells": 99856,
+    "rss_before_mb": 139.03,
+    "rss_after_mb": 266.44,
+    "rss_delta_mb": 127.41,
+    "tracemalloc_peak_mb": 43.07,
+    "scale": "100k"
+  },
+  {
+    "adapter": "calamine-styled",
+    "op": "read",
+    "cells": 99856,
+    "rss_before_mb": 138.94,
+    "rss_after_mb": 264.27,
+    "rss_delta_mb": 125.33,
+    "tracemalloc_peak_mb": 43.07,
+    "scale": "100k"
+  },
+  {
+    "adapter": "openpyxl",
+    "op": "read",
+    "cells": 99856,
+    "rss_before_mb": 138.47,
+    "rss_after_mb": 253.06,
+    "rss_delta_mb": 114.59,
+    "tracemalloc_peak_mb": 43.8,
+    "scale": "100k"
+  },
+  {
+    "adapter": "python-calamine",
+    "op": "read",
+    "cells": 99856,
+    "rss_before_mb": 138.8,
+    "rss_after_mb": 187.73,
+    "rss_delta_mb": 48.94,
+    "tracemalloc_peak_mb": 12.32,
+    "scale": "100k"
+  },
+  {
+    "adapter": "pycalumya",
+    "op": "write",
+    "cells": 99856,
+    "rss_before_mb": 254.41,
+    "rss_after_mb": 275.34,
+    "rss_delta_mb": 20.94,
+    "tracemalloc_peak_mb": 0.01,
+    "scale": "100k"
+  },
+  {
+    "adapter": "rust_xlsxwriter",
+    "op": "write",
+    "cells": 99856,
+    "rss_before_mb": 254.36,
+    "rss_after_mb": 268.73,
+    "rss_delta_mb": 14.38,
+    "tracemalloc_peak_mb": 0.01,
+    "scale": "100k"
+  },
+  {
+    "adapter": "openpyxl",
+    "op": "write",
+    "cells": 99856,
+    "rss_before_mb": 254.08,
+    "rss_after_mb": 286.64,
+    "rss_delta_mb": 32.56,
+    "tracemalloc_peak_mb": 28.44,
+    "scale": "100k"
+  },
+  {
+    "adapter": "xlsxwriter",
+    "op": "write",
+    "cells": 99856,
+    "rss_before_mb": 256.91,
+    "rss_after_mb": 256.91,
+    "rss_delta_mb": 0.0,
+    "tracemalloc_peak_mb": 9.87,
+    "scale": "100k"
+  },
+  {
+    "adapter": "pandas",
+    "op": "write",
+    "cells": 99856,
+    "rss_before_mb": 254.44,
+    "rss_after_mb": 292.94,
+    "rss_delta_mb": 38.5,
+    "tracemalloc_peak_mb": 31.61,
+    "scale": "100k"
+  },
+  {
+    "adapter": "tablib",
+    "op": "write",
+    "cells": 99856,
+    "rss_before_mb": 254.34,
+    "rss_after_mb": 288.0,
+    "rss_delta_mb": 33.66,
+    "tracemalloc_peak_mb": 28.66,
+    "scale": "100k"
+  }
+]
