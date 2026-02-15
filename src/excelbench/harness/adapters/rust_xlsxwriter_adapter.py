@@ -82,6 +82,16 @@ class RustXlsxWriterAdapter(WriteOnlyAdapter):
         if d:
             workbook.write_cell_border(sheet, cell, d)
 
+    def write_sheet_values(
+        self,
+        workbook: Any,
+        sheet: str,
+        start_cell: str,
+        values: list[list[Any]],
+    ) -> None:
+        """Bulk write a grid of values via RustXlsxWriterBook.write_sheet_values()."""
+        workbook.write_sheet_values(sheet, start_cell, values)
+
     def set_row_height(self, workbook: Any, sheet: str, row: int, height: float) -> None:
         workbook.set_row_height(sheet, row - 1, height)
 

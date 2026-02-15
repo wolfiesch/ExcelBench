@@ -71,6 +71,20 @@ class RustCalamineStyledAdapter(ReadOnlyAdapter):
             return CellValue(type=CellType.STRING, value=str(payload))
         return cell_value_from_payload(payload)
 
+    def read_sheet_values(
+        self,
+        workbook: Any,
+        sheet: str,
+        cell_range: str | None = None,
+    ) -> list[list[CellValue]]:
+        """Bulk read all values from a sheet via CalamineStyledBook.read_sheet_values()."""
+        raw = workbook.read_sheet_values(sheet, cell_range)
+        return [
+            [cell_value_from_payload(v) if isinstance(v, dict) else CellValue(type=CellType.BLANK)
+             for v in row]
+            for row in raw
+        ]
+
     def read_cell_format(self, workbook: Any, sheet: str, cell: str) -> CellFormat:
         payload = workbook.read_cell_format(sheet, cell)
         if not isinstance(payload, dict) or not payload:

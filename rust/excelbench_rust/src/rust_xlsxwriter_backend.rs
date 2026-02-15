@@ -1250,6 +1250,81 @@ impl RustXlsxWriterBook {
         Ok(())
     }
 
+    /// Bulk-write a rectangular grid of values starting at `start_a1`.
+    ///
+    /// `values` is a 2-D Python list of raw values (int/float/str/None).
+    /// None values are skipped (no cell written).  Used by performance
+    /// workloads to avoid per-cell FFI overhead.
+    pub fn write_sheet_values(
+        &mut self,
+        sheet: &str,
+        start_a1: &str,
+        values: &Bound<'_, PyAny>,
+    ) -> PyResult<()> {
+        self.ensure_sheet_exists(sheet)?;
+
+        let (base_row, base_col_32) =
+            a1_to_row_col(start_a1).map_err(|msg| PyErr::new::<PyValueError, _>(msg))?;
+        let base_col: u16 = base_col_32.try_into().map_err(|_| {
+            PyErr::new::<PyValueError, _>(format!("Column out of range: {start_a1}"))
+        })?;
+
+        let rows: Vec<Bound<'_, PyAny>> = values.extract()?;
+        for (ri, row_obj) in rows.iter().enumerate() {
+            let cols: Vec<Bound<'_, PyAny>> = row_obj.extract()?;
+            for (ci, val) in cols.iter().enumerate() {
+                if val.is_none() {
+                    continue;
+                }
+                let row = base_row + ri as u32;
+                let col = base_col + ci as u16;
+                let key = (sheet.to_string(), row, col);
+
+                // Infer type from Python object.
+                if let Ok(f) = val.extract::<f64>() {
+                    self.values.insert(
+                        key,
+                        CellPayload {
+                            type_str: "number".to_string(),
+                            value: Some(f.to_string()),
+                            formula: None,
+                        },
+                    );
+                } else if let Ok(i) = val.extract::<i64>() {
+                    self.values.insert(
+                        key,
+                        CellPayload {
+                            type_str: "number".to_string(),
+                            value: Some((i as f64).to_string()),
+                            formula: None,
+                        },
+                    );
+                } else if let Ok(s) = val.extract::<String>() {
+                    self.values.insert(
+                        key,
+                        CellPayload {
+                            type_str: "string".to_string(),
+                            value: Some(s),
+                            formula: None,
+                        },
+                    );
+                } else if let Ok(b) = val.extract::<bool>() {
+                    self.values.insert(
+                        key,
+                        CellPayload {
+                            type_str: "boolean".to_string(),
+                            value: Some(b.to_string()),
+                            formula: None,
+                        },
+                    );
+                }
+                // else: skip unsupported types silently.
+            }
+        }
+
+        Ok(())
+    }
+
     pub fn write_cell_format(
         &mut self,
         sheet: &str,

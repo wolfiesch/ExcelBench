@@ -265,6 +265,14 @@ struct TableInfo {
     autofilter: bool,
 }
 
+#[derive(Clone, Debug)]
+struct DiagonalBorderInfo {
+    up: bool,
+    down: bool,
+    style: String,
+    color: String,
+}
+
 #[derive(Default)]
 struct Tier2SheetCache {
     merged_ranges: Option<Vec<String>>,
@@ -292,6 +300,8 @@ pub struct CalamineStyledBook {
     dxfs_bg_colors: Option<Vec<Option<String>>>,
     /// Lazy cache: named ranges parsed from workbook.xml definedNames.
     named_ranges: Option<Vec<NamedRangeInfo>>,
+    /// Lazy cache: diagonal border definitions (by cellXfs style_id).
+    diagonal_borders: Option<HashMap<u32, DiagonalBorderInfo>>,
 }
 
 #[pymethods]
@@ -313,6 +323,7 @@ impl CalamineStyledBook {
             tier2_cache: HashMap::new(),
             dxfs_bg_colors: None,
             named_ranges: None,
+            diagonal_borders: None,
         })
     }
 
@@ -364,6 +375,103 @@ impl CalamineStyledBook {
         }
 
         data_to_py(py, value)
+    }
+
+    /// Bulk-read all cell values from a sheet (or a rectangular sub-range).
+    ///
+    /// Returns `list[list[dict]]` where each dict has the same shape as
+    /// `read_cell_value()`.  Used by performance workloads to avoid per-cell
+    /// FFI overhead.
+    pub fn read_sheet_values(
+        &mut self,
+        py: Python<'_>,
+        sheet: &str,
+        cell_range: Option<&str>,
+    ) -> PyResult<PyObject> {
+        self.ensure_sheet_exists(sheet)?;
+
+        let range = self.workbook.worksheet_range(sheet).map_err(|e| {
+            PyErr::new::<PyIOError, _>(format!("Failed to read sheet {sheet}: {e}"))
+        })?;
+
+        // Optionally resolve formula range once for the whole grid.
+        let formula_range = self.workbook.worksheet_formula(sheet).ok();
+
+        let (start_row, start_col, end_row, end_col) = if let Some(cr) = cell_range {
+            if !cr.is_empty() {
+                // Parse A1:B2 style range.
+                let clean = cr.replace('$', "").to_ascii_uppercase();
+                let parts: Vec<&str> = clean.split(':').collect();
+                let a = parts[0];
+                let b = if parts.len() > 1 { parts[1] } else { a };
+                let (r0, c0) =
+                    a1_to_row_col(a).map_err(|msg| PyErr::new::<PyValueError, _>(msg))?;
+                let (r1, c1) =
+                    a1_to_row_col(b).map_err(|msg| PyErr::new::<PyValueError, _>(msg))?;
+                (r0.min(r1), c0.min(c1), r0.max(r1), c0.max(c1))
+            } else {
+                let (h, w) = range.get_size();
+                let start = range.start().unwrap_or((0, 0));
+                (
+                    start.0,
+                    start.1,
+                    start.0 + h as u32 - 1,
+                    start.1 + w as u32 - 1,
+                )
+            }
+        } else {
+            let (h, w) = range.get_size();
+            if h == 0 || w == 0 {
+                return Ok(PyList::empty(py).into());
+            }
+            let start = range.start().unwrap_or((0, 0));
+            (
+                start.0,
+                start.1,
+                start.0 + h as u32 - 1,
+                start.1 + w as u32 - 1,
+            )
+        };
+
+        let outer = PyList::empty(py);
+        for row in start_row..=end_row {
+            let inner = PyList::empty(py);
+            for col in start_col..=end_col {
+                // Check formulas first (same logic as read_cell_value).
+                if let Some(ref fr) = formula_range {
+                    if let Some(f) = fr.get_value((row, col)) {
+                        if !f.is_empty() {
+                            let formula = if f.starts_with('=') {
+                                f.clone()
+                            } else {
+                                format!("={f}")
+                            };
+                            if let Some(err_val) = map_error_formula(&formula) {
+                                let d = PyDict::new(py);
+                                d.set_item("type", "error")?;
+                                d.set_item("value", err_val)?;
+                                inner.append(d)?;
+                                continue;
+                            }
+                            let d = PyDict::new(py);
+                            d.set_item("type", "formula")?;
+                            d.set_item("formula", &formula)?;
+                            d.set_item("value", &formula)?;
+                            inner.append(d)?;
+                            continue;
+                        }
+                    }
+                }
+                // Fall back to data value.
+                match range.get_value((row, col)) {
+                    None => inner.append(cell_blank(py)?)?,
+                    Some(v) => inner.append(data_to_py(py, v)?)?,
+                }
+            }
+            outer.append(inner)?;
+        }
+
+        Ok(outer.into())
     }
 
     pub fn read_cell_formula(
@@ -441,7 +549,12 @@ impl CalamineStyledBook {
         let style = self.get_style(sheet, row, col)?;
         let d = PyDict::new(py);
 
+        let mut diag_up_missing = true;
+        let mut diag_down_missing = true;
+        let mut style_id: Option<u32> = None;
+
         if let Some(style) = style {
+            style_id = style.style_id;
             if let Some(borders) = &style.borders {
                 Self::maybe_set_edge(py, &d, "top", &borders.top)?;
                 Self::maybe_set_edge(py, &d, "bottom", &borders.bottom)?;
@@ -449,6 +562,40 @@ impl CalamineStyledBook {
                 Self::maybe_set_edge(py, &d, "right", &borders.right)?;
                 Self::maybe_set_edge(py, &d, "diagonal_up", &borders.diagonal_up)?;
                 Self::maybe_set_edge(py, &d, "diagonal_down", &borders.diagonal_down)?;
+
+                diag_up_missing = borders.diagonal_up.style == CalBorderStyle::None;
+                diag_down_missing = borders.diagonal_down.style == CalBorderStyle::None;
+            }
+
+            // Calamine currently doesn't propagate border-level diagonalUp/diagonalDown flags
+            // into Borders::diagonal_up/diagonal_down. Work around by reading the flags
+            // directly from styles.xml, keyed by style_id (cellXfs index).
+            if (diag_up_missing || diag_down_missing) {
+                if let Some(style_id) = style_id {
+                    self.ensure_diagonal_borders()?;
+                    if let Some(map) = &self.diagonal_borders {
+                        if let Some(info) = map.get(&style_id) {
+                            if diag_up_missing && info.up {
+                                Self::set_edge_from_style(
+                                    py,
+                                    &d,
+                                    "diagonal_up",
+                                    &info.style,
+                                    &info.color,
+                                )?;
+                            }
+                            if diag_down_missing && info.down {
+                                Self::set_edge_from_style(
+                                    py,
+                                    &d,
+                                    "diagonal_down",
+                                    &info.style,
+                                    &info.color,
+                                )?;
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -767,6 +914,23 @@ impl CalamineStyledBook {
             .map(|c| color_to_hex(c))
             .unwrap_or_else(|| "#000000".to_string());
         edge.set_item("color", color_str)?;
+        d.set_item(key, edge)?;
+        Ok(())
+    }
+
+    fn set_edge_from_style(
+        py: Python<'_>,
+        d: &Bound<'_, PyDict>,
+        key: &str,
+        style: &str,
+        color: &str,
+    ) -> PyResult<()> {
+        if style == "none" {
+            return Ok(());
+        }
+        let edge = PyDict::new(py);
+        edge.set_item("style", style)?;
+        edge.set_item("color", color)?;
         d.set_item(key, edge)?;
         Ok(())
     }
@@ -1347,6 +1511,181 @@ impl CalamineStyledBook {
         }
 
         self.dxfs_bg_colors = Some(out);
+        Ok(())
+    }
+
+    fn ensure_diagonal_borders(&mut self) -> PyResult<()> {
+        if self.diagonal_borders.is_some() {
+            return Ok(());
+        }
+
+        let mut zip = self.open_zip()?;
+        let styles_xml = match ooxml_util::zip_read_to_string_opt(&mut zip, "xl/styles.xml")? {
+            Some(s) => s,
+            None => {
+                self.diagonal_borders = Some(HashMap::new());
+                return Ok(());
+            }
+        };
+
+        #[derive(Default)]
+        struct BorderDef {
+            up: bool,
+            down: bool,
+            style: Option<String>,
+            color: Option<String>,
+        }
+
+        fn parse_bool_attr(v: &str) -> bool {
+            v == "1" || v.eq_ignore_ascii_case("true")
+        }
+
+        let mut border_defs: Vec<BorderDef> = Vec::new();
+        let mut xf_border_ids: Vec<usize> = Vec::new();
+
+        let mut in_borders = false;
+        let mut in_cellxfs = false;
+        let mut in_diagonal = false;
+
+        let mut cur_border: Option<BorderDef> = None;
+
+        let mut reader = XmlReader::from_str(&styles_xml);
+        reader.config_mut().trim_text(true);
+        let mut buf: Vec<u8> = Vec::new();
+
+        loop {
+            match reader.read_event_into(&mut buf) {
+                Ok(Event::Start(e)) => match e.name().as_ref() {
+                    b"borders" => {
+                        in_borders = true;
+                    }
+                    b"border" if in_borders => {
+                        let mut def = BorderDef::default();
+                        if let Some(v) = ooxml_util::attr_value(&e, b"diagonalUp") {
+                            def.up = parse_bool_attr(&v);
+                        }
+                        if let Some(v) = ooxml_util::attr_value(&e, b"diagonalDown") {
+                            def.down = parse_bool_attr(&v);
+                        }
+                        cur_border = Some(def);
+                    }
+                    b"diagonal" => {
+                        if let Some(def) = cur_border.as_mut() {
+                            if let Some(style) = ooxml_util::attr_value(&e, b"style") {
+                                def.style = Some(style);
+                            }
+                            in_diagonal = true;
+                        }
+                    }
+                    b"color" if in_diagonal => {
+                        if let Some(def) = cur_border.as_mut() {
+                            if let Some(rgb) = ooxml_util::attr_value(&e, b"rgb") {
+                                def.color = Self::normalize_ooxml_rgb(&rgb);
+                            }
+                        }
+                    }
+                    b"cellXfs" => {
+                        in_cellxfs = true;
+                    }
+                    b"xf" if in_cellxfs => {
+                        let border_id = ooxml_util::attr_value(&e, b"borderId")
+                            .and_then(|s| s.parse::<usize>().ok())
+                            .unwrap_or(0);
+                        xf_border_ids.push(border_id);
+                    }
+                    _ => {}
+                },
+                Ok(Event::Empty(e)) => {
+                    match e.name().as_ref() {
+                        b"border" if in_borders => {
+                            // Rare, but handle self-closing border.
+                            let mut def = BorderDef::default();
+                            if let Some(v) = ooxml_util::attr_value(&e, b"diagonalUp") {
+                                def.up = parse_bool_attr(&v);
+                            }
+                            if let Some(v) = ooxml_util::attr_value(&e, b"diagonalDown") {
+                                def.down = parse_bool_attr(&v);
+                            }
+                            border_defs.push(def);
+                        }
+                        b"diagonal" => {
+                            if let Some(def) = cur_border.as_mut() {
+                                if let Some(style) = ooxml_util::attr_value(&e, b"style") {
+                                    def.style = Some(style);
+                                }
+                            }
+                        }
+                        b"color" if in_diagonal => {
+                            if let Some(def) = cur_border.as_mut() {
+                                if let Some(rgb) = ooxml_util::attr_value(&e, b"rgb") {
+                                    def.color = Self::normalize_ooxml_rgb(&rgb);
+                                }
+                            }
+                        }
+                        b"xf" if in_cellxfs => {
+                            let border_id = ooxml_util::attr_value(&e, b"borderId")
+                                .and_then(|s| s.parse::<usize>().ok())
+                                .unwrap_or(0);
+                            xf_border_ids.push(border_id);
+                        }
+                        _ => {}
+                    }
+                }
+                Ok(Event::End(e)) => match e.name().as_ref() {
+                    b"borders" => {
+                        in_borders = false;
+                    }
+                    b"border" => {
+                        if let Some(def) = cur_border.take() {
+                            border_defs.push(def);
+                        }
+                        in_diagonal = false;
+                    }
+                    b"diagonal" => {
+                        in_diagonal = false;
+                    }
+                    b"cellXfs" => {
+                        in_cellxfs = false;
+                    }
+                    _ => {}
+                },
+                Ok(Event::Eof) => break,
+                Err(e) => {
+                    return Err(PyErr::new::<PyIOError, _>(format!(
+                        "Failed to parse styles.xml for diagonal borders: {e}"
+                    )))
+                }
+                _ => {}
+            }
+            buf.clear();
+        }
+
+        let mut out: HashMap<u32, DiagonalBorderInfo> = HashMap::new();
+        for (xf_idx, border_id) in xf_border_ids.iter().enumerate() {
+            let bd = match border_defs.get(*border_id) {
+                Some(b) => b,
+                None => continue,
+            };
+            if !(bd.up || bd.down) {
+                continue;
+            }
+            let style = match bd.style.as_deref() {
+                Some(s) if s != "none" => s.to_string(),
+                _ => continue,
+            };
+            let color = bd.color.clone().unwrap_or_else(|| "#000000".to_string());
+            out.insert(
+                xf_idx as u32,
+                DiagonalBorderInfo {
+                    up: bd.up,
+                    down: bd.down,
+                    style,
+                    color,
+                },
+            );
+        }
+
+        self.diagonal_borders = Some(out);
         Ok(())
     }
 

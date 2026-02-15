@@ -78,6 +78,20 @@ class PycalumyaAdapter(ExcelAdapter):
             return CellValue(type=CellType.STRING, value=str(payload))
         return cell_value_from_payload(payload)
 
+    def read_sheet_values(
+        self,
+        workbook: Any,
+        sheet: str,
+        cell_range: str | None = None,
+    ) -> list[list[CellValue]]:
+        """Bulk read all values from a sheet via CalamineStyledBook.read_sheet_values()."""
+        raw = workbook.read_sheet_values(sheet, cell_range)
+        return [
+            [cell_value_from_payload(v) if isinstance(v, dict) else CellValue(type=CellType.BLANK)
+             for v in row]
+            for row in raw
+        ]
+
     def read_cell_format(self, workbook: Any, sheet: str, cell: str) -> CellFormat:
         payload = workbook.read_cell_format(sheet, cell)
         if not isinstance(payload, dict) or not payload:
@@ -173,6 +187,16 @@ class PycalumyaAdapter(ExcelAdapter):
     def write_cell_value(self, workbook: Any, sheet: str, cell: str, value: CellValue) -> None:
         payload = payload_from_cell_value(value)
         workbook.write_cell_value(sheet, cell, payload)
+
+    def write_sheet_values(
+        self,
+        workbook: Any,
+        sheet: str,
+        start_cell: str,
+        values: list[list[Any]],
+    ) -> None:
+        """Bulk write a grid of values via RustXlsxWriterBook.write_sheet_values()."""
+        workbook.write_sheet_values(sheet, start_cell, values)
 
     def write_cell_format(self, workbook: Any, sheet: str, cell: str, format: CellFormat) -> None:
         d = format_to_dict(format)
