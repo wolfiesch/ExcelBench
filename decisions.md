@@ -40,6 +40,24 @@ Skip logging for routine bug fixes, refactors, or incremental test additions.
 
 ## Decisions
 
+### DEC-013 — Separate pycalumya compat package in src/pycalumya/ (2026-02-15)
+
+**Context**: pycalumya has proven 3–12x faster than openpyxl with 17/18 feature fidelity. To drive
+adoption, it needs an openpyxl-compatible API so users can switch with minimal code changes.
+
+**Decision**: Create `src/pycalumya/` as a separate package namespace (not inside `excelbench`).
+Dual-mode Workbook: `load_workbook()` wraps CalamineStyledBook for reading, `Workbook()` wraps
+RustXlsxWriterBook for writing. Style dataclasses (Font, PatternFill, Border, Alignment) match
+openpyxl's public names. No Rust changes needed — uses `excelbench_rust` directly.
+
+**Alternatives considered**: (1) Embed inside `excelbench.compat` (rejected: circular import risk
+and harder to publish standalone on PyPI). (2) Full openpyxl shim with read-modify-write (rejected:
+calamine is read-only and rust_xlsxwriter is write-only — no shared state model).
+
+**Consequences**: Future standalone PyPI publishing is trivial (`src/pycalumya/` is already a
+self-contained package). Users get `wb['Sheet1']['A1'].value` interface backed by Rust. Trade-off:
+no read-modify-write support (fundamental limitation of the hybrid approach).
+
 ### DEC-012 — Memory profiling uses subprocess isolation (2026-02-14)
 
 **Context**: In-process memory measurements are noisy and can cross-contaminate between adapters,

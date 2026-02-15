@@ -4,7 +4,7 @@
 > when you introduce new top-level modules, flows, or dependency directions.
 
 > **DECISION LOG**: When making a significant design or architecture decision, always add an entry
-> to `decisions.md` using the `DEC-NNN` format. Next ID: **DEC-013**.
+> to `decisions.md` using the `DEC-NNN` format. Next ID: **DEC-014**.
 
 ## What This Project Is
 

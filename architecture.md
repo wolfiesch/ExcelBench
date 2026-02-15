@@ -54,6 +54,8 @@ results renderer / visualizations
 perf runner (performance) -> perf renderer
 
 Rust extension (optional) is called by Rust-backed adapters; it should not depend on Python code.
+
+pycalumya depends on excelbench_rust (PyO3 extension) only — no dependency on excelbench.
 ```
 
 Rule of thumb: keep adapters thin and deterministic. Any cross-library normalization should live in
@@ -80,6 +82,14 @@ Most-touched top-level directories:
   - PyO3 crate that exposes Rust backends to Python (`excelbench_rust` module)
   - Backends include: calamine (read), calamine-styled (read+OOXML T2/T3), rust_xlsxwriter (write),
     umya-spreadsheet (read/write)
+
+- `src/pycalumya/` (openpyxl-compatible API wrapper)
+  - `__init__.py`: public API (`load_workbook`, `Workbook`, style exports)
+  - `_workbook.py`: dual-mode Workbook (read via CalamineStyledBook, write via RustXlsxWriterBook)
+  - `_worksheet.py`: Worksheet proxy with `ws['A1']` cell access
+  - `_cell.py`: Cell proxy with lazy read dispatch and write-behind accumulation
+  - `_styles.py`: frozen dataclasses matching openpyxl names (Font, PatternFill, Border, etc.)
+  - `_utils.py`: A1-style coordinate conversion helpers
 
 - `tests/`: pytest suites (fidelity + adapter unit tests + visualization smoke tests)
 - `docs/`: plans and trackers (treat as source of truth for methodology and run logs)

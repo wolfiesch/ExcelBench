@@ -59,7 +59,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/excelbench"]
+packages = ["src/excelbench", "src/pycalumya"]
 
 [tool.ruff]
 line-length = 100
@@ -71,7 +71,7 @@ select = ["E", "F", "I", "N", "W", "UP"]
 [tool.mypy]
 python_version = "3.11"
 strict = true
-files = ["src/excelbench", "tests"]
+files = ["src/excelbench", "src/pycalumya", "tests"]
 
 [[tool.mypy.overrides]]
 module = [
@@ -123,6 +123,13 @@ module = [
 ]
 disable_error_code = ["import-untyped"]
 
+[[tool.mypy.overrides]]
+module = [
+    "pycalumya._workbook",
+    "pycalumya._cell",
+]
+disable_error_code = ["import-untyped"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-v --cov=excelbench"
+addopts = "-v --cov=excelbench --cov=pycalumya"
