@@ -66,11 +66,7 @@ impl UmyaBook {
         Ok(result.into())
     }
 
-    pub fn add_named_range(
-        &mut self,
-        sheet: &str,
-        nr_dict: &Bound<'_, PyAny>,
-    ) -> PyResult<()> {
+    pub fn add_named_range(&mut self, sheet: &str, nr_dict: &Bound<'_, PyAny>) -> PyResult<()> {
         let dict = nr_dict
             .downcast::<PyDict>()
             .map_err(|_| PyErr::new::<PyValueError, _>("named_range must be a dict"))?;
@@ -108,8 +104,9 @@ impl UmyaBook {
             .get_sheet_by_name_mut(sheet)
             .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
 
-        ws.add_defined_name(&name, &address)
-            .map_err(|e| PyErr::new::<PyValueError, _>(format!("Failed to add named range: {e}")))?;
+        ws.add_defined_name(&name, &address).map_err(|e| {
+            PyErr::new::<PyValueError, _>(format!("Failed to add named range: {e}"))
+        })?;
 
         // For sheet-scoped names, set the localSheetId on the just-added
         // DefinedName so it roundtrips correctly.
@@ -122,10 +119,7 @@ impl UmyaBook {
                 .map(|s| s.get_name().to_string())
                 .collect();
             if let Some(idx) = sheet_names.iter().position(|n| n == sheet) {
-                let ws = self
-                    .book
-                    .get_sheet_by_name_mut(sheet)
-                    .unwrap();
+                let ws = self.book.get_sheet_by_name_mut(sheet).unwrap();
                 if let Some(last) = ws.get_defined_names_mut().last_mut() {
                     last.set_local_sheet_id(idx as u32);
                 }

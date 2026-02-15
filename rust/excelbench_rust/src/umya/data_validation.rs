@@ -99,17 +99,11 @@ impl UmyaBook {
             d.set_item("show_error", *dv.get_show_error_message())?;
 
             let pt = dv.get_prompt_title();
-            d.set_item(
-                "prompt_title",
-                if pt.is_empty() { None } else { Some(pt) },
-            )?;
+            d.set_item("prompt_title", if pt.is_empty() { None } else { Some(pt) })?;
             let p = dv.get_prompt();
             d.set_item("prompt", if p.is_empty() { None } else { Some(p) })?;
             let et = dv.get_error_title();
-            d.set_item(
-                "error_title",
-                if et.is_empty() { None } else { Some(et) },
-            )?;
+            d.set_item("error_title", if et.is_empty() { None } else { Some(et) })?;
             let em = dv.get_error_message();
             d.set_item("error", if em.is_empty() { None } else { Some(em) })?;
 

@@ -43,11 +43,7 @@ impl UmyaBook {
         Ok(result.into())
     }
 
-    pub fn add_comment(
-        &mut self,
-        sheet: &str,
-        comment_dict: &Bound<'_, PyAny>,
-    ) -> PyResult<()> {
+    pub fn add_comment(&mut self, sheet: &str, comment_dict: &Bound<'_, PyAny>) -> PyResult<()> {
         let ws = self
             .book
             .get_sheet_by_name_mut(sheet)

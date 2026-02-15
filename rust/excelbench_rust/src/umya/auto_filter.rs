@@ -12,9 +12,9 @@ impl UmyaBook {
             .get_sheet_by_name(sheet)
             .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
 
-        Ok(ws.get_auto_filter().map(|af| {
-            af.get_range().get_range().replace('$', "")
-        }))
+        Ok(ws
+            .get_auto_filter()
+            .map(|af| af.get_range().get_range().replace('$', "")))
     }
 
     /// Set an auto filter on a range (e.g. "A1:D10").

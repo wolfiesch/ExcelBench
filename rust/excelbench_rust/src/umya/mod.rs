@@ -5,6 +5,7 @@ use std::path::Path;
 
 use umya_spreadsheet::{new_file, reader, writer, Spreadsheet};
 
+mod auto_filter;
 mod borders;
 mod cell_values;
 mod comments;
@@ -17,7 +18,6 @@ mod hyperlinks;
 mod images;
 mod merged_cells;
 mod named_ranges;
-mod auto_filter;
 mod tables;
 mod util;
 

@@ -15,12 +15,7 @@ use super::UmyaBook;
 
 #[pymethods]
 impl UmyaBook {
-    pub fn read_cell_format(
-        &self,
-        py: Python<'_>,
-        sheet: &str,
-        a1: &str,
-    ) -> PyResult<PyObject> {
+    pub fn read_cell_format(&self, py: Python<'_>, sheet: &str, a1: &str) -> PyResult<PyObject> {
         let ws = self
             .book
             .get_sheet_by_name(sheet)
@@ -142,10 +137,15 @@ impl UmyaBook {
         {
             let font = style.get_font_mut();
 
-            if let Some(bold) = dict.get_item("bold")?.and_then(|v| v.extract::<bool>().ok()) {
+            if let Some(bold) = dict
+                .get_item("bold")?
+                .and_then(|v| v.extract::<bool>().ok())
+            {
                 font.set_bold(bold);
             }
-            if let Some(italic) = dict.get_item("italic")?.and_then(|v| v.extract::<bool>().ok())
+            if let Some(italic) = dict
+                .get_item("italic")?
+                .and_then(|v| v.extract::<bool>().ok())
             {
                 font.set_italic(italic);
             }
@@ -217,7 +217,10 @@ impl UmyaBook {
                 style.get_alignment_mut().set_vertical(va);
             }
         }
-        if let Some(wrap) = dict.get_item("wrap")?.and_then(|v| v.extract::<bool>().ok()) {
+        if let Some(wrap) = dict
+            .get_item("wrap")?
+            .and_then(|v| v.extract::<bool>().ok())
+        {
             style.get_alignment_mut().set_wrap_text(wrap);
         }
         if let Some(rot) = dict

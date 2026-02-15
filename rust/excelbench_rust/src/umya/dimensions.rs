@@ -28,8 +28,7 @@ impl UmyaBook {
             .get_sheet_by_name(sheet)
             .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
 
-        let col_idx =
-            col_letter_to_u32(col_str).map_err(|e| PyErr::new::<PyValueError, _>(e))?;
+        let col_idx = col_letter_to_u32(col_str).map_err(|e| PyErr::new::<PyValueError, _>(e))?;
 
         if let Some(cd) = ws.get_column_dimension_by_number(&col_idx) {
             let w = cd.get_width();
@@ -57,8 +56,7 @@ impl UmyaBook {
             .get_sheet_by_name_mut(sheet)
             .ok_or_else(|| PyErr::new::<PyValueError, _>(format!("Unknown sheet: {sheet}")))?;
 
-        let col_idx =
-            col_letter_to_u32(col_str).map_err(|e| PyErr::new::<PyValueError, _>(e))?;
+        let col_idx = col_letter_to_u32(col_str).map_err(|e| PyErr::new::<PyValueError, _>(e))?;
 
         ws.get_column_dimension_by_number_mut(&col_idx)
             .set_width(width);

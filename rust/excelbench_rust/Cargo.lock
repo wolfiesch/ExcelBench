@@ -320,8 +320,10 @@ dependencies = [
  "indexmap",
  "pyo3",
  "pyo3-build-config",
+ "quick-xml 0.37.5",
  "rust_xlsxwriter",
  "umya-spreadsheet",
+ "zip 2.4.2",
 ]
 
 [[package]]

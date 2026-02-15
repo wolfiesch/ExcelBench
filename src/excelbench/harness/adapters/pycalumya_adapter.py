@@ -1,20 +1,21 @@
-"""Adapter for calamine (styled) via excelbench_rust (PyO3).
+"""pycalumya — hybrid Rust adapter: calamine (read) + rust_xlsxwriter (write).
 
-This adapter exercises the Rust calamine crate through our CalamineStyledBook
-PyO3 binding which includes style-aware reading (format, borders, dimensions).
-It is read-only and supports .xlsx files only (the styled API requires the
-Xlsx<R> reader, not the format-sniffing open_workbook_auto).
+Combines the fastest Rust Excel reader (calamine with style support) and the
+fastest Rust writer (rust_xlsxwriter) into a single full-fidelity R+W adapter.
 """
 
 from pathlib import Path
 from typing import Any
 
-from excelbench.harness.adapters.base import ReadOnlyAdapter
+from excelbench.harness.adapters.base import ExcelAdapter
 from excelbench.harness.adapters.rust_adapter_utils import (
+    border_to_dict,
     cell_value_from_payload,
     dict_to_border,
     dict_to_format,
+    format_to_dict,
     get_rust_backend_version,
+    payload_from_cell_value,
 )
 from excelbench.models import (
     BorderInfo,
@@ -29,35 +30,41 @@ JSONDict = dict[str, Any]
 try:
     import excelbench_rust as _excelbench_rust
 except ImportError as e:  # pragma: no cover
-    raise ImportError("excelbench_rust calamine-styled backend unavailable") from e
+    raise ImportError("excelbench_rust unavailable — pycalumya requires it") from e
 
 if getattr(_excelbench_rust, "CalamineStyledBook", None) is None:  # pragma: no cover
-    raise ImportError("excelbench_rust built without calamine (styled) backend")
+    raise ImportError("excelbench_rust built without calamine backend")
+if getattr(_excelbench_rust, "RustXlsxWriterBook", None) is None:  # pragma: no cover
+    raise ImportError("excelbench_rust built without rust_xlsxwriter backend")
 
 
-class RustCalamineStyledAdapter(ReadOnlyAdapter):
-    """Adapter for the Rust calamine crate (with style support) via PyO3."""
+class PycalumyaAdapter(ExcelAdapter):
+    """Hybrid adapter: calamine-styled reads + rust_xlsxwriter writes."""
 
     @property
     def info(self) -> LibraryInfo:
+        cal_ver = get_rust_backend_version("calamine")
+        rxw_ver = get_rust_backend_version("rust_xlsxwriter")
         return LibraryInfo(
-            name="calamine-styled",
-            version=get_rust_backend_version("calamine"),
+            name="pycalumya",
+            version=f"cal={cal_ver}+rxw={rxw_ver}",
             language="rust",
-            capabilities={"read"},
+            capabilities={"read", "write"},
         )
 
     @property
     def supported_read_extensions(self) -> set[str]:
-        # CalamineStyledBook uses Xlsx<R> directly — only .xlsx supported.
         return {".xlsx"}
+
+    # =========================================================================
+    # Read — delegates to CalamineStyledBook
+    # =========================================================================
 
     def open_workbook(self, path: Path) -> Any:
         import excelbench_rust
 
         m: Any = excelbench_rust
-        cls = getattr(m, "CalamineStyledBook")
-        return cls.open(str(path))
+        return getattr(m, "CalamineStyledBook").open(str(path))
 
     def close_workbook(self, workbook: Any) -> None:
         return
@@ -92,17 +99,12 @@ class RustCalamineStyledAdapter(ReadOnlyAdapter):
         return None
 
     def read_column_width(self, workbook: Any, sheet: str, column: str) -> float | None:
-        # Rust binding strips Excel padding before returning.
         value = workbook.read_column_width(sheet, column)
         if value is None:
             return None
         if isinstance(value, (int, float)):
             return float(value)
         return None
-
-    # =========================================================================
-    # Tier 2 Read Operations
-    # =========================================================================
 
     def read_merged_ranges(self, workbook: Any, sheet: str) -> list[str]:
         result = workbook.read_merged_ranges(sheet)
@@ -154,3 +156,69 @@ class RustCalamineStyledAdapter(ReadOnlyAdapter):
 
     def read_freeze_panes(self, workbook: Any, sheet: str) -> JSONDict:
         return dict(workbook.read_freeze_panes(sheet))
+
+    # =========================================================================
+    # Write — delegates to RustXlsxWriterBook
+    # =========================================================================
+
+    def create_workbook(self) -> Any:
+        import excelbench_rust
+
+        m: Any = excelbench_rust
+        return getattr(m, "RustXlsxWriterBook")()
+
+    def add_sheet(self, workbook: Any, name: str) -> None:
+        workbook.add_sheet(name)
+
+    def write_cell_value(self, workbook: Any, sheet: str, cell: str, value: CellValue) -> None:
+        payload = payload_from_cell_value(value)
+        workbook.write_cell_value(sheet, cell, payload)
+
+    def write_cell_format(self, workbook: Any, sheet: str, cell: str, format: CellFormat) -> None:
+        d = format_to_dict(format)
+        if d:
+            workbook.write_cell_format(sheet, cell, d)
+
+    def write_cell_border(self, workbook: Any, sheet: str, cell: str, border: BorderInfo) -> None:
+        d = border_to_dict(border)
+        if d:
+            workbook.write_cell_border(sheet, cell, d)
+
+    def set_row_height(self, workbook: Any, sheet: str, row: int, height: float) -> None:
+        workbook.set_row_height(sheet, row - 1, height)
+
+    def set_column_width(self, workbook: Any, sheet: str, column: str, width: float) -> None:
+        workbook.set_column_width(sheet, column, width)
+
+    def merge_cells(self, workbook: Any, sheet: str, cell_range: str) -> None:
+        workbook.merge_cells(sheet, cell_range)
+
+    def add_conditional_format(self, workbook: Any, sheet: str, rule: JSONDict) -> None:
+        workbook.add_conditional_format(sheet, rule)
+
+    def add_data_validation(self, workbook: Any, sheet: str, validation: JSONDict) -> None:
+        workbook.add_data_validation(sheet, validation)
+
+    def add_named_range(self, workbook: Any, sheet: str, named_range: JSONDict) -> None:
+        workbook.add_named_range(sheet, named_range)
+
+    def add_table(self, workbook: Any, sheet: str, table: JSONDict) -> None:
+        workbook.add_table(sheet, table)
+
+    def add_hyperlink(self, workbook: Any, sheet: str, link: JSONDict) -> None:
+        workbook.add_hyperlink(sheet, link)
+
+    def add_image(self, workbook: Any, sheet: str, image: JSONDict) -> None:
+        return
+
+    def add_pivot_table(self, workbook: Any, sheet: str, pivot: JSONDict) -> None:
+        raise NotImplementedError("pycalumya pivot tables not implemented")
+
+    def add_comment(self, workbook: Any, sheet: str, comment: JSONDict) -> None:
+        workbook.add_comment(sheet, comment)
+
+    def set_freeze_panes(self, workbook: Any, sheet: str, settings: JSONDict) -> None:
+        workbook.set_freeze_panes(sheet, settings)
+
+    def save_workbook(self, workbook: Any, path: Path) -> None:
+        workbook.save(str(path))

@@ -41,11 +41,7 @@ impl UmyaBook {
         Ok(result.into())
     }
 
-    pub fn add_hyperlink(
-        &mut self,
-        sheet: &str,
-        link_dict: &Bound<'_, PyAny>,
-    ) -> PyResult<()> {
+    pub fn add_hyperlink(&mut self, sheet: &str, link_dict: &Bound<'_, PyAny>) -> PyResult<()> {
         let ws = self
             .book
             .get_sheet_by_name_mut(sheet)

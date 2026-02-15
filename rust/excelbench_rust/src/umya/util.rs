@@ -83,4 +83,3 @@ pub(super) fn col_letter_to_u32(col_str: &str) -> Result<u32, String> {
     }
     Ok(col)
 }
-

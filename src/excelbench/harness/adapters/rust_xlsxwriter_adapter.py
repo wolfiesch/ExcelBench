@@ -93,16 +93,22 @@ class RustXlsxWriterAdapter(WriteOnlyAdapter):
     # =========================================================================
 
     def merge_cells(self, workbook: Any, sheet: str, cell_range: str) -> None:
-        return
+        workbook.merge_cells(sheet, cell_range)
 
     def add_conditional_format(self, workbook: Any, sheet: str, rule: JSONDict) -> None:
-        return
+        workbook.add_conditional_format(sheet, rule)
 
     def add_data_validation(self, workbook: Any, sheet: str, validation: JSONDict) -> None:
-        return
+        workbook.add_data_validation(sheet, validation)
+
+    def add_named_range(self, workbook: Any, sheet: str, named_range: JSONDict) -> None:
+        workbook.add_named_range(sheet, named_range)
+
+    def add_table(self, workbook: Any, sheet: str, table: JSONDict) -> None:
+        workbook.add_table(sheet, table)
 
     def add_hyperlink(self, workbook: Any, sheet: str, link: JSONDict) -> None:
-        return
+        workbook.add_hyperlink(sheet, link)
 
     def add_image(self, workbook: Any, sheet: str, image: JSONDict) -> None:
         return
@@ -111,10 +117,10 @@ class RustXlsxWriterAdapter(WriteOnlyAdapter):
         raise NotImplementedError("rust_xlsxwriter pivot tables not implemented")
 
     def add_comment(self, workbook: Any, sheet: str, comment: JSONDict) -> None:
-        return
+        workbook.add_comment(sheet, comment)
 
     def set_freeze_panes(self, workbook: Any, sheet: str, settings: JSONDict) -> None:
-        return
+        workbook.set_freeze_panes(sheet, settings)
 
     def save_workbook(self, workbook: Any, path: Path) -> None:
         workbook.save(str(path))

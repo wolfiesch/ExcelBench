@@ -91,11 +91,7 @@ impl UmyaBook {
         Ok(d.into())
     }
 
-    pub fn set_freeze_panes(
-        &mut self,
-        sheet: &str,
-        settings: &Bound<'_, PyAny>,
-    ) -> PyResult<()> {
+    pub fn set_freeze_panes(&mut self, sheet: &str, settings: &Bound<'_, PyAny>) -> PyResult<()> {
         let ws = self
             .book
             .get_sheet_by_name_mut(sheet)

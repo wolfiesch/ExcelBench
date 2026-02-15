@@ -73,7 +73,8 @@ impl UmyaBook {
 
             // AutoFilter: umya Table doesn't expose table-level autoFilter,
             // so we check if the worksheet has an autoFilter whose range matches this table.
-            let has_af = ws.get_auto_filter()
+            let has_af = ws
+                .get_auto_filter()
                 .map(|af| {
                     let af_range = af.get_range().get_range().replace('$', "");
                     let table_ref = area_to_ref(table);
@@ -88,11 +89,7 @@ impl UmyaBook {
         Ok(result.into())
     }
 
-    pub fn add_table(
-        &mut self,
-        sheet: &str,
-        table_dict: &Bound<'_, PyAny>,
-    ) -> PyResult<()> {
+    pub fn add_table(&mut self, sheet: &str, table_dict: &Bound<'_, PyAny>) -> PyResult<()> {
         let dict = table_dict
             .downcast::<PyDict>()
             .map_err(|_| PyErr::new::<PyValueError, _>("table must be a dict"))?;

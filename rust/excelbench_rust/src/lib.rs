@@ -4,6 +4,9 @@ use pyo3::types::{PyDict, PyList};
 #[cfg(any(feature = "calamine", feature = "rust_xlsxwriter", feature = "umya"))]
 mod util;
 
+#[cfg(any(feature = "calamine", feature = "rust_xlsxwriter"))]
+mod ooxml_util;
+
 #[cfg(feature = "calamine")]
 mod calamine_backend;
 

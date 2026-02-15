@@ -9,12 +9,7 @@ use super::UmyaBook;
 
 #[pymethods]
 impl UmyaBook {
-    pub fn read_cell_border(
-        &self,
-        py: Python<'_>,
-        sheet: &str,
-        a1: &str,
-    ) -> PyResult<PyObject> {
+    pub fn read_cell_border(&self, py: Python<'_>, sheet: &str, a1: &str) -> PyResult<PyObject> {
         let ws = self
             .book
             .get_sheet_by_name(sheet)
@@ -43,10 +38,7 @@ impl UmyaBook {
                 } else {
                     argb_to_hex(argb)
                 };
-                Some((
-                    umya_border_style_to_str(style_str).to_string(),
-                    color_str,
-                ))
+                Some((umya_border_style_to_str(style_str).to_string(), color_str))
             };
 
             if let Some((s, c)) = read_edge(borders.get_top()) {

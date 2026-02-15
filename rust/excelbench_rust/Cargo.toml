@@ -11,8 +11,14 @@ crate-type = ["cdylib"]
 
 [features]
 default = []
-calamine = ["dep:calamine", "dep:chrono"]
-rust_xlsxwriter = ["dep:rust_xlsxwriter", "dep:indexmap", "dep:chrono"]
+calamine = ["dep:calamine", "dep:zip", "dep:quick-xml", "dep:chrono"]
+rust_xlsxwriter = [
+  "dep:rust_xlsxwriter",
+  "dep:indexmap",
+  "dep:zip",
+  "dep:quick-xml",
+  "dep:chrono",
+]
 umya = ["dep:umya-spreadsheet", "dep:chrono"]
 
 [dependencies]
@@ -24,6 +30,8 @@ calamine = { git = "https://github.com/wolfiesch/calamine.git", branch = "styles
 rust_xlsxwriter = { version = "0.79", optional = true, features = ["chrono"] }
 umya-spreadsheet = { version = "2.2", optional = true }
 indexmap = { version = "2.2", optional = true }
+zip = { version = "2", optional = true, default-features = false, features = ["deflate"] }
+quick-xml = { version = "0.37", optional = true }
 
 # Used for parsing/formatting calamine date/datetime values.
 chrono = { version = "0.4", optional = true }

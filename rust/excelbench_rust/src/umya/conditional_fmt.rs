@@ -88,8 +88,8 @@ impl UmyaBook {
                 d.set_item("rule_type", cf_type_to_str(rule.get_type()))?;
 
                 let op_str = cf_op_to_str(rule.get_operator());
-                let has_op = op_str != "lessThan"
-                    || *rule.get_type() == ConditionalFormatValues::CellIs;
+                let has_op =
+                    op_str != "lessThan" || *rule.get_type() == ConditionalFormatValues::CellIs;
                 if has_op {
                     d.set_item("operator", op_str)?;
                 } else {
