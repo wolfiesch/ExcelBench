@@ -306,8 +306,11 @@ pub struct CalamineStyledBook {
     diagonal_borders: Option<HashMap<u32, DiagonalBorderInfo>>,
     /// Cache: worksheet value ranges (avoids re-cloning on every per-cell read).
     range_cache: HashMap<String, Range<Data>>,
-    /// Cache: worksheet formula ranges (avoids re-cloning on every per-cell read).
-    formula_cache: HashMap<String, Option<Range<String>>>,
+    /// Fast formula map: (row,col) -> formula string, parsed from worksheet XML
+    /// in a single pass (replaces the slower `worksheet_formula()` calamine call).
+    formula_map_cache: HashMap<String, HashMap<(u32, u32), String>>,
+    /// Cache: raw sheet XML content (avoids re-opening zip for Tier 2 + formula parsing).
+    sheet_xml_content_cache: HashMap<String, String>,
 }
 
 #[pymethods]
@@ -331,7 +334,8 @@ impl CalamineStyledBook {
             named_ranges: None,
             diagonal_borders: None,
             range_cache: HashMap::new(),
-            formula_cache: HashMap::new(),
+            formula_map_cache: HashMap::new(),
+            sheet_xml_content_cache: HashMap::new(),
         })
     }
 
@@ -343,8 +347,7 @@ impl CalamineStyledBook {
         let (row, col) = a1_to_row_col(a1).map_err(|msg| PyErr::new::<PyValueError, _>(msg))?;
 
         self.ensure_sheet_exists(sheet)?;
-        self.ensure_range_cache(sheet)?;
-        self.ensure_formula_cache(sheet)?;
+        self.ensure_value_caches(sheet)?;
 
         let range = self.range_cache.get(sheet).unwrap();
 
@@ -353,32 +356,27 @@ impl CalamineStyledBook {
             Some(v) => v,
         };
 
-        // Prefer formula text fidelity when available.
-        if let Some(Some(formula_range)) = self.formula_cache.get(sheet) {
-            if let Some(f) = formula_range.get_value((row, col)) {
-                if !f.is_empty() {
-                    let formula = if f.starts_with('=') {
-                        f.clone()
-                    } else {
-                        format!("={f}")
-                    };
+        // Check the fast formula map (parsed from worksheet XML in a single pass).
+        if let Some(fmap) = self.formula_map_cache.get(sheet) {
+            if let Some(f) = fmap.get(&(row, col)) {
+                let formula = if f.starts_with('=') {
+                    f.clone()
+                } else {
+                    format!("={f}")
+                };
 
-                    // Error-producing formulas (=1/0, =NA(), ="text"+1) must
-                    // return type=error to match the cell_values benchmark.
-                    // Other formulas that propagate errors return type=formula.
-                    if let Some(err_val) = map_error_formula(&formula) {
-                        let d = PyDict::new(py);
-                        d.set_item("type", "error")?;
-                        d.set_item("value", err_val)?;
-                        return Ok(d.into());
-                    }
-
+                if let Some(err_val) = map_error_formula(&formula) {
                     let d = PyDict::new(py);
-                    d.set_item("type", "formula")?;
-                    d.set_item("formula", &formula)?;
-                    d.set_item("value", &formula)?;
+                    d.set_item("type", "error")?;
+                    d.set_item("value", err_val)?;
                     return Ok(d.into());
                 }
+
+                let d = PyDict::new(py);
+                d.set_item("type", "formula")?;
+                d.set_item("formula", &formula)?;
+                d.set_item("value", &formula)?;
+                return Ok(d.into());
             }
         }
 
@@ -397,13 +395,9 @@ impl CalamineStyledBook {
         cell_range: Option<&str>,
     ) -> PyResult<PyObject> {
         self.ensure_sheet_exists(sheet)?;
+        self.ensure_value_caches(sheet)?;
 
-        let range = self.workbook.worksheet_range(sheet).map_err(|e| {
-            PyErr::new::<PyIOError, _>(format!("Failed to read sheet {sheet}: {e}"))
-        })?;
-
-        // Optionally resolve formula range once for the whole grid.
-        let formula_range = self.workbook.worksheet_formula(sheet).ok();
+        let range = self.range_cache.get(sheet).unwrap();
 
         let (start_row, start_col, end_row, end_col) = if let Some(cr) = cell_range {
             if !cr.is_empty() {
@@ -441,33 +435,34 @@ impl CalamineStyledBook {
             )
         };
 
+        // Use the fast formula map for formula lookups.
+        let fmap = self.formula_map_cache.get(sheet);
+
         let outer = PyList::empty(py);
         for row in start_row..=end_row {
             let inner = PyList::empty(py);
             for col in start_col..=end_col {
-                // Check formulas first (same logic as read_cell_value).
-                if let Some(ref fr) = formula_range {
-                    if let Some(f) = fr.get_value((row, col)) {
-                        if !f.is_empty() {
-                            let formula = if f.starts_with('=') {
-                                f.clone()
-                            } else {
-                                format!("={f}")
-                            };
-                            if let Some(err_val) = map_error_formula(&formula) {
-                                let d = PyDict::new(py);
-                                d.set_item("type", "error")?;
-                                d.set_item("value", err_val)?;
-                                inner.append(d)?;
-                                continue;
-                            }
+                // Check fast formula map first.
+                if let Some(ref fm) = fmap {
+                    if let Some(f) = fm.get(&(row, col)) {
+                        let formula = if f.starts_with('=') {
+                            f.clone()
+                        } else {
+                            format!("={f}")
+                        };
+                        if let Some(err_val) = map_error_formula(&formula) {
                             let d = PyDict::new(py);
-                            d.set_item("type", "formula")?;
-                            d.set_item("formula", &formula)?;
-                            d.set_item("value", &formula)?;
+                            d.set_item("type", "error")?;
+                            d.set_item("value", err_val)?;
                             inner.append(d)?;
                             continue;
                         }
+                        let d = PyDict::new(py);
+                        d.set_item("type", "formula")?;
+                        d.set_item("formula", &formula)?;
+                        d.set_item("value", &formula)?;
+                        inner.append(d)?;
+                        continue;
                     }
                 }
                 // Fall back to data value.
@@ -490,15 +485,15 @@ impl CalamineStyledBook {
     ) -> PyResult<PyObject> {
         let (row, col) = a1_to_row_col(a1).map_err(|msg| PyErr::new::<PyValueError, _>(msg))?;
         self.ensure_sheet_exists(sheet)?;
-        self.ensure_formula_cache(sheet)?;
+        self.ensure_value_caches(sheet)?;
 
-        // Gracefully handle sheets that have no formula data.
-        let range = match self.formula_cache.get(sheet) {
-            Some(Some(r)) => r,
-            _ => return Ok(py.None()),
+        // Use the fast formula map.
+        let fmap = match self.formula_map_cache.get(sheet) {
+            Some(m) => m,
+            None => return Ok(py.None()),
         };
-        match range.get_value((row, col)) {
-            Some(f) if !f.is_empty() => {
+        match fmap.get(&(row, col)) {
+            Some(f) => {
                 let formula = if f.starts_with('=') {
                     f.clone()
                 } else {
@@ -510,7 +505,7 @@ impl CalamineStyledBook {
                 d.set_item("value", &formula)?;
                 Ok(d.into())
             }
-            _ => Ok(py.None()),
+            None => Ok(py.None()),
         }
     }
 
@@ -825,25 +820,37 @@ impl CalamineStyledBook {
         Ok(())
     }
 
-    /// Ensure the worksheet value range is cached for this sheet.
-    fn ensure_range_cache(&mut self, sheet: &str) -> PyResult<()> {
+    /// Ensure both value range and formula map are cached for this sheet.
+    ///
+    /// Parses cell values via calamine's `worksheet_range()` and formulas via
+    /// a fast targeted quick_xml pass over the worksheet XML.  The formula
+    /// parse only extracts `<f>` elements, skipping value resolution, making
+    /// it much faster than calamine's `worksheet_formula()`.
+    fn ensure_value_caches(&mut self, sheet: &str) -> PyResult<()> {
         if self.range_cache.contains_key(sheet) {
             return Ok(());
         }
+        // Pre-cache sheet XML content: a single zip open + decompress serves
+        // both the formula parse below and any later Tier 2 feature reads.
+        if !self.sheet_xml_content_cache.contains_key(sheet) {
+            let xml = self.sheet_xml_content(sheet)?;
+            // sheet_xml_content now caches internally, but we needed to trigger it.
+            let _ = xml;
+        }
+
+        // 1. Parse formulas FIRST from the cached XML (fast, no zip IO).
+        let xml = self.sheet_xml_content_cache.get(sheet).unwrap();
+        let fmap = Self::parse_formulas_from_sheet_xml(xml)?;
+        self.formula_map_cache.insert(sheet.to_string(), fmap);
+
+        // 2. Parse cell values via calamine (handles shared strings, dates, etc.)
+        //    Calamine opens the zip internally; the OS disk cache will serve
+        //    the sheet XML from memory since we just read it above.
         let range = self.workbook.worksheet_range(sheet).map_err(|e| {
             PyErr::new::<PyIOError, _>(format!("Failed to read sheet {sheet}: {e}"))
         })?;
         self.range_cache.insert(sheet.to_string(), range);
-        Ok(())
-    }
 
-    /// Ensure the worksheet formula range is cached for this sheet.
-    fn ensure_formula_cache(&mut self, sheet: &str) -> PyResult<()> {
-        if self.formula_cache.contains_key(sheet) {
-            return Ok(());
-        }
-        let fr = self.workbook.worksheet_formula(sheet).ok();
-        self.formula_cache.insert(sheet.to_string(), fr);
         Ok(())
     }
 
@@ -1027,9 +1034,16 @@ impl CalamineStyledBook {
     }
 
     fn sheet_xml_content(&mut self, sheet: &str) -> PyResult<String> {
+        // Return cached XML if available.
+        if let Some(xml) = self.sheet_xml_content_cache.get(sheet) {
+            return Ok(xml.clone());
+        }
         let sheet_path = self.sheet_xml_path(sheet)?;
         let mut zip = self.open_zip()?;
-        ooxml_util::zip_read_to_string(&mut zip, &sheet_path)
+        let xml = ooxml_util::zip_read_to_string(&mut zip, &sheet_path)?;
+        self.sheet_xml_content_cache
+            .insert(sheet.to_string(), xml.clone());
+        Ok(xml)
     }
 
     fn sheet_rels_path(sheet_xml_path: &str) -> PyResult<String> {
@@ -1149,6 +1163,78 @@ impl CalamineStyledBook {
                 Err(e) => {
                     return Err(PyErr::new::<PyIOError, _>(format!(
                         "Failed to parse worksheet XML for style IDs: {e}"
+                    )))
+                }
+                _ => {}
+            }
+            buf.clear();
+        }
+
+        Ok(out)
+    }
+
+    /// Fast formula-only parse: walk `<sheetData>` with quick_xml and extract
+    /// only `<f>` text from `<c>` elements.  Returns HashMap<(row,col), formula_text>.
+    ///
+    /// This is much faster than calamine's `worksheet_formula()` because it
+    /// skips shared string resolution, value parsing, and type conversion —
+    /// it only needs the cell reference (`r` attribute) and `<f>` child text.
+    fn parse_formulas_from_sheet_xml(xml: &str) -> PyResult<HashMap<(u32, u32), String>> {
+        let mut reader = XmlReader::from_str(xml);
+        reader.config_mut().trim_text(true);
+        let mut buf: Vec<u8> = Vec::new();
+        let mut out: HashMap<(u32, u32), String> = HashMap::new();
+
+        // Track current cell reference while inside a <c> element.
+        let mut current_cell: Option<(u32, u32)> = None;
+        let mut in_formula = false;
+        let mut formula_text = String::new();
+
+        loop {
+            match reader.read_event_into(&mut buf) {
+                Ok(Event::Start(ref e)) => {
+                    let name = e.name();
+                    if name.as_ref() == b"c" {
+                        // Extract cell reference from r="A1" attribute.
+                        let a1 = ooxml_util::attr_value(e, b"r").unwrap_or_default();
+                        if !a1.is_empty() {
+                            current_cell = a1_to_row_col(&a1).ok();
+                        } else {
+                            current_cell = None;
+                        }
+                    } else if name.as_ref() == b"f" && current_cell.is_some() {
+                        in_formula = true;
+                        formula_text.clear();
+                    }
+                }
+                Ok(Event::End(ref e)) => {
+                    let name = e.name();
+                    if name.as_ref() == b"f" && in_formula {
+                        in_formula = false;
+                        if let Some(pos) = current_cell {
+                            if !formula_text.is_empty() {
+                                out.insert(pos, formula_text.clone());
+                            }
+                        }
+                    } else if name.as_ref() == b"c" {
+                        current_cell = None;
+                    }
+                }
+                Ok(Event::Text(ref t)) if in_formula => {
+                    if let Ok(text) = t.unescape() {
+                        formula_text.push_str(&text);
+                    }
+                }
+                Ok(Event::Empty(ref e)) => {
+                    // Handle self-closing <c .../> (cells with no children — no formula).
+                    if e.name().as_ref() == b"c" {
+                        // No formula possible in an empty element, skip.
+                    }
+                }
+                Ok(Event::Eof) => break,
+                Err(e) => {
+                    return Err(PyErr::new::<PyIOError, _>(format!(
+                        "Failed to parse worksheet XML for formulas: {e}"
                     )))
                 }
                 _ => {}

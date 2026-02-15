@@ -41,6 +41,11 @@ if getattr(_excelbench_rust, "RustXlsxWriterBook", None) is None:  # pragma: no 
 class PycalumyaAdapter(ExcelAdapter):
     """Hybrid adapter: calamine-styled reads + rust_xlsxwriter writes."""
 
+    def __init__(self) -> None:
+        # Python-side cell cache: avoids FFI on repeated reads of the same cell.
+        # Keyed by (workbook_id, sheet, cell) → CellValue.
+        self._cell_cache: dict[tuple[int, str, str], CellValue] = {}
+
     @property
     def info(self) -> LibraryInfo:
         cal_ver = get_rust_backend_version("calamine")
@@ -67,16 +72,27 @@ class PycalumyaAdapter(ExcelAdapter):
         return getattr(m, "CalamineStyledBook").open(str(path))
 
     def close_workbook(self, workbook: Any) -> None:
-        return
+        # Evict cached cells for this workbook.
+        wb_id = id(workbook)
+        self._cell_cache = {
+            k: v for k, v in self._cell_cache.items() if k[0] != wb_id
+        }
 
     def get_sheet_names(self, workbook: Any) -> list[str]:
         return [str(name) for name in workbook.sheet_names()]
 
     def read_cell_value(self, workbook: Any, sheet: str, cell: str) -> CellValue:
+        key = (id(workbook), sheet, cell)
+        cached = self._cell_cache.get(key)
+        if cached is not None:
+            return cached
         payload = workbook.read_cell_value(sheet, cell)
         if not isinstance(payload, dict):
-            return CellValue(type=CellType.STRING, value=str(payload))
-        return cell_value_from_payload(payload)
+            result = CellValue(type=CellType.STRING, value=str(payload))
+        else:
+            result = cell_value_from_payload(payload)
+        self._cell_cache[key] = result
+        return result
 
     def read_sheet_values(
         self,
