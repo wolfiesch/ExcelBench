@@ -209,12 +209,12 @@ def main() -> None:
             print(f"  [skip] Fixture not found: {fixture_path}")
             continue
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"  Scale: {scale} ({fixture_path.name})")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         # Read benchmarks
-        print(f"\n  --- Bulk Read ---")
+        print("\n  --- Bulk Read ---")
         for adapter in read_adapters:
             print(f"  {adapter:25s} ... ", end="", flush=True)
             r = run_one(adapter, "read", fixture_path)
@@ -232,7 +232,7 @@ def main() -> None:
                 print("ERROR: no result")
 
         # Write benchmarks
-        print(f"\n  --- Bulk Write ---")
+        print("\n  --- Bulk Write ---")
         for adapter in write_adapters:
             print(f"  {adapter:25s} ... ", end="", flush=True)
             r = run_one(adapter, "write", fixture_path)
@@ -251,14 +251,14 @@ def main() -> None:
 
     # Summary table
     if results:
-        print(f"\n\n{'='*80}")
+        print(f"\n\n{'=' * 80}")
         print("  SUMMARY: Memory Usage by Adapter")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
         print(
             f"  {'Adapter':<25s} {'Op':<7s} {'Scale':<6s} {'Cells':>8s} "
             f"{'RSS Delta':>10s} {'TM Peak':>10s} {'RSS Total':>10s}"
         )
-        print(f"  {'-'*25} {'-'*6} {'-'*5} {'-'*8} {'-'*10} {'-'*10} {'-'*10}")
+        print(f"  {'-' * 25} {'-' * 6} {'-' * 5} {'-' * 8} {'-' * 10} {'-' * 10} {'-' * 10}")
         for r in results:
             print(
                 f"  {r['adapter']:<25s} {r['op']:<7s} {r['scale']:<6s} "

@@ -129,7 +129,14 @@ def main() -> None:
     jobs.append(
         {
             "name": "bulk_write_multi",
-            "adapters": ["xlsxwriter", "openpyxl", "pandas", "tablib", "pycalumya", "rust_xlsxwriter"],
+            "adapters": [
+                "xlsxwriter",
+                "openpyxl",
+                "pandas",
+                "tablib",
+                "pycalumya",
+                "rust_xlsxwriter",
+            ],
             "features": [
                 "cell_values_1k_bulk_write",
                 "cell_values_10k_bulk_write",
@@ -197,7 +204,14 @@ def main() -> None:
         jobs.append(
             {
                 "name": "bulk_write_100k",
-                "adapters": ["xlsxwriter", "openpyxl", "pandas", "tablib", "pycalumya", "rust_xlsxwriter"],
+                "adapters": [
+                    "xlsxwriter",
+                    "openpyxl",
+                    "pandas",
+                    "tablib",
+                    "pycalumya",
+                    "rust_xlsxwriter",
+                ],
                 "features": [
                     "cell_values_100k_bulk_write",
                 ],
