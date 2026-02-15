@@ -64,17 +64,17 @@ runner utilities, not in adapter implementations.
 Most-touched top-level directories:
 
 - `src/excelbench/`
-  - `src/excelbench/cli.py`: Typer CLI entrypoint (`excelbench ...`)
-  - `src/excelbench/models.py`: dataclasses/contracts (CellValue, CellFormat, BorderInfo, ...)
-  - `src/excelbench/generator/`: fixture generation (xlwings + Excel)
-  - `src/excelbench/harness/`: fidelity benchmark runner + adapters
-  - `src/excelbench/perf/`: performance runner + renderer
-  - `src/excelbench/results/`: fidelity result renderers (md/csv) + dashboards/plots
+  - `cli.py`: Typer CLI entrypoint (`excelbench ...`)
+  - `models.py`: dataclasses/contracts (CellValue, CellFormat, BorderInfo, ...)
+  - `generator/`: fixture generation (xlwings + Excel)
+  - `harness/`: fidelity benchmark runner + adapters
+  - `perf/`: performance runner + renderer
+  - `results/`: fidelity result renderers (md/csv) + dashboards/plots
 
 - `fixtures/`
-  - `fixtures/excel/`: canonical .xlsx fixtures (git-tracked, Excel-generated)
-  - `fixtures/excel_xls/`: canonical .xls fixtures
-  - `fixtures/throughput_xlsx/`: scale fixtures for perf/throughput workloads
+  - `excel/`: canonical .xlsx fixtures (git-tracked, Excel-generated)
+  - `excel_xls/`: canonical .xls fixtures
+  - `throughput_xlsx/`: scale fixtures for perf/throughput workloads
 
 - `rust/excelbench_rust/` (optional)
   - PyO3 crate that exposes Rust backends to Python (`excelbench_rust` module)
