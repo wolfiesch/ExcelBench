@@ -20,6 +20,7 @@ rust_xlsxwriter = [
   "dep:chrono",
 ]
 umya = ["dep:umya-spreadsheet", "dep:chrono"]
+wolfxl = ["dep:zip", "dep:quick-xml"]
 
 [dependencies]
 pyo3 = { version = "0.24", features = ["extension-module", "multiple-pymethods"] }

@@ -1,10 +1,10 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 
-#[cfg(any(feature = "calamine", feature = "rust_xlsxwriter", feature = "umya"))]
+#[cfg(any(feature = "calamine", feature = "rust_xlsxwriter", feature = "umya", feature = "wolfxl"))]
 mod util;
 
-#[cfg(any(feature = "calamine", feature = "rust_xlsxwriter"))]
+#[cfg(any(feature = "calamine", feature = "rust_xlsxwriter", feature = "wolfxl"))]
 mod ooxml_util;
 
 #[cfg(feature = "calamine")]
@@ -19,6 +19,9 @@ mod rust_xlsxwriter_backend;
 #[cfg(feature = "umya")]
 mod umya;
 
+#[cfg(feature = "wolfxl")]
+mod wolfxl;
+
 fn enabled_backends() -> Vec<&'static str> {
     let mut out: Vec<&'static str> = Vec::new();
     if cfg!(feature = "calamine") {
@@ -29,6 +32,9 @@ fn enabled_backends() -> Vec<&'static str> {
     }
     if cfg!(feature = "umya") {
         out.push("umya-spreadsheet");
+    }
+    if cfg!(feature = "wolfxl") {
+        out.push("wolfxl");
     }
     out
 }
@@ -106,6 +112,11 @@ fn excelbench_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     #[cfg(feature = "umya")]
     {
         m.add_class::<umya::UmyaBook>()?;
+    }
+
+    #[cfg(feature = "wolfxl")]
+    {
+        m.add_class::<wolfxl::XlsxPatcher>()?;
     }
 
     Ok(())
