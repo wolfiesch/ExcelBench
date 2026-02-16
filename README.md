@@ -95,6 +95,17 @@ uv run maturin develop --manifest-path rust/excelbench_rust/Cargo.toml \
 
 Full methodology: [METHODOLOGY.md](METHODOLOGY.md)
 
+## WolfXL Docs
+
+WolfXL implementation and migration docs live under `docs/wolfxl/`.
+
+- [Docs index](docs/wolfxl/index.md)
+- [Quickstart](docs/wolfxl/getting-started/quickstart.md)
+- [Openpyxl migration guide](docs/wolfxl/migration/openpyxl-migration.md)
+- [Compatibility matrix](docs/wolfxl/migration/compatibility-matrix.md)
+- [Benchmark methodology](docs/wolfxl/performance/methodology.md)
+- [Known limitations](docs/wolfxl/trust/limitations.md)
+
 ## Quick Start
 
 ```bash
