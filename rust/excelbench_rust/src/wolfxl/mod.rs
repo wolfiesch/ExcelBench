@@ -407,12 +407,16 @@ fn dict_to_format_spec(d: &Bound<'_, PyDict>) -> PyResult<FormatSpec> {
     // Number format
     spec.number_format = extract_str(d, "number_format")?;
 
-    // Alignment
-    let horizontal = extract_str(d, "horizontal")?;
-    let vertical = extract_str(d, "vertical")?;
-    let wrap_text = extract_bool(d, "wrap_text")?;
+    // Alignment — accept both openpyxl-style and pycalumya-style key names
+    let horizontal = extract_str(d, "horizontal")?
+        .or(extract_str(d, "h_align")?);
+    let vertical = extract_str(d, "vertical")?
+        .or(extract_str(d, "v_align")?);
+    let wrap_text = extract_bool(d, "wrap_text")?
+        .or(extract_bool(d, "wrap")?);
     let indent = extract_u32(d, "indent")?;
-    let text_rotation = extract_u32(d, "text_rotation")?;
+    let text_rotation = extract_u32(d, "text_rotation")?
+        .or(extract_u32(d, "rotation")?);
 
     if horizontal.is_some()
         || vertical.is_some()

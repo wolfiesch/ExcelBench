@@ -143,9 +143,27 @@ class Worksheet:
         )
 
         wb = self._workbook
+        patcher = wb._rust_patcher  # noqa: SLF001
         writer = wb._rust_writer  # noqa: SLF001
-        if writer is None:
-            return
+
+        if patcher is not None:
+            self._flush_to_patcher(patcher, python_value_to_payload,
+                                   font_to_format_dict, fill_to_format_dict,
+                                   alignment_to_format_dict, border_to_rust_dict)
+        elif writer is not None:
+            self._flush_to_writer(writer, python_value_to_payload,
+                                  font_to_format_dict, fill_to_format_dict,
+                                  alignment_to_format_dict, border_to_rust_dict)
+
+        self._dirty.clear()
+
+    def _flush_to_writer(
+        self, writer: Any, python_value_to_payload: Any,
+        font_to_format_dict: Any, fill_to_format_dict: Any,
+        alignment_to_format_dict: Any, border_to_rust_dict: Any,
+    ) -> None:
+        """Flush dirty cells to the RustXlsxWriterBook backend (write mode)."""
+        from pycalumya._cell import _UNSET
 
         for row, col in self._dirty:
             cell = self._cells.get((row, col))
@@ -153,16 +171,12 @@ class Worksheet:
                 continue
             coord = rowcol_to_a1(row, col)
 
-            # Write value.
             if cell._value_dirty:  # noqa: SLF001
                 payload = python_value_to_payload(cell._value)  # noqa: SLF001
                 writer.write_cell_value(self._title, coord, payload)
 
-            # Write format properties.
             if cell._format_dirty:  # noqa: SLF001
                 fmt: dict[str, Any] = {}
-
-                from pycalumya._cell import _UNSET
 
                 if cell._font is not _UNSET and cell._font is not None:  # noqa: SLF001
                     fmt.update(font_to_format_dict(cell._font))  # noqa: SLF001
@@ -176,13 +190,48 @@ class Worksheet:
                 if fmt:
                     writer.write_cell_format(self._title, coord, fmt)
 
-                # Borders go through a separate Rust call.
                 if cell._border is not _UNSET and cell._border is not None:  # noqa: SLF001
                     bdict = border_to_rust_dict(cell._border)  # noqa: SLF001
                     if bdict:
                         writer.write_cell_border(self._title, coord, bdict)
 
-        self._dirty.clear()
+    def _flush_to_patcher(
+        self, patcher: Any, python_value_to_payload: Any,
+        font_to_format_dict: Any, fill_to_format_dict: Any,
+        alignment_to_format_dict: Any, border_to_rust_dict: Any,
+    ) -> None:
+        """Flush dirty cells to the XlsxPatcher backend (modify mode)."""
+        from pycalumya._cell import _UNSET
+
+        for row, col in self._dirty:
+            cell = self._cells.get((row, col))
+            if cell is None:
+                continue
+            coord = rowcol_to_a1(row, col)
+
+            if cell._value_dirty:  # noqa: SLF001
+                payload = python_value_to_payload(cell._value)  # noqa: SLF001
+                patcher.queue_value(self._title, coord, payload)
+
+            if cell._format_dirty:  # noqa: SLF001
+                fmt: dict[str, Any] = {}
+
+                if cell._font is not _UNSET and cell._font is not None:  # noqa: SLF001
+                    fmt.update(font_to_format_dict(cell._font))  # noqa: SLF001
+                if cell._fill is not _UNSET and cell._fill is not None:  # noqa: SLF001
+                    fmt.update(fill_to_format_dict(cell._fill))  # noqa: SLF001
+                if cell._alignment is not _UNSET and cell._alignment is not None:  # noqa: SLF001
+                    fmt.update(alignment_to_format_dict(cell._alignment))  # noqa: SLF001
+                if cell._number_format is not _UNSET and cell._number_format is not None:  # noqa: SLF001
+                    fmt["number_format"] = cell._number_format  # noqa: SLF001
+
+                if fmt:
+                    patcher.queue_format(self._title, coord, fmt)
+
+                if cell._border is not _UNSET and cell._border is not None:  # noqa: SLF001
+                    bdict = border_to_rust_dict(cell._border)  # noqa: SLF001
+                    if bdict:
+                        patcher.queue_border(self._title, coord, bdict)
 
     def __repr__(self) -> str:
         return f"<Worksheet [{self._title}]>"

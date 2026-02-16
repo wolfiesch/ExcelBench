@@ -424,3 +424,156 @@ class TestRoundTrip:
         assert val is not None
         assert "SUM" in str(val).upper()
         wb2.close()
+
+
+# ======================================================================
+# Modify mode tests (load existing, modify, save, verify)
+# ======================================================================
+
+
+FIXTURE = Path("fixtures/excel/tier1/01_cell_values.xlsx")
+
+
+class TestModifyMode:
+    """Test the read-modify-write path via WolfXL (XlsxPatcher)."""
+
+    def setup_method(self) -> None:
+        _require_rust()
+        if not FIXTURE.exists():
+            pytest.skip("tier1 fixture not available")
+
+    def test_modify_repr(self) -> None:
+        from pycalumya import load_workbook
+
+        wb = load_workbook(str(FIXTURE), modify=True)
+        assert "modify" in repr(wb)
+        wb.close()
+
+    def test_modify_string_value(self, tmp_path: Path) -> None:
+        from pycalumya import load_workbook
+
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        ws["A1"] = "Modified"
+        out = tmp_path / "mod_string.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        # Verify with pycalumya read
+        wb2 = load_workbook(str(out))
+        assert wb2.active is not None
+        assert wb2.active["A1"].value == "Modified"
+        wb2.close()
+
+    def test_modify_number_value(self, tmp_path: Path) -> None:
+        from pycalumya import load_workbook
+
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        ws["B2"] = 99.5
+        out = tmp_path / "mod_number.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        wb2 = load_workbook(str(out))
+        assert wb2.active is not None
+        assert abs(wb2.active["B2"].value - 99.5) < 0.001
+        wb2.close()
+
+    def test_modify_boolean_value(self, tmp_path: Path) -> None:
+        from pycalumya import load_workbook
+
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        ws["C3"] = True
+        out = tmp_path / "mod_bool.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        wb2 = load_workbook(str(out))
+        assert wb2.active is not None
+        assert wb2.active["C3"].value is True
+        wb2.close()
+
+    def test_modify_formula(self, tmp_path: Path) -> None:
+        from pycalumya import load_workbook
+
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        ws["D4"] = "=SUM(1,2,3)"
+        out = tmp_path / "mod_formula.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        # Verify formula preserved (openpyxl reads with = prefix)
+        import openpyxl
+
+        wb2 = openpyxl.load_workbook(str(out))
+        assert wb2.active is not None
+        assert wb2.active["D4"].value == "=SUM(1,2,3)"
+        wb2.close()
+
+    def test_modify_preserves_unchanged(self, tmp_path: Path) -> None:
+        """Cells not touched should remain unchanged after save."""
+        from pycalumya import load_workbook
+
+        # Read original B1
+        wb_orig = load_workbook(str(FIXTURE))
+        assert wb_orig.active is not None
+        orig_b1 = wb_orig.active["B1"].value
+        wb_orig.close()
+
+        # Modify only A1
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        ws["A1"] = "Changed"
+        out = tmp_path / "mod_preserve.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        # B1 should still have its original value
+        wb2 = load_workbook(str(out))
+        assert wb2.active is not None
+        assert wb2.active["B1"].value == orig_b1
+        assert wb2.active["A1"].value == "Changed"
+        wb2.close()
+
+    def test_modify_read_then_write(self, tmp_path: Path) -> None:
+        """Read a value, modify it, save — the classic read-modify-write cycle."""
+        from pycalumya import load_workbook
+
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        original = ws["A1"].value  # read via calamine
+        ws["A1"] = f"WAS: {original}"  # write via patcher
+        out = tmp_path / "mod_rmw.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        wb2 = load_workbook(str(out))
+        assert wb2.active is not None
+        assert wb2.active["A1"].value == f"WAS: {original}"
+        wb2.close()
+
+    def test_modify_insert_new_cell(self, tmp_path: Path) -> None:
+        """Insert a cell at a position that didn't exist in the original."""
+        from pycalumya import load_workbook
+
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        ws["Z99"] = "New cell"
+        out = tmp_path / "mod_insert.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        wb2 = load_workbook(str(out))
+        assert wb2.active is not None
+        assert wb2.active["Z99"].value == "New cell"
+        wb2.close()

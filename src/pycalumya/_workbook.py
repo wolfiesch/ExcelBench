@@ -1,7 +1,8 @@
-"""Workbook — dual-mode openpyxl-compatible wrapper.
+"""Workbook — multi-mode openpyxl-compatible wrapper.
 
 Write mode (``Workbook()``): creates a new workbook via RustXlsxWriterBook.
 Read mode (``Workbook._from_reader(path)``): opens an existing .xlsx via CalamineStyledBook.
+Modify mode (``Workbook._from_patcher(path)``): read via CalamineStyledBook, save via XlsxPatcher.
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ class Workbook:
 
         self._rust_writer: Any = excelbench_rust.RustXlsxWriterBook()
         self._rust_reader: Any = None
+        self._rust_patcher: Any = None
         self._sheet_names: list[str] = ["Sheet"]
         self._sheets: dict[str, Worksheet] = {}
         self._sheets["Sheet"] = Worksheet(self, "Sheet")
@@ -32,7 +34,24 @@ class Workbook:
 
         wb = object.__new__(cls)
         wb._rust_writer = None
+        wb._rust_patcher = None
         wb._rust_reader = excelbench_rust.CalamineStyledBook.open(path)
+        names = [str(n) for n in wb._rust_reader.sheet_names()]
+        wb._sheet_names = names
+        wb._sheets = {}
+        for name in names:
+            wb._sheets[name] = Worksheet(wb, name)
+        return wb
+
+    @classmethod
+    def _from_patcher(cls, path: str) -> Workbook:
+        """Open an existing .xlsx file in modify mode (read + surgical save)."""
+        import excelbench_rust
+
+        wb = object.__new__(cls)
+        wb._rust_writer = None
+        wb._rust_reader = excelbench_rust.CalamineStyledBook.open(path)
+        wb._rust_patcher = excelbench_rust.XlsxPatcher.open(path)
         names = [str(n) for n in wb._rust_reader.sheet_names()]
         wb._sheet_names = names
         wb._sheets = {}
@@ -84,12 +103,18 @@ class Workbook:
 
     def save(self, filename: str) -> None:
         """Flush all pending writes and save to disk."""
-        if self._rust_writer is None:
-            raise RuntimeError("save requires write mode")
-        # Flush dirty cells from all worksheets.
-        for ws in self._sheets.values():
-            ws._flush()  # noqa: SLF001
-        self._rust_writer.save(filename)
+        if self._rust_patcher is not None:
+            # Modify mode — flush to patcher, then surgical save.
+            for ws in self._sheets.values():
+                ws._flush()  # noqa: SLF001
+            self._rust_patcher.save(filename)
+        elif self._rust_writer is not None:
+            # Write mode — flush to writer, then full save.
+            for ws in self._sheets.values():
+                ws._flush()  # noqa: SLF001
+            self._rust_writer.save(filename)
+        else:
+            raise RuntimeError("save requires write or modify mode")
 
     # ------------------------------------------------------------------
     # Context manager + cleanup
@@ -99,6 +124,7 @@ class Workbook:
         """Release resources."""
         self._rust_reader = None
         self._rust_writer = None
+        self._rust_patcher = None
 
     def __enter__(self) -> Workbook:
         return self
@@ -107,5 +133,10 @@ class Workbook:
         self.close()
 
     def __repr__(self) -> str:
-        mode = "read" if self._rust_reader else "write"
+        if self._rust_patcher is not None:
+            mode = "modify"
+        elif self._rust_reader is not None:
+            mode = "read"
+        else:
+            mode = "write"
         return f"<Workbook [{mode}] sheets={self._sheet_names}>"

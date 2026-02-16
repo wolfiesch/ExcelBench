@@ -37,10 +37,20 @@ def load_workbook(
     read_only: bool = False,
     data_only: bool = False,
     keep_links: bool = True,
+    modify: bool = False,
 ) -> Workbook:
-    """Open an .xlsx file for reading.
+    """Open an .xlsx file for reading or modification.
+
+    Parameters
+    ----------
+    modify : bool
+        If True, enable read-modify-write mode.  Values and formats can be
+        changed and saved back to disk via ``wb.save(path)``.  Uses the WolfXL
+        engine (surgical ZIP patching) instead of a full DOM rewrite.
 
     Extra keyword arguments (``read_only``, ``data_only``, ``keep_links``) are
     accepted for openpyxl compatibility but currently ignored.
     """
+    if modify:
+        return Workbook._from_patcher(str(filename))  # noqa: SLF001
     return Workbook._from_reader(str(filename))  # noqa: SLF001
