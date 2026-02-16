@@ -597,18 +597,23 @@ def _section_comparison(fidelity: dict[str, Any], perf: dict[str, Any] | None) -
         for e in perf.get("results", []):
             perf_lookup[(e["feature"], e["library"])] = e.get("perf", {})
         for lib in libs_info:
-            read_rate = write_rate = "\u2014"
+            read_rate = write_rate = raw_read_rate = "\u2014"
             for sc in ("cell_values_10k_bulk_read", "cell_values_10k", "cell_values_1k"):
                 p = perf_lookup.get((sc, lib), {}).get("read", {})
                 if p and p.get("wall_ms", {}).get("p50"):
                     read_rate = _fmt_rate(p.get("op_count"), p["wall_ms"]["p50"])
+                    break
+            for sc in ("cell_values_10k_bulk_read_raw", "cell_values_1k_bulk_read_raw"):
+                p = perf_lookup.get((sc, lib), {}).get("read", {})
+                if p and p.get("wall_ms", {}).get("p50"):
+                    raw_read_rate = _fmt_rate(p.get("op_count"), p["wall_ms"]["p50"])
                     break
             for sc in ("cell_values_10k_bulk_write", "cell_values_10k", "cell_values_1k"):
                 p = perf_lookup.get((sc, lib), {}).get("write", {})
                 if p and p.get("wall_ms", {}).get("p50"):
                     write_rate = _fmt_rate(p.get("op_count"), p["wall_ms"]["p50"])
                     break
-            lib_tp[lib] = {"read": read_rate, "write": write_rate}
+            lib_tp[lib] = {"read": read_rate, "raw_read": raw_read_rate, "write": write_rate}
 
     sorted_libs = sorted(lib_stats.keys(), key=lambda x: (-lib_stats[x]["green"], x))
     has_perf = bool(lib_tp)
@@ -627,7 +632,9 @@ def _section_comparison(fidelity: dict[str, Any], perf: dict[str, Any] | None) -
                 "<th class='sort' data-type='n'>Green</th>"
                 "<th class='sort' data-type='n'>Pass Rate</th>")
     if has_perf:
-        rows.append("<th class='sort'>Read cells/s</th><th class='sort'>Write cells/s</th>")
+        rows.append("<th class='sort'>Read cells/s</th>"
+                    "<th class='sort'>Raw Read cells/s</th>"
+                    "<th class='sort'>Write cells/s</th>")
     rows.append("</tr></thead><tbody>")
 
     for lib in sorted_libs:
@@ -642,8 +649,9 @@ def _section_comparison(fidelity: dict[str, Any], perf: dict[str, Any] | None) -
             tp = lib_tp.get(lib, {})
             dash = "\u2014"
             r_val = tp.get('read', dash)
+            rr_val = tp.get('raw_read', dash)
             w_val = tp.get('write', dash)
-            rows.append(f"<td>{r_val}</td><td>{w_val}</td>")
+            rows.append(f"<td>{r_val}</td><td>{rr_val}</td><td>{w_val}</td>")
         rows.append("</tr>")
 
     rows.append("</tbody></table></div></section>")

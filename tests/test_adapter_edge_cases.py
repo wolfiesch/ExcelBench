@@ -48,9 +48,7 @@ def opxl() -> OpenpyxlAdapter:
 
 
 class TestOpenpyxlColumnWidth:
-    def test_column_width_not_set_returns_none(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_column_width_not_set_returns_none(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Column with no explicit width should return None (line 295)."""
         path = tmp_path / "no_width.xlsx"
         wb = opxl.create_workbook()
@@ -63,9 +61,7 @@ class TestOpenpyxlColumnWidth:
         # Width could be None or a default value — we just verify no crash
         opxl.close_workbook(wb2)
 
-    def test_column_width_set_and_read(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_column_width_set_and_read(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Set column width and verify reading (lines 743-744, column width path)."""
         path = tmp_path / "col_width.xlsx"
         wb = opxl.create_workbook()
@@ -79,9 +75,7 @@ class TestOpenpyxlColumnWidth:
         assert isinstance(w, float)
         opxl.close_workbook(wb2)
 
-    def test_column_width_with_padding_strip(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_column_width_with_padding_strip(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Column widths should have known padding stripped."""
         path = tmp_path / "col_pad.xlsx"
         wb = opxl.create_workbook()
@@ -101,9 +95,7 @@ class TestOpenpyxlColumnWidth:
 
 
 class TestOpenpyxlHyperlinkEdgeCases:
-    def test_hyperlink_with_tooltip(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_hyperlink_with_tooltip(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Hyperlink with tooltip should preserve tooltip (line 850)."""
         path = tmp_path / "link_tooltip.xlsx"
         wb = opxl.create_workbook()
@@ -126,9 +118,7 @@ class TestOpenpyxlHyperlinkEdgeCases:
         assert links[0]["tooltip"] == "Click me!"
         opxl.close_workbook(wb2)
 
-    def test_internal_hyperlink(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_internal_hyperlink(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Internal hyperlink (to another sheet) should be marked internal."""
         path = tmp_path / "link_internal.xlsx"
         wb = opxl.create_workbook()
@@ -152,9 +142,7 @@ class TestOpenpyxlHyperlinkEdgeCases:
         assert links[0]["internal"] is True
         opxl.close_workbook(wb2)
 
-    def test_hyperlink_target_with_location(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_hyperlink_target_with_location(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Hyperlink with both target and location should recombine (lines 402-403).
 
         openpyxl stores external URL and fragment separately. When both exist,
@@ -187,9 +175,7 @@ class TestOpenpyxlHyperlinkEdgeCases:
 
 
 class TestOpenpyxlDataValidation:
-    def test_between_operator_inferred(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_between_operator_inferred(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Data validation with formula2 but no operator should infer 'between' (line 373)."""
         path = tmp_path / "dv_between.xlsx"
         wb = opxl.create_workbook()
@@ -216,9 +202,7 @@ class TestOpenpyxlDataValidation:
         assert validations[0]["operator"] is not None
         opxl.close_workbook(wb2)
 
-    def test_validation_with_messages(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_validation_with_messages(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Data validation with prompt/error messages."""
         path = tmp_path / "dv_msgs.xlsx"
         wb = opxl.create_workbook()
@@ -316,9 +300,7 @@ class TestOpenpyxlCellValueEdgeCases:
         path = tmp_path / "formula.xlsx"
         wb = opxl.create_workbook()
         opxl.add_sheet(wb, "S1")
-        opxl.write_cell_value(
-            wb, "S1", "A1", CellValue(type=CellType.NUMBER, value=10)
-        )
+        opxl.write_cell_value(wb, "S1", "A1", CellValue(type=CellType.NUMBER, value=10))
         opxl.write_cell_value(
             wb, "S1", "A2", CellValue(type=CellType.FORMULA, formula="=A1*2", value="=A1*2")
         )
@@ -350,9 +332,7 @@ class TestOpenpyxlCellValueEdgeCases:
 
 
 class TestOpenpyxlConditionalFormatEdgeCases:
-    def test_formula_rule_with_font_color(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_formula_rule_with_font_color(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """CF rule with font color should be readable (covers font_color path)."""
         path = tmp_path / "cf_font.xlsx"
         wb = opxl.create_workbook()
@@ -378,17 +358,13 @@ class TestOpenpyxlConditionalFormatEdgeCases:
         assert "bg_color" in fmt or "font_color" in fmt
         opxl.close_workbook(wb2)
 
-    def test_color_scale_rule(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_color_scale_rule(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Color scale CF rule should roundtrip."""
         path = tmp_path / "cf_scale.xlsx"
         wb = opxl.create_workbook()
         opxl.add_sheet(wb, "S1")
         for i in range(1, 6):
-            opxl.write_cell_value(
-                wb, "S1", f"A{i}", CellValue(type=CellType.NUMBER, value=i * 10)
-            )
+            opxl.write_cell_value(wb, "S1", f"A{i}", CellValue(type=CellType.NUMBER, value=i * 10))
         opxl.add_conditional_format(
             wb,
             "S1",
@@ -404,17 +380,13 @@ class TestOpenpyxlConditionalFormatEdgeCases:
         assert len(rules) >= 1
         opxl.close_workbook(wb2)
 
-    def test_data_bar_rule(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_data_bar_rule(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Data bar CF rule should roundtrip."""
         path = tmp_path / "cf_bar.xlsx"
         wb = opxl.create_workbook()
         opxl.add_sheet(wb, "S1")
         for i in range(1, 6):
-            opxl.write_cell_value(
-                wb, "S1", f"A{i}", CellValue(type=CellType.NUMBER, value=i * 10)
-            )
+            opxl.write_cell_value(wb, "S1", f"A{i}", CellValue(type=CellType.NUMBER, value=i * 10))
         opxl.add_conditional_format(
             wb,
             "S1",
@@ -430,9 +402,7 @@ class TestOpenpyxlConditionalFormatEdgeCases:
         assert len(rules) >= 1
         opxl.close_workbook(wb2)
 
-    def test_cf_with_priority(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_cf_with_priority(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """CF rule with explicit priority should preserve it."""
         path = tmp_path / "cf_prio.xlsx"
         wb = opxl.create_workbook()
@@ -457,9 +427,7 @@ class TestOpenpyxlConditionalFormatEdgeCases:
         assert rules[0]["priority"] is not None
         opxl.close_workbook(wb2)
 
-    def test_cf_stop_if_true(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_cf_stop_if_true(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """CF rule with stopIfTrue should be readable."""
         path = tmp_path / "cf_stop.xlsx"
         wb = opxl.create_workbook()
@@ -490,9 +458,7 @@ class TestOpenpyxlConditionalFormatEdgeCases:
 
 
 class TestOpenpyxlSplitPanes:
-    def test_split_panes_roundtrip(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_split_panes_roundtrip(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Split panes should be readable."""
         path = tmp_path / "split.xlsx"
         wb = opxl.create_workbook()
@@ -529,9 +495,7 @@ class TestOpenpyxlPivotTable:
         with pytest.raises(NotImplementedError):
             opxl.add_pivot_table(wb, "S1", {})
 
-    def test_pivot_table_read_empty(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_pivot_table_read_empty(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Reading pivot tables from sheet without any should return empty list."""
         path = tmp_path / "no_pivot.xlsx"
         wb = opxl.create_workbook()
@@ -550,9 +514,7 @@ class TestOpenpyxlPivotTable:
 
 
 class TestOpenpyxlImageRoundtrip:
-    def test_image_write_read(
-        self, opxl: OpenpyxlAdapter, tmp_path: Path
-    ) -> None:
+    def test_image_write_read(self, opxl: OpenpyxlAdapter, tmp_path: Path) -> None:
         """Write an image and read it back (lines 421-447)."""
         # Create a minimal 1x1 PNG image
         import struct
@@ -618,9 +580,7 @@ class TestXlrdErrorCells:
         path = tmp_path / "err.xls"
         wb = xlwt_adapter.create_workbook()
         xlwt_adapter.add_sheet(wb, "S1")
-        xlwt_adapter.write_cell_value(
-            wb, "S1", "A1", CellValue(type=CellType.ERROR, value="#N/A")
-        )
+        xlwt_adapter.write_cell_value(wb, "S1", "A1", CellValue(type=CellType.ERROR, value="#N/A"))
         xlwt_adapter.write_cell_value(
             wb, "S1", "A2", CellValue(type=CellType.ERROR, value="#DIV/0!")
         )
@@ -713,9 +673,7 @@ class TestXlrdRowColumnEdgeCases:
         path = tmp_path / "no_rowinfo.xls"
         wb = xlwt_adapter.create_workbook()
         xlwt_adapter.add_sheet(wb, "S1")
-        xlwt_adapter.write_cell_value(
-            wb, "S1", "A1", CellValue(type=CellType.STRING, value="x")
-        )
+        xlwt_adapter.write_cell_value(wb, "S1", "A1", CellValue(type=CellType.STRING, value="x"))
         xlwt_adapter.save_workbook(wb, path)
 
         rb = xlrd_adapter.open_workbook(path)
@@ -732,9 +690,7 @@ class TestXlrdRowColumnEdgeCases:
         wb = xlwt_adapter.create_workbook()
         xlwt_adapter.add_sheet(wb, "S1")
         xlwt_adapter.set_column_width(wb, "S1", "B", 20.0)
-        xlwt_adapter.write_cell_value(
-            wb, "S1", "B1", CellValue(type=CellType.STRING, value="wide")
-        )
+        xlwt_adapter.write_cell_value(wb, "S1", "B1", CellValue(type=CellType.STRING, value="wide"))
         xlwt_adapter.save_workbook(wb, path)
 
         rb = xlrd_adapter.open_workbook(path)
@@ -784,9 +740,7 @@ class TestPylightxlEdgeCases:
         path = tmp_path / "bool.xlsx"
         wb = plxl.create_workbook()
         plxl.add_sheet(wb, "S1")
-        plxl.write_cell_value(
-            wb, "S1", "A1", CellValue(type=CellType.BOOLEAN, value=True)
-        )
+        plxl.write_cell_value(wb, "S1", "A1", CellValue(type=CellType.BOOLEAN, value=True))
         plxl.save_workbook(wb, path)
 
         wb2 = plxl.open_workbook(path)
@@ -831,12 +785,8 @@ class TestPylightxlEdgeCases:
         path = tmp_path / "err.xlsx"
         wb = plxl.create_workbook()
         plxl.add_sheet(wb, "S1")
-        plxl.write_cell_value(
-            wb, "S1", "A1", CellValue(type=CellType.ERROR, value="#N/A")
-        )
-        plxl.write_cell_value(
-            wb, "S1", "A2", CellValue(type=CellType.ERROR, value="#DIV/0!")
-        )
+        plxl.write_cell_value(wb, "S1", "A1", CellValue(type=CellType.ERROR, value="#N/A"))
+        plxl.write_cell_value(wb, "S1", "A2", CellValue(type=CellType.ERROR, value="#DIV/0!"))
         plxl.save_workbook(wb, path)
 
         wb2 = plxl.open_workbook(path)
@@ -925,16 +875,12 @@ class TestCalamineEdgeCases:
 
         return CalamineAdapter()
 
-    def test_error_value(
-        self, opxl: OpenpyxlAdapter, cal: Any, tmp_path: Path
-    ) -> None:
+    def test_error_value(self, opxl: OpenpyxlAdapter, cal: Any, tmp_path: Path) -> None:
         """Calamine should handle error values without crashing."""
         path = tmp_path / "err.xlsx"
         wb = opxl.create_workbook()
         opxl.add_sheet(wb, "S1")
-        opxl.write_cell_value(
-            wb, "S1", "A1", CellValue(type=CellType.ERROR, value="#N/A")
-        )
+        opxl.write_cell_value(wb, "S1", "A1", CellValue(type=CellType.ERROR, value="#N/A"))
         opxl.save_workbook(wb, path)
 
         wb2 = cal.open_workbook(path)
@@ -944,9 +890,7 @@ class TestCalamineEdgeCases:
         assert v.type in (CellType.ERROR, CellType.BLANK, CellType.STRING)
         cal.close_workbook(wb2)
 
-    def test_formula_value(
-        self, opxl: OpenpyxlAdapter, cal: Any, tmp_path: Path
-    ) -> None:
+    def test_formula_value(self, opxl: OpenpyxlAdapter, cal: Any, tmp_path: Path) -> None:
         """Calamine should handle formula cells without crashing.
 
         openpyxl writes formulas without cached values, so calamine
@@ -970,9 +914,7 @@ class TestCalamineEdgeCases:
         assert v.type in (CellType.FORMULA, CellType.NUMBER, CellType.BLANK)
         cal.close_workbook(wb2)
 
-    def test_date_value(
-        self, opxl: OpenpyxlAdapter, cal: Any, tmp_path: Path
-    ) -> None:
+    def test_date_value(self, opxl: OpenpyxlAdapter, cal: Any, tmp_path: Path) -> None:
         """Calamine should read date values."""
         path = tmp_path / "date.xlsx"
         wb = opxl.create_workbook()
@@ -987,9 +929,7 @@ class TestCalamineEdgeCases:
         assert v.value is not None
         cal.close_workbook(wb2)
 
-    def test_datetime_value(
-        self, opxl: OpenpyxlAdapter, cal: Any, tmp_path: Path
-    ) -> None:
+    def test_datetime_value(self, opxl: OpenpyxlAdapter, cal: Any, tmp_path: Path) -> None:
         """Calamine should read datetime values."""
         path = tmp_path / "datetime.xlsx"
         wb = opxl.create_workbook()
@@ -1021,7 +961,7 @@ except ImportError:
     HAS_RUST_CALAMINE = False
 
 
-@pytest.mark.skipif(not HAS_RUST_CALAMINE, reason="excelbench_rust calamine not available")
+@pytest.mark.skipif(not HAS_RUST_CALAMINE, reason="wolfxl._rust calamine not available")
 class TestRustCalamineEdgeCases:
     @pytest.fixture
     def opxl(self) -> OpenpyxlAdapter:
@@ -1033,9 +973,7 @@ class TestRustCalamineEdgeCases:
 
         return RustCalamineAdapter()
 
-    def test_date_value(
-        self, opxl: OpenpyxlAdapter, rcal: Any, tmp_path: Path
-    ) -> None:
+    def test_date_value(self, opxl: OpenpyxlAdapter, rcal: Any, tmp_path: Path) -> None:
         """Rust calamine should handle date values."""
         path = tmp_path / "date.xlsx"
         wb = opxl.create_workbook()
@@ -1050,9 +988,7 @@ class TestRustCalamineEdgeCases:
         assert v.value is not None
         rcal.close_workbook(wb2)
 
-    def test_datetime_value(
-        self, opxl: OpenpyxlAdapter, rcal: Any, tmp_path: Path
-    ) -> None:
+    def test_datetime_value(self, opxl: OpenpyxlAdapter, rcal: Any, tmp_path: Path) -> None:
         """Rust calamine should handle datetime values."""
         path = tmp_path / "datetime.xlsx"
         wb = opxl.create_workbook()
@@ -1070,16 +1006,12 @@ class TestRustCalamineEdgeCases:
         assert v.value is not None
         rcal.close_workbook(wb2)
 
-    def test_error_value(
-        self, opxl: OpenpyxlAdapter, rcal: Any, tmp_path: Path
-    ) -> None:
+    def test_error_value(self, opxl: OpenpyxlAdapter, rcal: Any, tmp_path: Path) -> None:
         """Rust calamine should handle error values."""
         path = tmp_path / "err.xlsx"
         wb = opxl.create_workbook()
         opxl.add_sheet(wb, "S1")
-        opxl.write_cell_value(
-            wb, "S1", "A1", CellValue(type=CellType.ERROR, value="#N/A")
-        )
+        opxl.write_cell_value(wb, "S1", "A1", CellValue(type=CellType.ERROR, value="#N/A"))
         opxl.save_workbook(wb, path)
 
         wb2 = rcal.open_workbook(path)
@@ -1087,16 +1019,12 @@ class TestRustCalamineEdgeCases:
         assert v.value is not None
         rcal.close_workbook(wb2)
 
-    def test_blank_value(
-        self, opxl: OpenpyxlAdapter, rcal: Any, tmp_path: Path
-    ) -> None:
+    def test_blank_value(self, opxl: OpenpyxlAdapter, rcal: Any, tmp_path: Path) -> None:
         """Rust calamine should return BLANK for empty cells."""
         path = tmp_path / "blank.xlsx"
         wb = opxl.create_workbook()
         opxl.add_sheet(wb, "S1")
-        opxl.write_cell_value(
-            wb, "S1", "A1", CellValue(type=CellType.STRING, value="x")
-        )
+        opxl.write_cell_value(wb, "S1", "A1", CellValue(type=CellType.STRING, value="x"))
         opxl.save_workbook(wb, path)
 
         wb2 = rcal.open_workbook(path)
@@ -1257,9 +1185,7 @@ class TestRustPayloadConversion:
 
     def test_cell_value_from_formula(self) -> None:
         """Formula type should return FORMULA with formula field."""
-        cv = cell_value_from_payload(
-            {"type": "formula", "value": "30", "formula": "=10+20"}
-        )
+        cv = cell_value_from_payload({"type": "formula", "value": "30", "formula": "=10+20"})
         assert cv.type == CellType.FORMULA
         assert cv.value == "30"
         assert cv.formula == "=10+20"

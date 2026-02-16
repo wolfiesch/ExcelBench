@@ -28,7 +28,11 @@ def _enabled_backends(rust_mod: Any) -> set[str]:
 
 def test_registry_works_without_wolfxl_rust() -> None:
     """If the native extension isn't installed, adapter discovery must still work."""
-    if importlib.util.find_spec("wolfxl._rust") is not None:
+    try:
+        has_rust = importlib.util.find_spec("wolfxl._rust") is not None
+    except (ModuleNotFoundError, ValueError):
+        has_rust = False
+    if has_rust:
         pytest.skip("wolfxl._rust installed; this test targets no-extension environments")
 
     from excelbench.harness.adapters import get_all_adapters

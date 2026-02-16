@@ -37,7 +37,7 @@ except ImportError as e:  # pragma: no cover
     raise ImportError("wolfxl._rust umya backend unavailable") from e
 
 if getattr(_excelbench_rust, "UmyaBook", None) is None:  # pragma: no cover
-    raise ImportError("excelbench_rust built without umya backend")
+    raise ImportError("wolfxl._rust built without umya backend")
 
 
 class UmyaAdapter(ExcelAdapter):

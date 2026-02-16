@@ -31,7 +31,7 @@ except ImportError as e:  # pragma: no cover
     raise ImportError("wolfxl._rust calamine backend unavailable") from e
 
 if getattr(_excelbench_rust, "CalamineBook", None) is None:  # pragma: no cover
-    raise ImportError("excelbench_rust built without calamine backend")
+    raise ImportError("wolfxl._rust built without calamine backend")
 
 
 class RustCalamineAdapter(ReadOnlyAdapter):

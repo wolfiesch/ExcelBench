@@ -126,6 +126,38 @@ class CalamineAdapter(ReadOnlyAdapter):
     def get_sheet_names(self, workbook: CalamineWorkbook) -> list[str]:
         return workbook.sheet_names
 
+    def read_sheet_values_raw(
+        self,
+        workbook: CalamineWorkbook,
+        sheet: str,
+        cell_range: str | None = None,
+    ) -> list[list[Any]]:
+        """Return raw calamine to_python() output without _convert_value() wrapping."""
+        sheet_data = workbook.get_sheet_by_name(sheet)
+        rows = sheet_data.to_python()
+        if cell_range:
+            clean = cell_range.replace("$", "").upper()
+            if ":" in clean:
+                a, b = clean.split(":", 1)
+            else:
+                a, b = clean, clean
+            r0, c0 = _parse_cell_ref(a)
+            r1, c1 = _parse_cell_ref(b)
+            if r1 < r0:
+                r0, r1 = r1, r0
+            if c1 < c0:
+                c0, c1 = c1, c0
+            sliced: list[list[Any]] = []
+            for rr in range(r0, r1 + 1):
+                source = rows[rr] if rr < len(rows) else []
+                padded = [
+                    source[cc] if cc < len(source) else None
+                    for cc in range(c0, c1 + 1)
+                ]
+                sliced.append(padded)
+            return sliced
+        return rows
+
     def read_cell_value(
         self,
         workbook: CalamineWorkbook,

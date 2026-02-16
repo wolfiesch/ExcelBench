@@ -798,6 +798,24 @@ def _run_workload_read(
         _ = _touch
         return
 
+    if op == "bulk_sheet_values_raw":
+        fn = getattr(adapter, "read_sheet_values_raw", None)
+        if fn is None:
+            raise ValueError(f"Adapter {adapter.name} does not support raw bulk reads")
+        cell_range = str(workload.get("range") or "")
+        try:
+            data = fn(workbook, sheet, cell_range)
+        except TypeError:
+            data = fn(workbook, sheet)
+        # Touch output to materialize lazy containers
+        if hasattr(data, "to_numpy"):
+            _ = data.to_numpy()
+        elif hasattr(data, "values"):
+            _ = data.values
+        else:
+            _ = data
+        return
+
     if op == "bg_color":
         for cell in cells:
             fmt = adapter.read_cell_format(workbook, sheet, cell)

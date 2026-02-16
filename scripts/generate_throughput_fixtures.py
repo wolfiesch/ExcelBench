@@ -260,6 +260,33 @@ def main() -> None:
         )
     )
 
+    # Bulk read raw variant (same file, bypasses CellValue wrapping)
+    files.append(
+        TestFile(
+            path=f"tier0/{filename}",
+            feature="cell_values_10k_bulk_read_raw",
+            tier=0,
+            file_format="xlsx",
+            test_cases=[
+                TestCase(
+                    id="cell_values_10k_bulk_read_raw",
+                    label="Throughput: cell values bulk read raw (10k cells)",
+                    row=1,
+                    expected={
+                        "workload": {
+                            "scenario": "cell_values_10k_bulk_read_raw",
+                            "op": "bulk_sheet_values_raw",
+                            "operations": ["read"],
+                            "sheet": sheet,
+                            "range": rng,
+                        }
+                    },
+                    importance=Importance.BASIC,
+                )
+            ],
+        )
+    )
+
     # Bulk write variant (create -> bulk write -> save)
     files.append(
         TestFile(
@@ -370,6 +397,33 @@ def main() -> None:
                         "workload": {
                             "scenario": "cell_values_1k_bulk_read",
                             "op": "bulk_sheet_values",
+                            "operations": ["read"],
+                            "sheet": sheet,
+                            "range": rng,
+                        }
+                    },
+                    importance=Importance.BASIC,
+                )
+            ],
+        )
+    )
+
+    # Bulk read raw variant (same file, bypasses CellValue wrapping)
+    files.append(
+        TestFile(
+            path=f"tier0/{filename}",
+            feature="cell_values_1k_bulk_read_raw",
+            tier=0,
+            file_format="xlsx",
+            test_cases=[
+                TestCase(
+                    id="cell_values_1k_bulk_read_raw",
+                    label="Throughput: cell values bulk read raw (1k cells)",
+                    row=1,
+                    expected={
+                        "workload": {
+                            "scenario": "cell_values_1k_bulk_read_raw",
+                            "op": "bulk_sheet_values_raw",
                             "operations": ["read"],
                             "sheet": sheet,
                             "range": rng,
@@ -1223,6 +1277,31 @@ def main() -> None:
                             "workload": {
                                 "scenario": "cell_values_100k_bulk_read",
                                 "op": "bulk_sheet_values",
+                                "operations": ["read"],
+                                "sheet": sheet,
+                                "range": rng,
+                            }
+                        },
+                        importance=Importance.BASIC,
+                    )
+                ],
+            )
+        )
+        files.append(
+            TestFile(
+                path=f"tier0/{filename}",
+                feature="cell_values_100k_bulk_read_raw",
+                tier=0,
+                file_format="xlsx",
+                test_cases=[
+                    TestCase(
+                        id="cell_values_100k_bulk_read_raw",
+                        label="Throughput: cell values bulk read raw (~100k cells)",
+                        row=1,
+                        expected={
+                            "workload": {
+                                "scenario": "cell_values_100k_bulk_read_raw",
+                                "op": "bulk_sheet_values_raw",
                                 "operations": ["read"],
                                 "sheet": sheet,
                                 "range": rng,

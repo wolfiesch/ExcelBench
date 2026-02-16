@@ -110,6 +110,45 @@ class OpenpyxlReadonlyAdapter(ReadOnlyAdapter):
             out.append([self._classify_value(c) for c in row])
         return out
 
+    def read_sheet_values_raw(
+        self,
+        workbook: Any,
+        sheet: str,
+        cell_range: str | None = None,
+    ) -> list[list[Any]]:
+        """Return raw ReadOnlyCell rows without CellValue conversion."""
+        ws = workbook[sheet]
+        if cell_range:
+            import re
+
+            clean = cell_range.replace("$", "").upper()
+            if ":" in clean:
+                a, b = clean.split(":", 1)
+            else:
+                a, b = clean, clean
+
+            def _cell_to_rc(ref: str) -> tuple[int, int]:
+                m = re.match(r"([A-Z]+)(\d+)", ref)
+                if not m:
+                    return 1, 1
+                col_str, row_str = m.groups()
+                row = int(row_str)
+                col = 0
+                for ch in col_str:
+                    col = col * 26 + (ord(ch) - ord("A") + 1)
+                return row, col
+
+            r0, c0 = _cell_to_rc(a)
+            r1, c1 = _cell_to_rc(b)
+            if r1 < r0:
+                r0, r1 = r1, r0
+            if c1 < c0:
+                c0, c1 = c1, c0
+            return [list(row) for row in ws.iter_rows(
+                min_row=r0, max_row=r1, min_col=c0, max_col=c1
+            )]
+        return [list(row) for row in ws.iter_rows()]
+
     def read_cell_value(
         self,
         workbook: Any,

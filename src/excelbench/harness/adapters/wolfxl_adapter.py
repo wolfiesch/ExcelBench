@@ -33,9 +33,9 @@ except ImportError as e:  # pragma: no cover
     raise ImportError("wolfxl._rust unavailable — wolfxl adapter requires it") from e
 
 if getattr(_excelbench_rust, "CalamineStyledBook", None) is None:  # pragma: no cover
-    raise ImportError("excelbench_rust built without calamine backend")
+    raise ImportError("wolfxl._rust built without calamine backend")
 if getattr(_excelbench_rust, "RustXlsxWriterBook", None) is None:  # pragma: no cover
-    raise ImportError("excelbench_rust built without rust_xlsxwriter backend")
+    raise ImportError("wolfxl._rust built without rust_xlsxwriter backend")
 
 
 class WolfxlAdapter(ExcelAdapter):
@@ -109,6 +109,15 @@ class WolfxlAdapter(ExcelAdapter):
             ]
             for row in raw
         ]
+
+    def read_sheet_values_raw(
+        self,
+        workbook: Any,
+        sheet: str,
+        cell_range: str | None = None,
+    ) -> list[list[Any]]:
+        """Return raw Rust FFI output without cell_value_from_payload() wrapping."""
+        return workbook.read_sheet_values(sheet, cell_range)
 
     def read_cell_format(self, workbook: Any, sheet: str, cell: str) -> CellFormat:
         payload = workbook.read_cell_format(sheet, cell)

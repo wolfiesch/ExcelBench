@@ -33,7 +33,7 @@ except ImportError as e:  # pragma: no cover
     raise ImportError("wolfxl._rust rust_xlsxwriter backend unavailable") from e
 
 if getattr(_excelbench_rust, "RustXlsxWriterBook", None) is None:  # pragma: no cover
-    raise ImportError("excelbench_rust built without rust_xlsxwriter backend")
+    raise ImportError("wolfxl._rust built without rust_xlsxwriter backend")
 
 
 class RustXlsxWriterAdapter(WriteOnlyAdapter):

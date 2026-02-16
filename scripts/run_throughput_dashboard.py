@@ -111,7 +111,9 @@ def main() -> None:
             ],
             "features": [
                 "cell_values_1k_bulk_read",
+                "cell_values_1k_bulk_read_raw",
                 "cell_values_10k_bulk_read",
+                "cell_values_10k_bulk_read_raw",
                 "cell_values_10k_1000x10_bulk_read",
                 "cell_values_10k_10x1000_bulk_read",
                 "formulas_1k_bulk_read",
@@ -198,6 +200,7 @@ def main() -> None:
                 ],
                 "features": [
                     "cell_values_100k_bulk_read",
+                    "cell_values_100k_bulk_read_raw",
                 ],
             }
         )

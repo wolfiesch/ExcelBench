@@ -584,7 +584,7 @@ class TestCalamineReadCellValue:
 # ═════════════════════════════════════════════════════════════════════════
 
 
-@pytest.mark.skipif(UmyaAdapter is None, reason="excelbench_rust umya not available")
+@pytest.mark.skipif(UmyaAdapter is None, reason="wolfxl._rust umya not available")
 class TestUmyaWriteRoundtrip:
     def test_info(self) -> None:
         adapter = UmyaAdapter()
@@ -770,7 +770,7 @@ class TestUmyaWriteRoundtrip:
 
 
 @pytest.mark.skipif(
-    RustXlsxWriterAdapter is None, reason="excelbench_rust rust_xlsxwriter not available"
+    RustXlsxWriterAdapter is None, reason="wolfxl._rust rust_xlsxwriter not available"
 )
 class TestRustXlsxWriterRoundtrip:
     def test_info(self) -> None:
@@ -904,7 +904,7 @@ class TestRustXlsxWriterRoundtrip:
 # ═════════════════════════════════════════════════════════════════════════
 
 
-@pytest.mark.skipif(RustCalamineAdapter is None, reason="excelbench_rust calamine not available")
+@pytest.mark.skipif(RustCalamineAdapter is None, reason="wolfxl._rust calamine not available")
 class TestRustCalamineRead:
     def test_info(self) -> None:
         adapter = RustCalamineAdapter()

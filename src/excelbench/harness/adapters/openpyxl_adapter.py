@@ -220,6 +220,18 @@ class OpenpyxlAdapter(ExcelAdapter):
             out.append(out_row)
         return out
 
+    def read_sheet_values_raw(
+        self,
+        workbook: Workbook,
+        sheet: str,
+        cell_range: str | None = None,
+    ) -> list[tuple[Any, ...]]:
+        """Return raw openpyxl Cell tuples without CellValue conversion."""
+        ws = workbook[sheet]
+        if cell_range:
+            return list(ws[cell_range])
+        return list(ws.iter_rows())
+
     def read_cell_value(
         self,
         workbook: Workbook,

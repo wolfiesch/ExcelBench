@@ -307,6 +307,27 @@ class ExcelAdapter(ABC):
     # Tier 3 Operations
     # =========================================================================
 
+    # =========================================================================
+    # Raw Throughput Read (optional override)
+    # =========================================================================
+
+    def read_sheet_values_raw(
+        self,
+        workbook: Any,
+        sheet: str,
+        cell_range: str | None = None,
+    ) -> Any:
+        """Bulk read without CellValue wrapping — returns library-native data.
+
+        Used only for raw throughput measurement. Override in adapters that
+        can return data faster without the CellValue wrapping step.
+        Default delegates to read_sheet_values() (includes wrapping).
+        """
+        fn = getattr(self, "read_sheet_values", None)
+        if fn is None:
+            raise NotImplementedError(f"{self.name} does not support bulk reads")
+        return fn(workbook, sheet, cell_range)
+
     def read_named_ranges(self, workbook: Any, sheet: str) -> list[JSONDict]:
         """Read named ranges.
 
