@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E501
 """Generate SVG benchmark charts for the WolfXL README.
 
 Creates dark and light theme variants of a horizontal bar chart
@@ -37,7 +38,6 @@ def generate_benchmark_chart(dark: bool = True) -> str:
         wolfxl_color = "#58a6ff"
         openpyxl_color = "#484f58"
         grid_color = "#21262d"
-        accent = "#58a6ff"
         bar_label_color = "#e6edf3"
         subtitle_color = "#8b949e"
     else:
@@ -47,7 +47,6 @@ def generate_benchmark_chart(dark: bool = True) -> str:
         wolfxl_color = "#0969da"
         openpyxl_color = "#d0d7de"
         grid_color = "#d0d7de"
-        accent = "#0969da"
         bar_label_color = "#1f2328"
         subtitle_color = "#656d76"
 
@@ -79,9 +78,7 @@ def generate_benchmark_chart(dark: bool = True) -> str:
     content_height = n_groups * (2 * bar_height + pair_gap + group_gap) - group_gap
     chart_height = margin_top + content_height + margin_bottom + 10
 
-    max_val = max(
-        max(d["wolfxl"], d["openpyxl"]) for _, d in items
-    )
+    max_val = max(max(d["wolfxl"], d["openpyxl"]) for _, d in items)
     # Round up to nice number
     max_val = ((max_val // 500_000) + 1) * 500_000
 
@@ -91,7 +88,7 @@ def generate_benchmark_chart(dark: bool = True) -> str:
     svg_parts = []
     svg_parts.append(
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {chart_width} {chart_height}" '
-        f'font-family="-apple-system, BlinkMacSystemFont, \'Segoe UI\', Helvetica, Arial, sans-serif">'
+        f"font-family=\"-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif\">"
     )
 
     # Background
@@ -101,12 +98,12 @@ def generate_benchmark_chart(dark: bool = True) -> str:
     svg_parts.append(
         f'<text x="{chart_width // 2}" y="28" text-anchor="middle" '
         f'fill="{text_color}" font-size="16" font-weight="600">'
-        f'WolfXL vs openpyxl — Bulk Throughput (cells/sec)</text>'
+        f"WolfXL vs openpyxl — Bulk Throughput (cells/sec)</text>"
     )
     svg_parts.append(
         f'<text x="{chart_width // 2}" y="48" text-anchor="middle" '
         f'fill="{subtitle_color}" font-size="11">'
-        f'Apple M1 Pro, Python 3.12, median of 3 runs</text>'
+        f"Apple M1 Pro, Python 3.12, median of 3 runs</text>"
     )
 
     # Grid lines
@@ -132,7 +129,6 @@ def generate_benchmark_chart(dark: bool = True) -> str:
     for label, data in items:
         wolfxl_val = data["wolfxl"]
         openpyxl_val = data["openpyxl"]
-        speedup = wolfxl_val / openpyxl_val
 
         # Group label
         svg_parts.append(
@@ -221,21 +217,21 @@ def generate_architecture_diagram(dark: bool = True) -> str:
 <rect width="{w}" height="{h}" fill="{bg}" rx="8"/>
 
 <!-- Title -->
-<text x="{w//2}" y="28" text-anchor="middle" fill="{text_color}" font-size="14" font-weight="600">Architecture</text>
+<text x="{w // 2}" y="28" text-anchor="middle" fill="{text_color}" font-size="14" font-weight="600">Architecture</text>
 
 <!-- Python API layer -->
 <rect x="40" y="55" width="600" height="50" fill="{box_bg}" stroke="{box_border}" rx="8"/>
-<text x="{w//2}" y="75" text-anchor="middle" fill="{text_color}" font-size="13" font-weight="600">Python API</text>
-<text x="{w//2}" y="93" text-anchor="middle" fill="{muted}" font-size="11">ws["A1"].value &middot; Font(bold=True) &middot; wb.save() &middot; iter_rows()</text>
+<text x="{w // 2}" y="75" text-anchor="middle" fill="{text_color}" font-size="13" font-weight="600">Python API</text>
+<text x="{w // 2}" y="93" text-anchor="middle" fill="{muted}" font-size="11">ws["A1"].value &middot; Font(bold=True) &middot; wb.save() &middot; iter_rows()</text>
 
 <!-- Arrows -->
-<line x1="150" y1="105" x2="150" y2="140" stroke="{arrow_color}" stroke-width="2" marker-end="url(#arrow-{('d' if dark else 'l')})"/>
-<line x1="340" y1="105" x2="340" y2="140" stroke="{arrow_color}" stroke-width="2" marker-end="url(#arrow-{('d' if dark else 'l')})"/>
-<line x1="530" y1="105" x2="530" y2="140" stroke="{arrow_color}" stroke-width="2" marker-end="url(#arrow-{('d' if dark else 'l')})"/>
+<line x1="150" y1="105" x2="150" y2="140" stroke="{arrow_color}" stroke-width="2" marker-end="url(#arrow-{("d" if dark else "l")})"/>
+<line x1="340" y1="105" x2="340" y2="140" stroke="{arrow_color}" stroke-width="2" marker-end="url(#arrow-{("d" if dark else "l")})"/>
+<line x1="530" y1="105" x2="530" y2="140" stroke="{arrow_color}" stroke-width="2" marker-end="url(#arrow-{("d" if dark else "l")})"/>
 
 <!-- Arrow marker -->
 <defs>
-  <marker id="arrow-{('d' if dark else 'l')}" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
+  <marker id="arrow-{("d" if dark else "l")}" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto">
     <path d="M 0 0 L 10 5 L 0 10 z" fill="{arrow_color}"/>
   </marker>
 </defs>
@@ -259,9 +255,9 @@ def generate_architecture_diagram(dark: bool = True) -> str:
 <text x="530" y="195" text-anchor="middle" fill="{muted}" font-size="10">Preserves charts/macros</text>
 
 <!-- Arrows to Rust -->
-<line x1="150" y1="205" x2="150" y2="235" stroke="{arrow_color}" stroke-width="2" marker-end="url(#arrow-{('d' if dark else 'l')})"/>
-<line x1="340" y1="205" x2="340" y2="235" stroke="{arrow_color}" stroke-width="2" marker-end="url(#arrow-{('d' if dark else 'l')})"/>
-<line x1="530" y1="205" x2="530" y2="235" stroke="{arrow_color}" stroke-width="2" marker-end="url(#arrow-{('d' if dark else 'l')})"/>
+<line x1="150" y1="205" x2="150" y2="235" stroke="{arrow_color}" stroke-width="2" marker-end="url(#arrow-{("d" if dark else "l")})"/>
+<line x1="340" y1="205" x2="340" y2="235" stroke="{arrow_color}" stroke-width="2" marker-end="url(#arrow-{("d" if dark else "l")})"/>
+<line x1="530" y1="205" x2="530" y2="235" stroke="{arrow_color}" stroke-width="2" marker-end="url(#arrow-{("d" if dark else "l")})"/>
 
 <!-- Rust engines -->
 <rect x="40" y="235" width="220" height="45" fill="{box_bg}" stroke="{rust_color}" rx="8"/>
