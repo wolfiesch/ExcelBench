@@ -1,0 +1,7 @@
+library,feature,read_p50_wall_ms,read_p95_wall_ms,read_op_count,read_op_unit,read_p50_units_per_sec,write_p50_wall_ms,write_p95_wall_ms,write_op_count,write_op_unit,write_p50_units_per_sec
+xlsxwriter,cell_values_100k_bulk_write,,,,,,179.418458,187.150208,99856,cells,556553.6629458715
+openpyxl,cell_values_100k_bulk_write,,,,,,312.216875,325.196,99856,cells,319828.96504232835
+pandas,cell_values_100k_bulk_write,,,,,,418.997417,420.967541,99856,cells,238321.2782431067
+tablib,cell_values_100k_bulk_write,,,,,,390.465958,391.205959,99856,cells,255735.48206729972
+wolfxl,cell_values_100k_bulk_write,,,,,,725.546291,727.116041,99856,cells,137628.70989578252
+rust_xlsxwriter,cell_values_100k_bulk_write,,,,,,718.978458,726.460334,99856,cells,138885.94141995837

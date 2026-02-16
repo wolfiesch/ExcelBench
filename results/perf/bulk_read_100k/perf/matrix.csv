@@ -1,0 +1,9 @@
+library,feature,read_p50_wall_ms,read_p95_wall_ms,read_op_count,read_op_unit,read_p50_units_per_sec,write_p50_wall_ms,write_p95_wall_ms,write_op_count,write_op_unit,write_p50_units_per_sec
+openpyxl,cell_values_100k_bulk_read,400.354916,418.915833,99856,cells,249418.6932876328,,,,,
+openpyxl-readonly,cell_values_100k_bulk_read,251.395292,271.195042,99856,cells,397207.1203306385,,,,,
+pandas,cell_values_100k_bulk_read,241.026583,243.214792,99856,cells,414294.5510703274,,,,,
+polars,cell_values_100k_bulk_read,49.895042,49.958333,99856,cells,2001321.0931859724,,,,,
+python-calamine,cell_values_100k_bulk_read,87.7475,89.251042,99856,cells,1137992.5353998689,,,,,
+tablib,cell_values_100k_bulk_read,224.435042,224.877875,99856,cells,444921.60898831475,,,,,
+wolfxl,cell_values_100k_bulk_read,826.911958,827.587792,99856,cells,120757.71674836513,,,,,
+calamine-styled,cell_values_100k_bulk_read,828.505959,828.914625,99856,cells,120525.38538229151,,,,,
