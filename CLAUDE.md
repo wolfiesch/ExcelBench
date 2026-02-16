@@ -95,24 +95,14 @@ src/excelbench/
     html_dashboard.py       # Single-file interactive HTML dashboard generator
     scatter.py              # Fidelity-vs-throughput scatter plots (PNG/SVG)
 
-packages/
-  wolfxl/
-    src/wolfxl/            # Openpyxl-compatible WolfXL Python API wrapper
-  excelbench_rust_shim/
-    src/excelbench_rust/   # Backwards-compat shim re-exporting wolfxl._rust
-
-rust/excelbench_rust/       # Separate PyO3 crate (not part of hatchling build)
+rust/excelbench_rust/       # Local-only PyO3 crate for ExcelBench-specific backends
   src/lib.rs                # Module entry + build_info()
-  src/calamine_backend.rs   # calamine read bindings (basic, no styles)
-  src/calamine_styled_backend.rs  # calamine-styled read bindings (full fidelity + OOXML T2/T3)
-  src/rust_xlsxwriter_backend.rs  # rust_xlsxwriter write bindings (full fidelity + T2/T3)
-  src/ooxml_util.rs         # Shared zip/XML helpers for OOXML parsing
+  src/calamine_backend.rs   # Basic calamine read bindings (no styles)
   src/umya_backend.rs       # umya-spreadsheet R+W bindings
-  src/wolfxl/               # WolfXL surgical xlsx patcher (modify mode)
-    mod.rs                  # XlsxPatcher PyO3 class + ZIP rewriter
-    shared_strings.rs       # SST parser (read-only, writes use inline strings)
-    styles.rs               # cellXfs parser + font/fill/border/xf appender
-    sheet_patcher.rs        # Streaming XML cell patcher (replace/insert)
+
+# WolfXL (standalone — https://github.com/wolfiesch/wolfxl)
+# Installed from PyPI: `uv sync --extra rust` or `pip install wolfxl`
+# Core backends: calamine-styled (read), rust_xlsxwriter (write), XlsxPatcher (modify)
 
 fixtures/
   excel/                    # Canonical .xlsx fixtures (git-tracked, Excel-generated)

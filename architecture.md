@@ -55,8 +55,7 @@ perf runner (performance) -> perf renderer
 
 Rust extension (optional) is called by Rust-backed adapters; it should not depend on Python code.
 
-`packages/wolfxl` depends on `wolfxl._rust` (built from `rust/excelbench_rust`) and has no
-dependency on `excelbench`.
+WolfXL is an external PyPI dependency — it does not depend on ExcelBench.
 ```
 
 Rule of thumb: keep adapters thin and deterministic. Any cross-library normalization should live in
@@ -79,22 +78,16 @@ Most-touched top-level directories:
   - `excel_xls/`: canonical .xls fixtures
   - `throughput_xlsx/`: scale fixtures for perf/throughput workloads
 
-- `rust/excelbench_rust/` (optional)
-  - PyO3 crate that exposes Rust backends to Python (`wolfxl._rust` module)
-  - Backends include: calamine (read), calamine-styled (read+OOXML T2/T3), rust_xlsxwriter (write),
-    umya-spreadsheet (read/write), wolfxl (surgical xlsx patcher for modify mode)
+- `rust/excelbench_rust/` (optional, local-only)
+  - PyO3 crate for ExcelBench-specific Rust backends (umya-spreadsheet, basic calamine)
+  - The core WolfXL backends (calamine-styled, rust_xlsxwriter, xlsx patcher) are now in the
+    standalone `wolfxl` package on PyPI (`pip install wolfxl`)
 
-- `packages/wolfxl/src/wolfxl/` (openpyxl-compatible API wrapper)
-  - `__init__.py`: public API (`load_workbook`, `Workbook`, style exports)
-  - `_workbook.py`: three-mode Workbook (read via CalamineStyledBook, write via RustXlsxWriterBook,
-    modify via XlsxPatcher — surgical ZIP patching, 10-14x faster than openpyxl)
-  - `_worksheet.py`: Worksheet proxy with `ws['A1']` cell access
-  - `_cell.py`: Cell proxy with lazy read dispatch and write-behind accumulation
-  - `_styles.py`: frozen dataclasses matching openpyxl names (Font, PatternFill, Border, etc.)
-  - `_utils.py`: A1-style coordinate conversion helpers
-
-- `packages/excelbench_rust_shim/src/excelbench_rust/` (compatibility shim)
-  - Re-exports `wolfxl._rust` for legacy imports that still use `excelbench_rust`
+- WolfXL (external dependency, `pip install wolfxl`)
+  - Standalone repo: https://github.com/wolfiesch/wolfxl
+  - Openpyxl-compatible API: `load_workbook`, `Workbook`, `Font`, `PatternFill`, etc.
+  - Three modes: read (calamine-styles), write (rust_xlsxwriter), modify (XlsxPatcher)
+  - Installed as optional dependency: `uv sync --extra rust`
 
 - `tests/`: pytest suites (fidelity + adapter unit tests + visualization smoke tests)
 - `docs/`: plans and trackers (treat as source of truth for methodology and run logs)

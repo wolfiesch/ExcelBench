@@ -16,10 +16,7 @@ def get_rust_backend_version(backend_key: str) -> str:
     """Return the resolved Rust crate version for a backend (if available)."""
 
     try:
-        try:
-            import wolfxl._rust as rust
-        except Exception:  # pragma: no cover
-            import excelbench_rust as rust
+        import wolfxl._rust as rust
 
         rust_mod: Any = rust
 

@@ -277,7 +277,7 @@ def generate_architecture_diagram(dark: bool = True) -> str:
 
 
 def main() -> None:
-    out_dir = Path("packages/wolfxl/assets")
+    out_dir = Path("../wolfxl/assets")  # wolfxl is now a standalone repo
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Benchmark charts

@@ -109,18 +109,10 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = [
-    "excelbench_rust",
-    "excelbench_rust.*",
-    "wolfxl._rust",
-    "wolfxl._rust.*",
-]
-ignore_missing_imports = true
-disable_error_code = ["import-untyped"]
-
-[[tool.mypy.overrides]]
-module = [
     "wolfxl",
     "wolfxl.*",
+    "wolfxl._rust",
+    "wolfxl._rust.*",
 ]
 ignore_missing_imports = true
 disable_error_code = ["import-untyped"]
