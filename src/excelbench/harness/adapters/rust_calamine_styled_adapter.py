@@ -1,4 +1,4 @@
-"""Adapter for calamine (styled) via excelbench_rust (PyO3).
+"""Adapter for calamine (styled) via the Rust PyO3 extension.
 
 This adapter exercises the Rust calamine crate through our CalamineStyledBook
 PyO3 binding which includes style-aware reading (format, borders, dimensions).
@@ -27,9 +27,9 @@ from excelbench.models import (
 JSONDict = dict[str, Any]
 
 try:
-    import excelbench_rust as _excelbench_rust
+    import wolfxl._rust as _excelbench_rust  # type: ignore[import-not-found]
 except ImportError as e:  # pragma: no cover
-    raise ImportError("excelbench_rust calamine-styled backend unavailable") from e
+    raise ImportError("wolfxl._rust calamine-styled backend unavailable") from e
 
 if getattr(_excelbench_rust, "CalamineStyledBook", None) is None:  # pragma: no cover
     raise ImportError("excelbench_rust built without calamine (styled) backend")
@@ -56,17 +56,15 @@ class RustCalamineStyledAdapter(ReadOnlyAdapter):
         return {".xlsx"}
 
     def open_workbook(self, path: Path) -> Any:
-        import excelbench_rust
+        import wolfxl._rust as rust  # type: ignore[import-not-found]
 
-        m: Any = excelbench_rust
+        m: Any = rust
         cls = getattr(m, "CalamineStyledBook")
         return cls.open(str(path))
 
     def close_workbook(self, workbook: Any) -> None:
         wb_id = id(workbook)
-        self._cell_cache = {
-            k: v for k, v in self._cell_cache.items() if k[0] != wb_id
-        }
+        self._cell_cache = {k: v for k, v in self._cell_cache.items() if k[0] != wb_id}
 
     def get_sheet_names(self, workbook: Any) -> list[str]:
         return [str(name) for name in workbook.sheet_names()]
@@ -93,8 +91,12 @@ class RustCalamineStyledAdapter(ReadOnlyAdapter):
         """Bulk read all values from a sheet via CalamineStyledBook.read_sheet_values()."""
         raw = workbook.read_sheet_values(sheet, cell_range)
         return [
-            [cell_value_from_payload(v) if isinstance(v, dict) else CellValue(type=CellType.BLANK)
-             for v in row]
+            [
+                cell_value_from_payload(v)
+                if isinstance(v, dict)
+                else CellValue(type=CellType.BLANK)
+                for v in row
+            ]
             for row in raw
         ]
 

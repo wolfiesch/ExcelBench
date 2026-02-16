@@ -54,7 +54,7 @@ uv run mypy
 uv sync --extra rust
 uv run maturin develop --manifest-path rust/excelbench_rust/Cargo.toml \
   --features calamine,rust_xlsxwriter,umya
-uv run python -c "import excelbench_rust; print(excelbench_rust.build_info())"
+uv run python -c "import wolfxl._rust as rust; print(rust.build_info())"
 ```
 
 **Gotcha**: `uv sync` may uninstall the locally-built extension. Rerun `maturin develop` after syncing.
@@ -86,7 +86,7 @@ src/excelbench/
       xlsxwriter_adapter.py # Write-only, full fidelity
       calamine_adapter.py   # python-calamine (read-only)
       ...                   # 12 more adapters (see registry)
-      rust_*.py / umya_*.py # Rust/PyO3 adapters (require excelbench_rust)
+      rust_*.py / umya_*.py # Rust/PyO3 adapters (require wolfxl._rust)
   perf/
     runner.py               # Performance measurement (wall/cpu/rss, phase breakdown)
     renderer.py             # Perf results to markdown/CSV/JSON

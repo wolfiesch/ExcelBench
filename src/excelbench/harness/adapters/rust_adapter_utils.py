@@ -16,14 +16,19 @@ def get_rust_backend_version(backend_key: str) -> str:
     """Return the resolved Rust crate version for a backend (if available)."""
 
     try:
-        import excelbench_rust
+        try:
+            import wolfxl._rust as rust  # type: ignore[import-not-found]
+        except Exception:  # pragma: no cover
+            import excelbench_rust as rust  # type: ignore[import-not-found]
 
-        info = excelbench_rust.build_info()
+        rust_mod: Any = rust
+
+        info = rust_mod.build_info()  # type: ignore[attr-defined]
         if isinstance(info, dict):
             backend_versions = info.get("backend_versions")
             if isinstance(backend_versions, dict) and backend_versions.get(backend_key):
                 return str(backend_versions[backend_key])
-        return str(getattr(excelbench_rust, "__version__", "unknown"))
+        return str(getattr(rust_mod, "__version__", "unknown"))
     except Exception:
         return "unknown"
 

@@ -1,0 +1,20 @@
+[project]
+name = "wolfxl"
+version = "0.1.0"
+description = "Fast, openpyxl-compatible Excel I/O backed by Rust"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Wolfgang Schoenberger" }]
+keywords = ["excel", "xlsx", "openpyxl", "rust", "performance"]
+
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[tool.maturin]
+bindings = "pyo3"
+module-name = "wolfxl._rust"
+python-source = "src"
+manifest-path = "../../rust/excelbench_rust/Cargo.toml"
+features = ["calamine", "rust_xlsxwriter", "wolfxl"]

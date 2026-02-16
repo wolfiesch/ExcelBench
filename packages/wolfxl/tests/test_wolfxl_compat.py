@@ -8,7 +8,7 @@ import pytest
 
 
 def _require_rust() -> None:
-    pytest.importorskip("excelbench_rust")
+    pytest.importorskip("wolfxl._rust")
 
 
 # ======================================================================
@@ -98,7 +98,7 @@ class TestStyles:
 
 
 # ======================================================================
-# Read tests (require excelbench_rust + fixtures)
+# Read tests (require wolfxl._rust + fixtures)
 # ======================================================================
 
 FIXTURES = Path(__file__).parent.parent / "fixtures" / "excel"
@@ -212,7 +212,7 @@ class TestReadMode:
 
 
 # ======================================================================
-# Write tests (require excelbench_rust)
+# Write tests (require wolfxl._rust)
 # ======================================================================
 
 
@@ -600,6 +600,34 @@ class TestModifyMode:
         assert f.size == 14.0
         assert f.name == "Arial"
         assert "FF0000" in str(f.color.rgb)
+        wb2.close()
+
+    def test_modify_format_only_preserves_value(self, tmp_path: Path) -> None:
+        """Modify mode: format-only edits must preserve existing cell values."""
+        import openpyxl
+
+        from wolfxl import Font, load_workbook
+
+        # Read original value via openpyxl.
+        wb0 = openpyxl.load_workbook(str(FIXTURE))
+        assert wb0.active is not None
+        original = wb0.active["B2"].value
+        wb0.close()
+
+        # Modify only formatting (no value assignment).
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        ws["B2"].font = Font(bold=True)
+        out = tmp_path / "mod_format_only.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        wb2 = openpyxl.load_workbook(str(out))
+        assert wb2.active is not None
+        cell = wb2.active["B2"]
+        assert cell.value == original
+        assert cell.font.bold is True
         wb2.close()
 
     def test_modify_fill(self, tmp_path: Path) -> None:

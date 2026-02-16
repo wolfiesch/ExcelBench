@@ -1,7 +1,12 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 
-#[cfg(any(feature = "calamine", feature = "rust_xlsxwriter", feature = "umya", feature = "wolfxl"))]
+#[cfg(any(
+    feature = "calamine",
+    feature = "rust_xlsxwriter",
+    feature = "umya",
+    feature = "wolfxl"
+))]
 mod util;
 
 #[cfg(any(feature = "calamine", feature = "rust_xlsxwriter", feature = "wolfxl"))]
@@ -43,7 +48,7 @@ fn enabled_backends() -> Vec<&'static str> {
 fn build_info(py: Python<'_>) -> PyResult<PyObject> {
     // Stable keys so Python adapters can depend on this shape.
     let info = PyDict::new(py);
-    info.set_item("package", "excelbench_rust")?;
+    info.set_item("package", "wolfxl-rust")?;
     info.set_item("package_version", env!("CARGO_PKG_VERSION"))?;
 
     let enabled = enabled_backends();
@@ -94,7 +99,7 @@ fn build_info(py: Python<'_>) -> PyResult<PyObject> {
 }
 
 #[pymodule]
-fn excelbench_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn _rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     m.add_function(wrap_pyfunction!(build_info, m)?)?;
 

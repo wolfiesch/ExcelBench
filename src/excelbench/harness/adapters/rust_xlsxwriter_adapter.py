@@ -1,4 +1,4 @@
-"""Adapter for rust_xlsxwriter via excelbench_rust (PyO3).
+"""Adapter for rust_xlsxwriter via the Rust PyO3 extension.
 
 Supports Tier 0/1 cell values, formulas, and formatting (text, background,
 borders, alignment, number formats, dimensions).
@@ -28,9 +28,9 @@ JSONDict = dict[str, Any]
 # without the rust_xlsxwriter backend, importing this adapter should fail so
 # that the adapter registry can skip it.
 try:
-    import excelbench_rust as _excelbench_rust
+    import wolfxl._rust as _excelbench_rust  # type: ignore[import-not-found]
 except ImportError as e:  # pragma: no cover
-    raise ImportError("excelbench_rust rust_xlsxwriter backend unavailable") from e
+    raise ImportError("wolfxl._rust rust_xlsxwriter backend unavailable") from e
 
 if getattr(_excelbench_rust, "RustXlsxWriterBook", None) is None:  # pragma: no cover
     raise ImportError("excelbench_rust built without rust_xlsxwriter backend")
@@ -47,9 +47,9 @@ class RustXlsxWriterAdapter(WriteOnlyAdapter):
         )
 
     def create_workbook(self) -> Any:
-        import excelbench_rust
+        import wolfxl._rust as rust  # type: ignore[import-not-found]
 
-        m: Any = excelbench_rust
+        m: Any = rust
         cls = getattr(m, "RustXlsxWriterBook")
         return cls()
 

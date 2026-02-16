@@ -1,4 +1,4 @@
-"""Adapter for calamine via excelbench_rust (PyO3).
+"""Adapter for calamine via the Rust PyO3 extension.
 
 This adapter exercises the Rust calamine crate through our local PyO3 extension
 module. It is read-only.
@@ -26,9 +26,9 @@ JSONDict = dict[str, Any]
 # Optional dependency guard: ensure the extension exists and the backend was
 # compiled in (feature-flagged builds can omit individual backends).
 try:
-    import excelbench_rust as _excelbench_rust
+    import wolfxl._rust as _excelbench_rust  # type: ignore[import-not-found]
 except ImportError as e:  # pragma: no cover
-    raise ImportError("excelbench_rust calamine backend unavailable") from e
+    raise ImportError("wolfxl._rust calamine backend unavailable") from e
 
 if getattr(_excelbench_rust, "CalamineBook", None) is None:  # pragma: no cover
     raise ImportError("excelbench_rust built without calamine backend")
@@ -51,9 +51,9 @@ class RustCalamineAdapter(ReadOnlyAdapter):
         return {".xlsx", ".xls"}
 
     def open_workbook(self, path: Path) -> Any:
-        import excelbench_rust
+        import wolfxl._rust as rust  # type: ignore[import-not-found]
 
-        m: Any = excelbench_rust
+        m: Any = rust
         book_cls = getattr(m, "CalamineBook")
         return book_cls.open(str(path))
 

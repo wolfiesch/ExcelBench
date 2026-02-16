@@ -38,21 +38,21 @@ pub struct FontSpec {
     pub underline: bool,
     pub strikethrough: bool,
     pub name: Option<String>,
-    pub size: Option<u32>, // stored as integer points (e.g. 11)
+    pub size: Option<u32>,         // stored as integer points (e.g. 11)
     pub color_rgb: Option<String>, // "FFRRGGBB"
 }
 
 /// Fill specification for creating a new `<fill>` element.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Hash)]
 pub struct FillSpec {
-    pub pattern_type: String, // "solid", "none", etc.
+    pub pattern_type: String,         // "solid", "none", etc.
     pub fg_color_rgb: Option<String>, // "FFRRGGBB"
 }
 
 /// Border side.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Hash)]
 pub struct BorderSideSpec {
-    pub style: Option<String>, // "thin", "medium", "thick", etc.
+    pub style: Option<String>,     // "thin", "medium", "thick", etc.
     pub color_rgb: Option<String>, // "FFRRGGBB"
 }
 
@@ -612,7 +612,7 @@ mod tests {
         };
         let (updated, xf_idx) = apply_format_spec(MINIMAL_STYLES, &spec);
         assert_eq!(xf_idx, 1); // second xf entry
-        // Verify all sections got updated
+                               // Verify all sections got updated
         assert!(updated.contains("fontId=\"1\""));
         assert!(updated.contains("fillId=\"2\""));
     }

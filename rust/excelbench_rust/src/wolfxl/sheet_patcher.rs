@@ -69,10 +69,7 @@ pub fn patch_worksheet(xml: &str, patches: &[CellPatch]) -> Result<String, Strin
     // Within each row, map col -> patch.
     let mut row_patches: BTreeMap<u32, BTreeMap<u32, &CellPatch>> = BTreeMap::new();
     for p in patches {
-        row_patches
-            .entry(p.row)
-            .or_default()
-            .insert(p.col, p);
+        row_patches.entry(p.row).or_default().insert(p.col, p);
     }
 
     let mut reader = XmlReader::from_str(xml);
@@ -120,9 +117,17 @@ pub fn patch_worksheet(xml: &str, patches: &[CellPatch]) -> Result<String, Strin
 
                     if let Some(row_map) = current_row.and_then(|r| row_patches.get(&r)) {
                         if let Some(patch) = row_map.get(&col) {
-                            // This cell is being patched — write replacement
-                            write_patched_cell(&mut writer, &cell_ref, e, patch)?;
-                            skip_until_cell_end = true;
+                            // This cell is being patched.
+                            // If it's style-only (no value change), preserve the original
+                            // children (<v>, <f>, etc.) and only rewrite the <c ...> attrs.
+                            if patch.value.is_none() && patch.style_index.is_some() {
+                                write_style_only_cell_start(&mut writer, &cell_ref, e, patch)?;
+                                // Do NOT skip children.
+                            } else {
+                                // Value patch: replace the entire cell element.
+                                write_patched_cell(&mut writer, &cell_ref, e, patch)?;
+                                skip_until_cell_end = true;
+                            }
                         } else {
                             // Not patched — pass through
                             write_event(&mut writer, Event::Start(e.to_owned()))?;
@@ -183,10 +188,7 @@ pub fn patch_worksheet(xml: &str, patches: &[CellPatch]) -> Result<String, Strin
                         write_new_row(&mut writer, row_num, row_map)?;
                         rows_seen.push(row_num);
                     }
-                    write_event(
-                        &mut writer,
-                        Event::End(BytesEnd::new("sheetData")),
-                    )?;
+                    write_event(&mut writer, Event::End(BytesEnd::new("sheetData")))?;
                 } else {
                     if !skip_until_cell_end {
                         write_event(&mut writer, Event::Empty(e.to_owned()))?;
@@ -254,6 +256,44 @@ fn write_event<W: Write>(writer: &mut XmlWriter<W>, event: Event<'_>) -> Result<
     writer
         .write_event(event)
         .map_err(|e| format!("XML write error: {e}"))
+}
+
+/// Write a patched `<c ...>` start tag for a style-only patch, preserving original children.
+fn write_style_only_cell_start<W: Write>(
+    writer: &mut XmlWriter<W>,
+    cell_ref: &str,
+    original: &BytesStart<'_>,
+    patch: &CellPatch,
+) -> Result<(), String> {
+    let mut elem = BytesStart::new("c");
+
+    // Copy all original attributes except r/s. We'll re-add r and (patched) s.
+    for a in original.attributes() {
+        let a = a.map_err(|e| format!("XML attr error: {e}"))?;
+        let key = a.key.as_ref();
+        if key == b"r" || key == b"s" {
+            continue;
+        }
+        elem.push_attribute((key, a.value.as_ref()));
+    }
+
+    // Always set r (cell reference)
+    elem.push_attribute((b"r".as_slice(), cell_ref.as_bytes()));
+
+    // Apply (or preserve) style index
+    let style = if let Some(s) = patch.style_index {
+        Some(s)
+    } else {
+        attr_value(original, b"s").and_then(|s| s.parse().ok())
+    };
+    if let Some(s) = style {
+        if s > 0 {
+            let sval = s.to_string();
+            elem.push_attribute((b"s".as_slice(), sval.as_bytes()));
+        }
+    }
+
+    write_event(writer, Event::Start(elem))
 }
 
 /// Write a complete patched cell element.

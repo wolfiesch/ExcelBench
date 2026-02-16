@@ -1,4 +1,4 @@
-"""Adapter for umya-spreadsheet via excelbench_rust (PyO3).
+"""Adapter for umya-spreadsheet via the Rust PyO3 extension.
 
 This adapter is read/write (xlsx). Supports Tier 0/1 cell values, formulas,
 formatting (text, background, borders, alignment, number formats, dimensions),
@@ -32,9 +32,9 @@ JSONDict = dict[str, Any]
 
 
 try:
-    import excelbench_rust as _excelbench_rust
+    import wolfxl._rust as _excelbench_rust  # type: ignore[import-not-found]
 except ImportError as e:  # pragma: no cover
-    raise ImportError("excelbench_rust umya backend unavailable") from e
+    raise ImportError("wolfxl._rust umya backend unavailable") from e
 
 if getattr(_excelbench_rust, "UmyaBook", None) is None:  # pragma: no cover
     raise ImportError("excelbench_rust built without umya backend")
@@ -59,9 +59,9 @@ class UmyaAdapter(ExcelAdapter):
     # =========================================================================
 
     def open_workbook(self, path: Path) -> Any:
-        import excelbench_rust
+        import wolfxl._rust as rust  # type: ignore[import-not-found]
 
-        m: Any = excelbench_rust
+        m: Any = rust
         cls = getattr(m, "UmyaBook")
         return cls.open(str(path))
 
@@ -132,9 +132,9 @@ class UmyaAdapter(ExcelAdapter):
     # =========================================================================
 
     def create_workbook(self) -> Any:
-        import excelbench_rust
+        import wolfxl._rust as rust  # type: ignore[import-not-found]
 
-        m: Any = excelbench_rust
+        m: Any = rust
         cls = getattr(m, "UmyaBook")
         return cls()
 

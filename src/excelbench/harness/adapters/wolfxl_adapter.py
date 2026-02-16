@@ -28,9 +28,9 @@ from excelbench.models import (
 JSONDict = dict[str, Any]
 
 try:
-    import excelbench_rust as _excelbench_rust
+    import wolfxl._rust as _excelbench_rust  # type: ignore[import-not-found]
 except ImportError as e:  # pragma: no cover
-    raise ImportError("excelbench_rust unavailable — wolfxl requires it") from e
+    raise ImportError("wolfxl._rust unavailable — wolfxl adapter requires it") from e
 
 if getattr(_excelbench_rust, "CalamineStyledBook", None) is None:  # pragma: no cover
     raise ImportError("excelbench_rust built without calamine backend")
@@ -66,17 +66,15 @@ class WolfxlAdapter(ExcelAdapter):
     # =========================================================================
 
     def open_workbook(self, path: Path) -> Any:
-        import excelbench_rust
+        import wolfxl._rust as rust  # type: ignore[import-not-found]
 
-        m: Any = excelbench_rust
+        m: Any = rust
         return getattr(m, "CalamineStyledBook").open(str(path))
 
     def close_workbook(self, workbook: Any) -> None:
         # Evict cached cells for this workbook.
         wb_id = id(workbook)
-        self._cell_cache = {
-            k: v for k, v in self._cell_cache.items() if k[0] != wb_id
-        }
+        self._cell_cache = {k: v for k, v in self._cell_cache.items() if k[0] != wb_id}
 
     def get_sheet_names(self, workbook: Any) -> list[str]:
         return [str(name) for name in workbook.sheet_names()]
@@ -103,8 +101,12 @@ class WolfxlAdapter(ExcelAdapter):
         """Bulk read all values from a sheet via CalamineStyledBook.read_sheet_values()."""
         raw = workbook.read_sheet_values(sheet, cell_range)
         return [
-            [cell_value_from_payload(v) if isinstance(v, dict) else CellValue(type=CellType.BLANK)
-             for v in row]
+            [
+                cell_value_from_payload(v)
+                if isinstance(v, dict)
+                else CellValue(type=CellType.BLANK)
+                for v in row
+            ]
             for row in raw
         ]
 
@@ -192,9 +194,9 @@ class WolfxlAdapter(ExcelAdapter):
     # =========================================================================
 
     def create_workbook(self) -> Any:
-        import excelbench_rust
+        import wolfxl._rust as rust  # type: ignore[import-not-found]
 
-        m: Any = excelbench_rust
+        m: Any = rust
         return getattr(m, "RustXlsxWriterBook")()
 
     def add_sheet(self, workbook: Any, name: str) -> None:

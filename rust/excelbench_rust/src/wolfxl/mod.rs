@@ -134,8 +134,8 @@ impl XlsxPatcher {
             }
         };
 
-        let (row, col) = crate::util::a1_to_row_col(cell)
-            .map_err(|e| PyErr::new::<PyValueError, _>(e))?;
+        let (row, col) =
+            crate::util::a1_to_row_col(cell).map_err(|e| PyErr::new::<PyValueError, _>(e))?;
 
         let patch = CellPatch {
             row: row + 1, // a1_to_row_col returns 0-based, patcher uses 1-based
@@ -220,8 +220,9 @@ impl XlsxPatcher {
             return Ok(());
         }
 
-        let f = File::open(&self.file_path)
-            .map_err(|e| PyErr::new::<PyIOError, _>(format!("Cannot open '{}': {e}", self.file_path)))?;
+        let f = File::open(&self.file_path).map_err(|e| {
+            PyErr::new::<PyIOError, _>(format!("Cannot open '{}': {e}", self.file_path))
+        })?;
         let mut zip = ZipArchive::new(f)
             .map_err(|e| PyErr::new::<PyIOError, _>(format!("ZIP read error: {e}")))?;
 
@@ -308,19 +309,21 @@ impl XlsxPatcher {
         drop(zip);
 
         // --- Phase 4: Rewrite ZIP ---
-        let src = File::open(&self.file_path)
-            .map_err(|e| PyErr::new::<PyIOError, _>(format!("Cannot open '{}': {e}", self.file_path)))?;
+        let src = File::open(&self.file_path).map_err(|e| {
+            PyErr::new::<PyIOError, _>(format!("Cannot open '{}': {e}", self.file_path))
+        })?;
         let mut zip = ZipArchive::new(src)
             .map_err(|e| PyErr::new::<PyIOError, _>(format!("ZIP read error: {e}")))?;
 
-        let dst = File::create(output_path)
-            .map_err(|e| PyErr::new::<PyIOError, _>(format!("Cannot create '{output_path}': {e}")))?;
+        let dst = File::create(output_path).map_err(|e| {
+            PyErr::new::<PyIOError, _>(format!("Cannot create '{output_path}': {e}"))
+        })?;
         let mut out = ZipWriter::new(dst);
 
         for i in 0..zip.len() {
-            let mut file = zip.by_index(i).map_err(|e| {
-                PyErr::new::<PyIOError, _>(format!("ZIP entry read error: {e}"))
-            })?;
+            let mut file = zip
+                .by_index(i)
+                .map_err(|e| PyErr::new::<PyIOError, _>(format!("ZIP entry read error: {e}")))?;
             let name = file.name().to_string();
 
             let mut opts = SimpleFileOptions::default().compression_method(file.compression());
@@ -332,9 +335,8 @@ impl XlsxPatcher {
             }
 
             if file.is_dir() {
-                out.add_directory(&name, opts).map_err(|e| {
-                    PyErr::new::<PyIOError, _>(format!("ZIP write error: {e}"))
-                })?;
+                out.add_directory(&name, opts)
+                    .map_err(|e| PyErr::new::<PyIOError, _>(format!("ZIP write error: {e}")))?;
                 continue;
             }
 
@@ -408,15 +410,11 @@ fn dict_to_format_spec(d: &Bound<'_, PyDict>) -> PyResult<FormatSpec> {
     spec.number_format = extract_str(d, "number_format")?;
 
     // Alignment — accept both openpyxl-style and wolfxl-style key names
-    let horizontal = extract_str(d, "horizontal")?
-        .or(extract_str(d, "h_align")?);
-    let vertical = extract_str(d, "vertical")?
-        .or(extract_str(d, "v_align")?);
-    let wrap_text = extract_bool(d, "wrap_text")?
-        .or(extract_bool(d, "wrap")?);
+    let horizontal = extract_str(d, "horizontal")?.or(extract_str(d, "h_align")?);
+    let vertical = extract_str(d, "vertical")?.or(extract_str(d, "v_align")?);
+    let wrap_text = extract_bool(d, "wrap_text")?.or(extract_bool(d, "wrap")?);
     let indent = extract_u32(d, "indent")?;
-    let text_rotation = extract_u32(d, "text_rotation")?
-        .or(extract_u32(d, "rotation")?);
+    let text_rotation = extract_u32(d, "text_rotation")?.or(extract_u32(d, "rotation")?);
 
     if horizontal.is_some()
         || vertical.is_some()
@@ -460,21 +458,15 @@ fn dict_to_border_spec(d: &Bound<'_, PyDict>) -> PyResult<styles::BorderSpec> {
 }
 
 fn extract_str(d: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<String>> {
-    d.get_item(key)?
-        .map(|v| v.extract::<String>())
-        .transpose()
+    d.get_item(key)?.map(|v| v.extract::<String>()).transpose()
 }
 
 fn extract_bool(d: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<bool>> {
-    d.get_item(key)?
-        .map(|v| v.extract::<bool>())
-        .transpose()
+    d.get_item(key)?.map(|v| v.extract::<bool>()).transpose()
 }
 
 fn extract_u32(d: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<u32>> {
-    d.get_item(key)?
-        .map(|v| v.extract::<u32>())
-        .transpose()
+    d.get_item(key)?.map(|v| v.extract::<u32>()).transpose()
 }
 
 /// Normalize "#RRGGBB" or "RRGGBB" to "FFRRGGBB" (OOXML ARGB format).

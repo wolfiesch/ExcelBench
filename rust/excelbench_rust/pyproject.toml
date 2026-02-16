@@ -3,9 +3,9 @@ requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "excelbench-rust"
+name = "wolfxl-rust"
 version = "0.1.0"
-description = "Rust backends for ExcelBench (PyO3 extension module)"
+description = "WolfXL native Rust extension (PyO3)"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "Wolfgang Schoenberger" }]
@@ -16,5 +16,5 @@ classifiers = [
 
 [tool.maturin]
 bindings = "pyo3"
-module-name = "excelbench_rust"
+module-name = "wolfxl._rust"
 manifest-path = "Cargo.toml"

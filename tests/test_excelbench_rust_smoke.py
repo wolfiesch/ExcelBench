@@ -6,8 +6,8 @@ import pytest
 
 
 def test_excelbench_rust_smoke(tmp_path: Path) -> None:
-    pytest.importorskip("excelbench_rust")
-    from excelbench_rust import UmyaBook
+    pytest.importorskip("wolfxl._rust")
+    from wolfxl._rust import UmyaBook
 
     # Create a tiny PNG for image insertion.
     from PIL import Image

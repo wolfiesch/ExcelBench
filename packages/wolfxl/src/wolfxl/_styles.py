@@ -56,12 +56,26 @@ class Font:
         return f"#{raw}"
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, init=False)
 class PatternFill:
-    """Cell fill (solid pattern only for now)."""
+    """Cell fill (solid pattern only for now).
+
+    Accepts both ``patternType=`` and ``fill_type=`` for openpyxl compatibility.
+    """
 
     patternType: str | None = None  # noqa: N815 — matches openpyxl name
     fgColor: Color | str | None = None  # noqa: N815
+
+    def __init__(
+        self,
+        patternType: str | None = None,  # noqa: N803
+        fgColor: Color | str | None = None,  # noqa: N803
+        *,
+        fill_type: str | None = None,
+    ) -> None:
+        # fill_type is openpyxl's alias for patternType
+        object.__setattr__(self, "patternType", fill_type if patternType is None else patternType)
+        object.__setattr__(self, "fgColor", fgColor)
 
     def _fg_hex(self) -> str | None:
         """Resolve fgColor to a '#RRGGBB' string or None."""

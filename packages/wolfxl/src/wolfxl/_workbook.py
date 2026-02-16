@@ -17,9 +17,9 @@ class Workbook:
 
     def __init__(self) -> None:
         """Create a new workbook in write mode with a default 'Sheet'."""
-        import excelbench_rust
+        import excelbench_rust as _rust
 
-        self._rust_writer: Any = excelbench_rust.RustXlsxWriterBook()
+        self._rust_writer: Any = _rust.RustXlsxWriterBook()
         self._rust_reader: Any = None
         self._rust_patcher: Any = None
         self._sheet_names: list[str] = ["Sheet"]
@@ -30,12 +30,12 @@ class Workbook:
     @classmethod
     def _from_reader(cls, path: str) -> Workbook:
         """Open an existing .xlsx file in read mode."""
-        import excelbench_rust
+        import excelbench_rust as _rust
 
         wb = object.__new__(cls)
         wb._rust_writer = None
         wb._rust_patcher = None
-        wb._rust_reader = excelbench_rust.CalamineStyledBook.open(path)
+        wb._rust_reader = _rust.CalamineStyledBook.open(path)
         names = [str(n) for n in wb._rust_reader.sheet_names()]
         wb._sheet_names = names
         wb._sheets = {}
@@ -46,12 +46,12 @@ class Workbook:
     @classmethod
     def _from_patcher(cls, path: str) -> Workbook:
         """Open an existing .xlsx file in modify mode (read + surgical save)."""
-        import excelbench_rust
+        import excelbench_rust as _rust
 
         wb = object.__new__(cls)
         wb._rust_writer = None
-        wb._rust_reader = excelbench_rust.CalamineStyledBook.open(path)
-        wb._rust_patcher = excelbench_rust.XlsxPatcher.open(path)
+        wb._rust_reader = _rust.CalamineStyledBook.open(path)
+        wb._rust_patcher = _rust.XlsxPatcher.open(path)
         names = [str(n) for n in wb._rust_reader.sheet_names()]
         wb._sheet_names = names
         wb._sheets = {}

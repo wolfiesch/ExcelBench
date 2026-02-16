@@ -59,7 +59,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/excelbench", "src/wolfxl"]
+packages = ["src/excelbench"]
 
 [tool.ruff]
 line-length = 100
@@ -71,7 +71,7 @@ select = ["E", "F", "I", "N", "W", "UP"]
 [tool.mypy]
 python_version = "3.11"
 strict = true
-files = ["src/excelbench", "src/wolfxl", "tests"]
+files = ["src/excelbench", "tests"]
 
 [[tool.mypy.overrides]]
 module = [
@@ -110,6 +110,8 @@ ignore_missing_imports = true
 module = [
     "excelbench_rust",
     "excelbench_rust.*",
+    "wolfxl._rust",
+    "wolfxl._rust.*",
 ]
 ignore_missing_imports = true
 disable_error_code = ["import-untyped"]
@@ -123,13 +125,6 @@ module = [
 ]
 disable_error_code = ["import-untyped"]
 
-[[tool.mypy.overrides]]
-module = [
-    "wolfxl._workbook",
-    "wolfxl._cell",
-]
-disable_error_code = ["import-untyped"]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-v --cov=excelbench --cov=wolfxl"
+addopts = "-v --cov=excelbench"
