@@ -577,3 +577,144 @@ class TestModifyMode:
         assert wb2.active is not None
         assert wb2.active["Z99"].value == "New cell"
         wb2.close()
+
+    def test_modify_font(self, tmp_path: Path) -> None:
+        """Modify mode: set font on a cell."""
+        import openpyxl
+
+        from pycalumya import Font, load_workbook
+
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        ws["A1"] = "Bold"
+        ws["A1"].font = Font(bold=True, size=14, name="Arial", color="#FF0000")
+        out = tmp_path / "mod_font.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        wb2 = openpyxl.load_workbook(str(out))
+        assert wb2.active is not None
+        f = wb2.active["A1"].font
+        assert f.bold is True
+        assert f.size == 14.0
+        assert f.name == "Arial"
+        assert "FF0000" in str(f.color.rgb)
+        wb2.close()
+
+    def test_modify_fill(self, tmp_path: Path) -> None:
+        """Modify mode: set fill on a cell."""
+        import openpyxl
+
+        from pycalumya import PatternFill, load_workbook
+
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        ws["A1"] = "Yellow"
+        ws["A1"].fill = PatternFill(patternType="solid", fgColor="#FFFF00")
+        out = tmp_path / "mod_fill.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        wb2 = openpyxl.load_workbook(str(out))
+        assert wb2.active is not None
+        fill = wb2.active["A1"].fill
+        assert fill.patternType == "solid"
+        assert "FFFF00" in str(fill.fgColor.rgb)
+        wb2.close()
+
+    def test_modify_alignment(self, tmp_path: Path) -> None:
+        """Modify mode: set alignment on a cell."""
+        import openpyxl
+
+        from pycalumya import Alignment, load_workbook
+
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        ws["A1"] = "Centered"
+        ws["A1"].alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        out = tmp_path / "mod_align.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        wb2 = openpyxl.load_workbook(str(out))
+        assert wb2.active is not None
+        al = wb2.active["A1"].alignment
+        assert al.horizontal == "center"
+        assert al.vertical == "center"
+        assert al.wrapText is True
+        wb2.close()
+
+    def test_modify_border(self, tmp_path: Path) -> None:
+        """Modify mode: set border on a cell."""
+        import openpyxl
+
+        from pycalumya import Border, Side, load_workbook
+
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        ws["A1"] = "Bordered"
+        ws["A1"].border = Border(
+            left=Side(style="thin", color="#000000"),
+            right=Side(style="medium", color="#FF0000"),
+            top=Side(style="thin", color="#000000"),
+            bottom=Side(style="thin", color="#000000"),
+        )
+        out = tmp_path / "mod_border.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        wb2 = openpyxl.load_workbook(str(out))
+        assert wb2.active is not None
+        b = wb2.active["A1"].border
+        assert b.left.style == "thin"
+        assert b.right.style == "medium"
+        wb2.close()
+
+    def test_modify_number_format(self, tmp_path: Path) -> None:
+        """Modify mode: set number format on a cell."""
+        import openpyxl
+
+        from pycalumya import load_workbook
+
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        ws["A1"] = 42000
+        ws["A1"].number_format = "$#,##0"
+        out = tmp_path / "mod_numfmt.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        wb2 = openpyxl.load_workbook(str(out))
+        assert wb2.active is not None
+        assert wb2.active["A1"].number_format == "$#,##0"
+        wb2.close()
+
+    def test_modify_combined_value_and_format(self, tmp_path: Path) -> None:
+        """Modify mode: set both value and format on the same cell."""
+        import openpyxl
+
+        from pycalumya import Font, PatternFill, load_workbook
+
+        wb = load_workbook(str(FIXTURE), modify=True)
+        ws = wb.active
+        assert ws is not None
+        ws["A1"] = "Styled"
+        ws["A1"].font = Font(bold=True, italic=True)
+        ws["A1"].fill = PatternFill(patternType="solid", fgColor="#00FF00")
+        out = tmp_path / "mod_combined.xlsx"
+        wb.save(str(out))
+        wb.close()
+
+        wb2 = openpyxl.load_workbook(str(out))
+        assert wb2.active is not None
+        cell = wb2.active["A1"]
+        assert cell.value == "Styled"
+        assert cell.font.bold is True
+        assert cell.font.italic is True
+        assert "00FF00" in str(cell.fill.fgColor.rgb)
+        wb2.close()
