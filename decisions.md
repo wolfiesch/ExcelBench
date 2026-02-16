@@ -40,6 +40,30 @@ Skip logging for routine bug fixes, refactors, or incremental test additions.
 
 ## Decisions
 
+### DEC-014 — WolfXL: Surgical ZIP patcher for read-modify-write mode (2026-02-15)
+
+**Context**: pycalumya's hybrid architecture (calamine read + rust_xlsxwriter write) cannot modify
+existing files in place. The `load → modify → save` workflow is one of openpyxl's most common use
+cases. Using umya-spreadsheet for this would match openpyxl's speed (both parse the full DOM),
+defeating pycalumya's value proposition of Rust-backed speed.
+
+**Decision**: Build WolfXL (`XlsxPatcher`) — a streaming XML patcher that treats .xlsx as a ZIP of
+XML files. On save, it only parses and rewrites the worksheet XMLs that have dirty cells, patches
+styles.xml only if formats changed, and raw-copies all other ZIP entries unchanged. Uses inline
+strings (`t="str"`) to avoid touching sharedStrings.xml entirely.
+
+**Alternatives considered**: (1) Use umya-spreadsheet for R/W (rejected: parses full DOM, no faster
+than openpyxl). (2) Full rewrite via calamine read + rust_xlsxwriter write (rejected: loses charts,
+images, macros, VBA — destructive). (3) Python ZIP patcher with ElementTree (rejected: slower,
+more memory). (4) Wait for calamine upstream R/W support (rejected: no timeline).
+
+**Consequences**: pycalumya now has three modes: read-only (calamine), write-only (rust_xlsxwriter),
+and modify (WolfXL). Modify mode is 10-14x faster than openpyxl across file sizes (38KB→651KB).
+Preserves images, hyperlinks, charts, comments, and other ZIP entries unchanged. Uses inline
+strings for new values, which slightly increases file size vs shared strings but avoids SST mutation.
+
+**Commit(s)**: `b64b497`, `ffc5cbd`, `15b1c18`, `266086e`
+
 ### DEC-013 — Separate pycalumya compat package in src/pycalumya/ (2026-02-15)
 
 **Context**: pycalumya has proven 3–12x faster than openpyxl with 17/18 feature fidelity. To drive

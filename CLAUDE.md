@@ -4,7 +4,7 @@
 > when you introduce new top-level modules, flows, or dependency directions.
 
 > **DECISION LOG**: When making a significant design or architecture decision, always add an entry
-> to `decisions.md` using the `DEC-NNN` format. Next ID: **DEC-014**.
+> to `decisions.md` using the `DEC-NNN` format. Next ID: **DEC-015**.
 
 ## What This Project Is
 
@@ -102,6 +102,11 @@ rust/excelbench_rust/       # Separate PyO3 crate (not part of hatchling build)
   src/rust_xlsxwriter_backend.rs  # rust_xlsxwriter write bindings (full fidelity + T2/T3)
   src/ooxml_util.rs         # Shared zip/XML helpers for OOXML parsing
   src/umya_backend.rs       # umya-spreadsheet R+W bindings
+  src/wolfxl/               # WolfXL surgical xlsx patcher (modify mode)
+    mod.rs                  # XlsxPatcher PyO3 class + ZIP rewriter
+    shared_strings.rs       # SST parser (read-only, writes use inline strings)
+    styles.rs               # cellXfs parser + font/fill/border/xf appender
+    sheet_patcher.rs        # Streaming XML cell patcher (replace/insert)
 
 fixtures/
   excel/                    # Canonical .xlsx fixtures (git-tracked, Excel-generated)
@@ -160,6 +165,7 @@ tests/                      # pytest + pytest-cov
 - **pycalumya** (hybrid): calamine read + rust_xlsxwriter write → R:17/18 + W:17/18 green (S- tier)
   - calamine-styled: R:17/18 green (borders=1 diagonal, images=0)
   - rust_xlsxwriter: W:17/18 green (images=0)
+  - **WolfXL modify mode**: `load_workbook(path, modify=True)` → surgical ZIP patching, 10-14x vs openpyxl
   - pyumya: R:13/W:15 green (alignment indent, hyperlinks tooltip, images read = upstream)
 - **Performance**: Runner + renderer + throughput dashboard operational; bulk read/write methods on Rust adapters
   - Per-cell read (10K, release): pycalumya **995K/s** vs openpyxl 284K/s → **3.5x faster**
@@ -170,6 +176,7 @@ tests/                      # pytest + pytest-cov
   - Rust adapters have `read_sheet_values()` and `write_sheet_values()` for bulk ops
 - **Visualizations**: Heatmap (PNG/SVG), combined fidelity+perf dashboard, tier list, scatter plots
 - **Rust adapters**: Built locally via maturin; pyo3 0.24; calamine fork at wolfiesch/calamine#styles
+  - Features: `calamine`, `rust_xlsxwriter`, `umya`, `wolfxl` (WolfXL patcher)
 - **CLI commands**: generate, generate-xls, benchmark, benchmark-profiles, perf, report, heatmap, dashboard, html, scatter
 - **CI/CD**: GitHub Actions CI (lint/test/benchmark on all pushes) + deploy-dashboard (auto-deploys HTML to Vercel on results/generator changes)
 

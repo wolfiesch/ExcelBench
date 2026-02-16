@@ -81,11 +81,12 @@ Most-touched top-level directories:
 - `rust/excelbench_rust/` (optional)
   - PyO3 crate that exposes Rust backends to Python (`excelbench_rust` module)
   - Backends include: calamine (read), calamine-styled (read+OOXML T2/T3), rust_xlsxwriter (write),
-    umya-spreadsheet (read/write)
+    umya-spreadsheet (read/write), wolfxl (surgical xlsx patcher for modify mode)
 
 - `src/pycalumya/` (openpyxl-compatible API wrapper)
   - `__init__.py`: public API (`load_workbook`, `Workbook`, style exports)
-  - `_workbook.py`: dual-mode Workbook (read via CalamineStyledBook, write via RustXlsxWriterBook)
+  - `_workbook.py`: three-mode Workbook (read via CalamineStyledBook, write via RustXlsxWriterBook,
+    modify via XlsxPatcher — surgical ZIP patching, 10-14x faster than openpyxl)
   - `_worksheet.py`: Worksheet proxy with `ws['A1']` cell access
   - `_cell.py`: Cell proxy with lazy read dispatch and write-behind accumulation
   - `_styles.py`: frozen dataclasses matching openpyxl names (Font, PatternFill, Border, etc.)
