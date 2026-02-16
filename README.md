@@ -102,14 +102,13 @@ Full methodology: [METHODOLOGY.md](METHODOLOGY.md)
 
 ## WolfXL Docs
 
-WolfXL implementation and migration docs live under `docs/wolfxl/`.
+WolfXL documentation lives in the [wolfxl repository](https://github.com/wolfiesch/wolfxl/tree/main/docs).
 
-- [Docs index](docs/wolfxl/index.md)
-- [Quickstart](docs/wolfxl/getting-started/quickstart.md)
-- [Openpyxl migration guide](docs/wolfxl/migration/openpyxl-migration.md)
-- [Compatibility matrix](docs/wolfxl/migration/compatibility-matrix.md)
-- [Benchmark methodology](docs/wolfxl/performance/methodology.md)
-- [Known limitations](docs/wolfxl/trust/limitations.md)
+- [Quickstart](https://github.com/wolfiesch/wolfxl/blob/main/docs/getting-started/quickstart.md)
+- [Openpyxl migration guide](https://github.com/wolfiesch/wolfxl/blob/main/docs/migration/openpyxl-migration.md)
+- [Compatibility matrix](https://github.com/wolfiesch/wolfxl/blob/main/docs/migration/compatibility-matrix.md)
+- [Benchmark methodology](https://github.com/wolfiesch/wolfxl/blob/main/docs/performance/methodology.md)
+- [Known limitations](https://github.com/wolfiesch/wolfxl/blob/main/docs/trust/limitations.md)
 
 ## Quick Start
 

@@ -71,6 +71,9 @@ packages/
 # mkdocs
 docs/pyumya/site/
 
+# WolfXL docs (moved to wolfxl repo)
+docs/wolfxl/
+
 # Logs
 logs/
 *.log
