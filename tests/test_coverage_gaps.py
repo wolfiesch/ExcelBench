@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from datetime import date
 from pathlib import Path
+from types import ModuleType
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
@@ -775,14 +776,18 @@ class TestRustAdapterUtilsFallbacks:
         """Lines 26-28: exception in build_info → fallback to 'unknown'."""
         from excelbench.harness.adapters.rust_adapter_utils import get_rust_backend_version
 
-        # Patch the import inside the function to raise
+        # Patch wolfxl._rust so import succeeds and build_info raises.
+        wolfxl_pkg = ModuleType("wolfxl")
+        wolfxl_pkg.__path__ = []
+        rust_mod = ModuleType("wolfxl._rust")
+        rust_mod.build_info = MagicMock(side_effect=RuntimeError("broken"))  # type: ignore[attr-defined]
+        rust_mod.__version__ = "1.2.3"  # type: ignore[attr-defined]
+
         with patch.dict(
             "sys.modules",
             {
-                "excelbench_rust": MagicMock(
-                    build_info=MagicMock(side_effect=RuntimeError("broken")),
-                    __version__="1.2.3",
-                )
+                "wolfxl": wolfxl_pkg,
+                "wolfxl._rust": rust_mod,
             },
         ):
             result = get_rust_backend_version("umya-spreadsheet")

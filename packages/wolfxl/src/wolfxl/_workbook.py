@@ -17,7 +17,7 @@ class Workbook:
 
     def __init__(self) -> None:
         """Create a new workbook in write mode with a default 'Sheet'."""
-        import excelbench_rust as _rust
+        from wolfxl import _rust
 
         self._rust_writer: Any = _rust.RustXlsxWriterBook()
         self._rust_reader: Any = None
@@ -30,7 +30,7 @@ class Workbook:
     @classmethod
     def _from_reader(cls, path: str) -> Workbook:
         """Open an existing .xlsx file in read mode."""
-        import excelbench_rust as _rust
+        from wolfxl import _rust
 
         wb = object.__new__(cls)
         wb._rust_writer = None
@@ -46,7 +46,7 @@ class Workbook:
     @classmethod
     def _from_patcher(cls, path: str) -> Workbook:
         """Open an existing .xlsx file in modify mode (read + surgical save)."""
-        import excelbench_rust as _rust
+        from wolfxl import _rust
 
         wb = object.__new__(cls)
         wb._rust_writer = None

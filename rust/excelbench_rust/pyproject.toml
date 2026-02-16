@@ -17,4 +17,5 @@ classifiers = [
 [tool.maturin]
 bindings = "pyo3"
 module-name = "wolfxl._rust"
+python-source = "python"
 manifest-path = "Cargo.toml"

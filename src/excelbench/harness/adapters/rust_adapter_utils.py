@@ -17,13 +17,13 @@ def get_rust_backend_version(backend_key: str) -> str:
 
     try:
         try:
-            import wolfxl._rust as rust  # type: ignore[import-not-found]
+            import wolfxl._rust as rust
         except Exception:  # pragma: no cover
-            import excelbench_rust as rust  # type: ignore[import-not-found]
+            import excelbench_rust as rust
 
         rust_mod: Any = rust
 
-        info = rust_mod.build_info()  # type: ignore[attr-defined]
+        info = rust_mod.build_info()
         if isinstance(info, dict):
             backend_versions = info.get("backend_versions")
             if isinstance(backend_versions, dict) and backend_versions.get(backend_key):

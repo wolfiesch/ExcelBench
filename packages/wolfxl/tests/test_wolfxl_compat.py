@@ -101,7 +101,8 @@ class TestStyles:
 # Read tests (require wolfxl._rust + fixtures)
 # ======================================================================
 
-FIXTURES = Path(__file__).parent.parent / "fixtures" / "excel"
+REPO_ROOT = Path(__file__).resolve().parents[3]
+FIXTURES = REPO_ROOT / "fixtures" / "excel"
 
 
 class TestReadMode:
@@ -431,7 +432,7 @@ class TestRoundTrip:
 # ======================================================================
 
 
-FIXTURE = Path("fixtures/excel/tier1/01_cell_values.xlsx")
+FIXTURE = REPO_ROOT / "fixtures" / "excel" / "tier1" / "01_cell_values.xlsx"
 
 
 class TestModifyMode:
@@ -749,7 +750,7 @@ class TestModifyMode:
 
     def test_modify_multiple_sheets(self, tmp_path: Path) -> None:
         """Modify mode: patch cells across multiple sheets."""
-        multi_fixture = Path("fixtures/excel/tier1/09_multiple_sheets.xlsx")
+        multi_fixture = REPO_ROOT / "fixtures" / "excel" / "tier1" / "09_multiple_sheets.xlsx"
         if not multi_fixture.exists():
             pytest.skip("multi-sheet fixture not available")
 
@@ -775,7 +776,7 @@ class TestModifyMode:
 
     def test_modify_preserves_images(self, tmp_path: Path) -> None:
         """Modify mode: files with images should preserve them after patching."""
-        img_fixture = Path("fixtures/excel/tier2/14_images.xlsx")
+        img_fixture = REPO_ROOT / "fixtures" / "excel" / "tier2" / "14_images.xlsx"
         if not img_fixture.exists():
             pytest.skip("images fixture not available")
 
@@ -806,7 +807,7 @@ class TestModifyMode:
 
     def test_modify_preserves_hyperlinks(self, tmp_path: Path) -> None:
         """Modify mode: files with hyperlinks should preserve them."""
-        link_fixture = Path("fixtures/excel/tier2/13_hyperlinks.xlsx")
+        link_fixture = REPO_ROOT / "fixtures" / "excel" / "tier2" / "13_hyperlinks.xlsx"
         if not link_fixture.exists():
             pytest.skip("hyperlinks fixture not available")
 

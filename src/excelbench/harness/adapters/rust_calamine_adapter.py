@@ -26,7 +26,7 @@ JSONDict = dict[str, Any]
 # Optional dependency guard: ensure the extension exists and the backend was
 # compiled in (feature-flagged builds can omit individual backends).
 try:
-    import wolfxl._rust as _excelbench_rust  # type: ignore[import-not-found]
+    import wolfxl._rust as _excelbench_rust
 except ImportError as e:  # pragma: no cover
     raise ImportError("wolfxl._rust calamine backend unavailable") from e
 
@@ -51,7 +51,7 @@ class RustCalamineAdapter(ReadOnlyAdapter):
         return {".xlsx", ".xls"}
 
     def open_workbook(self, path: Path) -> Any:
-        import wolfxl._rust as rust  # type: ignore[import-not-found]
+        import wolfxl._rust as rust
 
         m: Any = rust
         book_cls = getattr(m, "CalamineBook")

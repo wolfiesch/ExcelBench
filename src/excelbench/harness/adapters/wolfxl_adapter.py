@@ -28,7 +28,7 @@ from excelbench.models import (
 JSONDict = dict[str, Any]
 
 try:
-    import wolfxl._rust as _excelbench_rust  # type: ignore[import-not-found]
+    import wolfxl._rust as _excelbench_rust
 except ImportError as e:  # pragma: no cover
     raise ImportError("wolfxl._rust unavailable — wolfxl adapter requires it") from e
 
@@ -66,7 +66,7 @@ class WolfxlAdapter(ExcelAdapter):
     # =========================================================================
 
     def open_workbook(self, path: Path) -> Any:
-        import wolfxl._rust as rust  # type: ignore[import-not-found]
+        import wolfxl._rust as rust
 
         m: Any = rust
         return getattr(m, "CalamineStyledBook").open(str(path))
@@ -194,7 +194,7 @@ class WolfxlAdapter(ExcelAdapter):
     # =========================================================================
 
     def create_workbook(self) -> Any:
-        import wolfxl._rust as rust  # type: ignore[import-not-found]
+        import wolfxl._rust as rust
 
         m: Any = rust
         return getattr(m, "RustXlsxWriterBook")()

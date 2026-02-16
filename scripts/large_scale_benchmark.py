@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E501
 """Large-scale speed benchmark for Excel adapters.
 
 Generates fixtures at 1M and 10M cell scales, then measures bulk read/write
@@ -12,22 +13,18 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import gc
 import json
-import os
-import resource
 import subprocess
 import sys
-import tempfile
 import time
 from pathlib import Path
 
 # Scale definitions: name -> (rows, cols, approx_cells)
 SCALES = {
-    "100k": (316, 316),      # 99,856 cells (~400 KB)
-    "1m": (1000, 1000),      # 1,000,000 cells (~5 MB)
-    "5m": (2236, 2236),      # 4,999,696 cells (~25 MB)
-    "10m": (3162, 3162),      # 9,998,244 cells (~50 MB)
+    "100k": (316, 316),  # 99,856 cells (~400 KB)
+    "1m": (1000, 1000),  # 1,000,000 cells (~5 MB)
+    "5m": (2236, 2236),  # 4,999,696 cells (~25 MB)
+    "10m": (3162, 3162),  # 9,998,244 cells (~50 MB)
 }
 
 READ_ADAPTERS = ["wolfxl", "calamine-styled", "openpyxl", "python-calamine"]
@@ -128,7 +125,9 @@ print(json.dumps({{
     try:
         result = subprocess.run(
             [sys.executable, "-c", script],
-            capture_output=True, text=True, timeout=600,
+            capture_output=True,
+            text=True,
+            timeout=600,
         )
     except subprocess.TimeoutExpired:
         return {"adapter": adapter, "op": "read", "error": "timeout (10min)"}
@@ -138,7 +137,11 @@ print(json.dumps({{
         try:
             return json.loads(result.stdout.strip())
         except (json.JSONDecodeError, ValueError):
-            return {"adapter": adapter, "op": "read", "error": stderr[-300:] if stderr else "unknown"}
+            return {
+                "adapter": adapter,
+                "op": "read",
+                "error": stderr[-300:] if stderr else "unknown",
+            }
 
     try:
         return json.loads(result.stdout.strip())
@@ -233,7 +236,9 @@ print(json.dumps({{
     try:
         result = subprocess.run(
             [sys.executable, "-c", script],
-            capture_output=True, text=True, timeout=600,
+            capture_output=True,
+            text=True,
+            timeout=600,
         )
     except subprocess.TimeoutExpired:
         return {"adapter": adapter, "op": "write", "error": "timeout (10min)"}
@@ -243,7 +248,11 @@ print(json.dumps({{
         try:
             return json.loads(result.stdout.strip())
         except (json.JSONDecodeError, ValueError):
-            return {"adapter": adapter, "op": "write", "error": stderr[-300:] if stderr else "unknown"}
+            return {
+                "adapter": adapter,
+                "op": "write",
+                "error": stderr[-300:] if stderr else "unknown",
+            }
 
     try:
         return json.loads(result.stdout.strip())
@@ -319,7 +328,7 @@ def main() -> None:
         if do_read:
             print(f"\n  --- Bulk Read ({args.iters} iters, 1 warmup) ---")
             print(f"  {'Adapter':<20s} {'Median':>8s} {'Min':>8s} {'Throughput':>12s} {'RSS':>8s}")
-            print(f"  {'-'*20} {'-'*8} {'-'*8} {'-'*12} {'-'*8}")
+            print(f"  {'-' * 20} {'-' * 8} {'-' * 8} {'-' * 12} {'-' * 8}")
             for adapter in READ_ADAPTERS:
                 print(f"  {adapter:<20s} ", end="", flush=True)
                 r = run_read_benchmark(adapter, str(fixture_path), args.iters)
@@ -339,8 +348,10 @@ def main() -> None:
         # Write benchmarks
         if do_write:
             print(f"\n  --- Bulk Write ({args.iters} iters, 1 warmup) ---")
-            print(f"  {'Adapter':<20s} {'Median':>8s} {'Min':>8s} {'Throughput':>12s} {'File':>8s} {'RSS':>8s}")
-            print(f"  {'-'*20} {'-'*8} {'-'*8} {'-'*12} {'-'*8} {'-'*8}")
+            print(
+                f"  {'Adapter':<20s} {'Median':>8s} {'Min':>8s} {'Throughput':>12s} {'File':>8s} {'RSS':>8s}"
+            )
+            print(f"  {'-' * 20} {'-' * 8} {'-' * 8} {'-' * 12} {'-' * 8} {'-' * 8}")
             for adapter in WRITE_ADAPTERS:
                 print(f"  {adapter:<20s} ", end="", flush=True)
                 r = run_write_benchmark(adapter, rows, cols, args.iters)
@@ -374,13 +385,17 @@ def main() -> None:
                 total_cells = group[0]["cells"]
 
                 print(f"\n  {op.upper()} @ {scale.upper()} ({total_cells:,} cells)")
-                print(f"  {'Rank':<5s} {'Adapter':<20s} {'Median':>8s} {'Throughput':>12s} {'vs fastest':>10s}")
-                print(f"  {'-'*5} {'-'*20} {'-'*8} {'-'*12} {'-'*10}")
+                print(
+                    f"  {'Rank':<5s} {'Adapter':<20s} {'Median':>8s} {'Throughput':>12s} {'vs fastest':>10s}"
+                )
+                print(f"  {'-' * 5} {'-' * 20} {'-' * 8} {'-' * 12} {'-' * 10}")
                 for i, r in enumerate(group, 1):
                     tp = format_throughput(r["cells_per_sec"])
                     ratio = r["median_s"] / fastest if fastest > 0 else 0
                     marker = " <-- fastest" if i == 1 else f" {ratio:.1f}x slower"
-                    print(f"  {i:<5d} {r['adapter']:<20s} {r['median_s']:>7.3f}s {tp:>12s} {marker}")
+                    print(
+                        f"  {i:<5d} {r['adapter']:<20s} {r['median_s']:>7.3f}s {tp:>12s} {marker}"
+                    )
 
     if args.output:
         out_path = Path(args.output)

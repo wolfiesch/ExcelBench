@@ -28,7 +28,7 @@ JSONDict = dict[str, Any]
 # without the rust_xlsxwriter backend, importing this adapter should fail so
 # that the adapter registry can skip it.
 try:
-    import wolfxl._rust as _excelbench_rust  # type: ignore[import-not-found]
+    import wolfxl._rust as _excelbench_rust
 except ImportError as e:  # pragma: no cover
     raise ImportError("wolfxl._rust rust_xlsxwriter backend unavailable") from e
 
@@ -47,7 +47,7 @@ class RustXlsxWriterAdapter(WriteOnlyAdapter):
         )
 
     def create_workbook(self) -> Any:
-        import wolfxl._rust as rust  # type: ignore[import-not-found]
+        import wolfxl._rust as rust
 
         m: Any = rust
         cls = getattr(m, "RustXlsxWriterBook")

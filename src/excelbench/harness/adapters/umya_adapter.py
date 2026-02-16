@@ -32,7 +32,7 @@ JSONDict = dict[str, Any]
 
 
 try:
-    import wolfxl._rust as _excelbench_rust  # type: ignore[import-not-found]
+    import wolfxl._rust as _excelbench_rust
 except ImportError as e:  # pragma: no cover
     raise ImportError("wolfxl._rust umya backend unavailable") from e
 
@@ -59,7 +59,7 @@ class UmyaAdapter(ExcelAdapter):
     # =========================================================================
 
     def open_workbook(self, path: Path) -> Any:
-        import wolfxl._rust as rust  # type: ignore[import-not-found]
+        import wolfxl._rust as rust
 
         m: Any = rust
         cls = getattr(m, "UmyaBook")
@@ -132,7 +132,7 @@ class UmyaAdapter(ExcelAdapter):
     # =========================================================================
 
     def create_workbook(self) -> Any:
-        import wolfxl._rust as rust  # type: ignore[import-not-found]
+        import wolfxl._rust as rust
 
         m: Any = rust
         cls = getattr(m, "UmyaBook")

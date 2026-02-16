@@ -6,8 +6,11 @@ import pytest
 
 
 def test_excelbench_rust_smoke(tmp_path: Path) -> None:
-    pytest.importorskip("wolfxl._rust")
-    from wolfxl._rust import UmyaBook
+    rust = pytest.importorskip("wolfxl._rust")
+    if getattr(rust, "UmyaBook", None) is None:
+        pytest.skip("wolfxl._rust compiled without umya backend")
+
+    umya_book_cls = rust.UmyaBook
 
     # Create a tiny PNG for image insertion.
     from PIL import Image
@@ -17,7 +20,7 @@ def test_excelbench_rust_smoke(tmp_path: Path) -> None:
 
     out_path = tmp_path / "smoke.xlsx"
 
-    book = UmyaBook()
+    book = umya_book_cls()
     book.add_sheet("Data")
 
     book.write_cell_value("Data", "A1", {"type": "string", "value": "Hello"})
@@ -59,7 +62,7 @@ def test_excelbench_rust_smoke(tmp_path: Path) -> None:
 
     book.save(str(out_path))
 
-    reopened = UmyaBook.open(str(out_path))
+    reopened = umya_book_cls.open(str(out_path))
     assert "Data" in reopened.sheet_names()
 
     panes = reopened.read_freeze_panes("Data")

@@ -71,3 +71,4 @@ docs/pyumya/site/
 # Logs
 logs/
 *.log
+.vercel

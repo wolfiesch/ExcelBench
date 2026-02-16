@@ -17,8 +17,8 @@ import pytest
 from excelbench.models import BorderEdge, BorderInfo, BorderStyle, CellFormat
 
 
-def _enabled_backends(excelbench_rust: Any) -> set[str]:
-    info = excelbench_rust.build_info()
+def _enabled_backends(rust_mod: Any) -> set[str]:
+    info = rust_mod.build_info()
     if isinstance(info, dict):
         enabled = info.get("enabled_backends")
         if isinstance(enabled, list):
@@ -26,10 +26,10 @@ def _enabled_backends(excelbench_rust: Any) -> set[str]:
     return set()
 
 
-def test_registry_works_without_excelbench_rust() -> None:
+def test_registry_works_without_wolfxl_rust() -> None:
     """If the native extension isn't installed, adapter discovery must still work."""
-    if importlib.util.find_spec("excelbench_rust") is not None:
-        pytest.skip("excelbench_rust installed; this test targets no-extension environments")
+    if importlib.util.find_spec("wolfxl._rust") is not None:
+        pytest.skip("wolfxl._rust installed; this test targets no-extension environments")
 
     from excelbench.harness.adapters import get_all_adapters
 
@@ -40,10 +40,10 @@ def test_registry_works_without_excelbench_rust() -> None:
 
 
 def test_rust_calamine_datetime_semantics() -> None:
-    excelbench_rust = pytest.importorskip("excelbench_rust")
-    enabled = _enabled_backends(excelbench_rust)
+    rust = pytest.importorskip("wolfxl._rust")
+    enabled = _enabled_backends(rust)
     if "calamine" not in enabled:
-        pytest.skip("excelbench_rust compiled without calamine backend")
+        pytest.skip("wolfxl._rust compiled without calamine backend")
 
     from excelbench.harness.adapters.openpyxl_adapter import OpenpyxlAdapter
     from excelbench.harness.adapters.rust_calamine_adapter import RustCalamineAdapter
@@ -78,10 +78,10 @@ def test_rust_calamine_datetime_semantics() -> None:
 
 
 def test_rust_xlsxwriter_preserves_sheet_insertion_order() -> None:
-    excelbench_rust = pytest.importorskip("excelbench_rust")
-    enabled = _enabled_backends(excelbench_rust)
+    rust = pytest.importorskip("wolfxl._rust")
+    enabled = _enabled_backends(rust)
     if "rust_xlsxwriter" not in enabled:
-        pytest.skip("excelbench_rust compiled without rust_xlsxwriter backend")
+        pytest.skip("wolfxl._rust compiled without rust_xlsxwriter backend")
 
     import openpyxl
 
@@ -111,10 +111,10 @@ def test_rust_xlsxwriter_preserves_sheet_insertion_order() -> None:
 
 
 def test_rust_xlsxwriter_error_tokens_write_expected_formula() -> None:
-    excelbench_rust = pytest.importorskip("excelbench_rust")
-    enabled = _enabled_backends(excelbench_rust)
+    rust = pytest.importorskip("wolfxl._rust")
+    enabled = _enabled_backends(rust)
     if "rust_xlsxwriter" not in enabled:
-        pytest.skip("excelbench_rust compiled without rust_xlsxwriter backend")
+        pytest.skip("wolfxl._rust compiled without rust_xlsxwriter backend")
 
     import openpyxl
 
@@ -141,10 +141,10 @@ def test_rust_xlsxwriter_error_tokens_write_expected_formula() -> None:
 
 
 def test_rust_xlsxwriter_writes_dates_as_excel_dates() -> None:
-    excelbench_rust = pytest.importorskip("excelbench_rust")
-    enabled = _enabled_backends(excelbench_rust)
+    rust = pytest.importorskip("wolfxl._rust")
+    enabled = _enabled_backends(rust)
     if "rust_xlsxwriter" not in enabled:
-        pytest.skip("excelbench_rust compiled without rust_xlsxwriter backend")
+        pytest.skip("wolfxl._rust compiled without rust_xlsxwriter backend")
 
     import openpyxl
 
@@ -179,10 +179,10 @@ def test_rust_xlsxwriter_writes_dates_as_excel_dates() -> None:
 
 
 def test_umya_write_date_datetime_and_error_encodings() -> None:
-    excelbench_rust = pytest.importorskip("excelbench_rust")
-    enabled = _enabled_backends(excelbench_rust)
+    rust = pytest.importorskip("wolfxl._rust")
+    enabled = _enabled_backends(rust)
     if "umya-spreadsheet" not in enabled:
-        pytest.skip("excelbench_rust compiled without umya backend")
+        pytest.skip("wolfxl._rust compiled without umya backend")
 
     import openpyxl
 
@@ -223,10 +223,10 @@ def test_umya_write_date_datetime_and_error_encodings() -> None:
 
 
 def test_umya_reads_openpyxl_dates_as_date_and_datetime() -> None:
-    excelbench_rust = pytest.importorskip("excelbench_rust")
-    enabled = _enabled_backends(excelbench_rust)
+    rust = pytest.importorskip("wolfxl._rust")
+    enabled = _enabled_backends(rust)
     if "umya-spreadsheet" not in enabled:
-        pytest.skip("excelbench_rust compiled without umya backend")
+        pytest.skip("wolfxl._rust compiled without umya backend")
 
     from excelbench.harness.adapters.openpyxl_adapter import OpenpyxlAdapter
     from excelbench.harness.adapters.umya_adapter import UmyaAdapter
@@ -266,17 +266,17 @@ def test_umya_reads_openpyxl_dates_as_date_and_datetime() -> None:
 
 
 def _skip_unless_rust_xlsxwriter() -> None:
-    excelbench_rust = pytest.importorskip("excelbench_rust")
-    enabled = _enabled_backends(excelbench_rust)
+    rust = pytest.importorskip("wolfxl._rust")
+    enabled = _enabled_backends(rust)
     if "rust_xlsxwriter" not in enabled:
-        pytest.skip("excelbench_rust compiled without rust_xlsxwriter backend")
+        pytest.skip("wolfxl._rust compiled without rust_xlsxwriter backend")
 
 
 def _skip_unless_umya() -> None:
-    excelbench_rust = pytest.importorskip("excelbench_rust")
-    enabled = _enabled_backends(excelbench_rust)
+    rust = pytest.importorskip("wolfxl._rust")
+    enabled = _enabled_backends(rust)
     if "umya-spreadsheet" not in enabled:
-        pytest.skip("excelbench_rust compiled without umya backend")
+        pytest.skip("wolfxl._rust compiled without umya backend")
 
 
 def test_rust_xlsxwriter_writes_bold_italic() -> None:
@@ -295,12 +295,8 @@ def test_rust_xlsxwriter_writes_bold_italic() -> None:
         adapter = RustXlsxWriterAdapter()
         wb = adapter.create_workbook()
         adapter.add_sheet(wb, "S")
-        adapter.write_cell_value(
-            wb, "S", "A1", CellValue(type=CellType.STRING, value="hello")
-        )
-        adapter.write_cell_format(
-            wb, "S", "A1", CellFormat(bold=True, italic=True)
-        )
+        adapter.write_cell_value(wb, "S", "A1", CellValue(type=CellType.STRING, value="hello"))
+        adapter.write_cell_format(wb, "S", "A1", CellFormat(bold=True, italic=True))
         adapter.save_workbook(wb, path)
 
         wb2 = openpyxl.load_workbook(str(path))
@@ -328,9 +324,7 @@ def test_rust_xlsxwriter_writes_font_and_bg_color() -> None:
         adapter = RustXlsxWriterAdapter()
         wb = adapter.create_workbook()
         adapter.add_sheet(wb, "S")
-        adapter.write_cell_value(
-            wb, "S", "A1", CellValue(type=CellType.STRING, value="colored")
-        )
+        adapter.write_cell_value(wb, "S", "A1", CellValue(type=CellType.STRING, value="colored"))
         adapter.write_cell_format(
             wb, "S", "A1", CellFormat(font_color="#FF0000", bg_color="#00FF00")
         )
@@ -361,9 +355,7 @@ def test_rust_xlsxwriter_writes_borders() -> None:
         adapter = RustXlsxWriterAdapter()
         wb = adapter.create_workbook()
         adapter.add_sheet(wb, "S")
-        adapter.write_cell_value(
-            wb, "S", "A1", CellValue(type=CellType.STRING, value="bordered")
-        )
+        adapter.write_cell_value(wb, "S", "A1", CellValue(type=CellType.STRING, value="bordered"))
         adapter.write_cell_border(
             wb,
             "S",
@@ -405,9 +397,7 @@ def test_rust_xlsxwriter_writes_alignment() -> None:
         adapter = RustXlsxWriterAdapter()
         wb = adapter.create_workbook()
         adapter.add_sheet(wb, "S")
-        adapter.write_cell_value(
-            wb, "S", "A1", CellValue(type=CellType.STRING, value="centered")
-        )
+        adapter.write_cell_value(wb, "S", "A1", CellValue(type=CellType.STRING, value="centered"))
         adapter.write_cell_format(
             wb, "S", "A1", CellFormat(h_align="center", v_align="top", wrap=True)
         )
@@ -439,9 +429,7 @@ def test_rust_xlsxwriter_writes_row_height_and_col_width() -> None:
         adapter = RustXlsxWriterAdapter()
         wb = adapter.create_workbook()
         adapter.add_sheet(wb, "S")
-        adapter.write_cell_value(
-            wb, "S", "A1", CellValue(type=CellType.STRING, value="x")
-        )
+        adapter.write_cell_value(wb, "S", "A1", CellValue(type=CellType.STRING, value="x"))
         adapter.set_row_height(wb, "S", 1, 30.0)
         adapter.set_column_width(wb, "S", "A", 20.0)
         adapter.save_workbook(wb, path)
@@ -469,9 +457,7 @@ def test_umya_writes_bold_and_reads_back() -> None:
         adapter = UmyaAdapter()
         wb = adapter.create_workbook()
         adapter.add_sheet(wb, "S")
-        adapter.write_cell_value(
-            wb, "S", "A1", CellValue(type=CellType.STRING, value="bold")
-        )
+        adapter.write_cell_value(wb, "S", "A1", CellValue(type=CellType.STRING, value="bold"))
         adapter.write_cell_format(
             wb, "S", "A1", CellFormat(bold=True, italic=True, font_color="#FF0000")
         )
@@ -502,9 +488,7 @@ def test_umya_writes_borders_and_reads_back() -> None:
         adapter = UmyaAdapter()
         wb = adapter.create_workbook()
         adapter.add_sheet(wb, "S")
-        adapter.write_cell_value(
-            wb, "S", "A1", CellValue(type=CellType.STRING, value="borders")
-        )
+        adapter.write_cell_value(wb, "S", "A1", CellValue(type=CellType.STRING, value="borders"))
         adapter.write_cell_border(
             wb,
             "S",
@@ -577,9 +561,7 @@ def test_umya_writes_row_height_and_col_width_roundtrip() -> None:
         adapter = UmyaAdapter()
         wb = adapter.create_workbook()
         adapter.add_sheet(wb, "S")
-        adapter.write_cell_value(
-            wb, "S", "A1", CellValue(type=CellType.STRING, value="x")
-        )
+        adapter.write_cell_value(wb, "S", "A1", CellValue(type=CellType.STRING, value="x"))
         adapter.set_row_height(wb, "S", 1, 30.0)
         adapter.set_column_width(wb, "S", "A", 20.0)
         adapter.save_workbook(wb, path)
@@ -611,9 +593,7 @@ def test_umya_write_format_verified_by_openpyxl() -> None:
         adapter = UmyaAdapter()
         wb = adapter.create_workbook()
         adapter.add_sheet(wb, "S")
-        adapter.write_cell_value(
-            wb, "S", "A1", CellValue(type=CellType.STRING, value="test")
-        )
+        adapter.write_cell_value(wb, "S", "A1", CellValue(type=CellType.STRING, value="test"))
         adapter.write_cell_format(
             wb,
             "S",
