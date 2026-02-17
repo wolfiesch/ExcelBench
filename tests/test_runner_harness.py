@@ -773,7 +773,7 @@ class TestWriteCaseFunctions:
 
     def test_write_number_format_date_uses_numeric_value(self) -> None:
         adapter = MagicMock()
-        wb = {}
+        wb: dict[str, object] = {}
         _write_number_format_case(adapter, wb, "S1", "A1", {"number_format": "yyyy-mm-dd"})
 
         value_call = adapter.write_cell_value.call_args

@@ -4,7 +4,8 @@
 
 Most Excel library comparisons focus on speed. ExcelBench answers the question developers actually have: **"Can this library handle my complex spreadsheet?"**
 
-We test 17 features across 12+ Python adapters, scoring each on a 0-3 fidelity scale against real Excel-generated reference files.
+We test 17 XLSX features across 12+ Python adapters. In current public runs, 16 are scoreable
+across libraries (pivot tables are tested but N/A on macOS fixtures).
 
 ## Results at a Glance
 
@@ -23,7 +24,7 @@ We test 17 features across 12+ Python adapters, scoring each on a 0-3 fidelity s
 | **S-** | wolfxl, rust_xlsxwriter | 14/16 | Rust-backed -- high fidelity with 3-5x throughput |
 | **A** | xlsxwriter-constmem | 12/16 | Memory-optimized write -- loses images, comments, row height |
 | **B** | xlwt | 4/16 | Legacy .xls writer -- basic formatting subset |
-| **C** | openpyxl-readonly, pandas, pyexcel, pylightxl, tablib | 2-3/16 | Values + basic formatting only |
+| **C** | openpyxl-readonly, pandas, pyexcel, pylightxl, tablib | 3/16 | Values + basic formatting only |
 | **D** | polars | 0/16 | Columnar type coercion drops all fidelity |
 
 ### Key Findings
@@ -50,13 +51,13 @@ See the [full dashboard](results/DASHBOARD.md) for the combined fidelity + perfo
 | Library | Version | Lang | Caps | Green Features |
 |:--------|:--------|:-----|:-----|:--------------:|
 | [openpyxl](https://openpyxl.readthedocs.io/) | 3.1.5 | Python | R+W | 16/16 |
-| [XlsxWriter](https://xlsxwriter.readthedocs.io/) | 3.2.9 | Python | W | 16/16 |
-| [xlsxwriter-constmem](https://xlsxwriter.readthedocs.io/) | 3.2.9 | Python | W | 13/16 |
+| [XlsxWriter](https://xlsxwriter.readthedocs.io/) | 3.2.9 | Python | W | 15/16 |
+| [xlsxwriter-constmem](https://xlsxwriter.readthedocs.io/) | 3.2.9 | Python | W | 12/16 |
 | [openpyxl-readonly](https://openpyxl.readthedocs.io/) | 3.1.5 | Python | R | 3/16 |
 | [pandas](https://pandas.pydata.org/) | 3.0.0 | Python | R+W | 3/16 |
 | [pyexcel](https://github.com/pyexcel/pyexcel) | 0.7.4 | Python | R+W | 3/16 |
 | [tablib](https://tablib.readthedocs.io/) | 3.9.0 | Python | R+W | 3/16 |
-| [pylightxl](https://github.com/PydPiper/pylightxl) | 1.61 | Python | R+W | 2/16 |
+| [pylightxl](https://github.com/PydPiper/pylightxl) | 1.61 | Python | R+W | 3/16 |
 | [python-calamine](https://github.com/dimastbk/python-calamine) | 0.6.1 | Rust | R | 1/16 |
 | [polars](https://pola.rs/) | 1.38.1 | Rust | R | 0/16 |
 | [xlwt](https://github.com/python-excel/xlwt) | 1.3.0 | Python | W | 4/16 |
@@ -138,7 +139,7 @@ uv run excelbench generate --output fixtures/excel
 
 ## Feature Coverage
 
-### Scored (17 features)
+### Tested (17 features; 16 currently scoreable)
 
 | Tier | Features | Count |
 |:-----|:---------|:-----:|
@@ -146,7 +147,8 @@ uv run excelbench generate --output fixtures/excel
 | **Tier 1** -- Formatting | Text formatting, background colors, number formats, alignment, borders, dimensions | 6 |
 | **Tier 2** -- Advanced | Merged cells, conditional formatting, data validation, hyperlinks, images, comments, freeze panes, pivot tables | 8 |
 
-> Pivot tables are tested but score N/A across all adapters -- no Python library supports programmatic pivot table creation. Library scores use a /16 denominator (excluding pivot tables).
+> Pivot tables are tested but score N/A across all adapters in the current macOS run.
+> Library green-feature scores therefore use a /16 denominator (excluding pivot tables).
 
 ### Planned
 

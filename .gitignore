@@ -52,6 +52,7 @@ results_dev*/
 target/
 Cargo.lock
 !rust/**/Cargo.lock
+rust/**/uv.lock
 
 # Jupyter
 .ipynb_checkpoints/

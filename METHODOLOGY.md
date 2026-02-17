@@ -43,7 +43,9 @@ Features are organized into tiers reflecting complexity:
 | **Tier 2** (Advanced) | comments, conditional_formatting, data_validation, freeze_panes, hyperlinks, images, merged_cells, pivot_tables | 8 |
 | **Tier 3** (Workbook Metadata) | named_ranges, tables | 2 |
 
-**Total: 19 features** (17 scored in current results; pivot_tables scores N/A across all adapters due to lack of library support; named_ranges and tables scored for adapters that support them).
+**Framework coverage:** 19 modeled features total.
+**Current public XLSX profile:** 17 tested features, where 16 are scoreable per-library in
+current results (pivot_tables is tested but N/A across adapters on macOS fixtures).
 
 ## Scoring
 
