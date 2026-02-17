@@ -686,13 +686,6 @@ def read_alignment_actual(
         result["rotation"] = fmt.rotation
     if fmt.indent is not None:
         result["indent"] = fmt.indent
-    # Excel defaults: h_align="general", v_align="bottom".
-    # Some libraries omit defaults. Inject them when the expected
-    # value would otherwise compare against an empty dict.
-    if "h_align" not in result:
-        result["h_align"] = "general"
-    if "v_align" not in result:
-        result["v_align"] = "bottom"
     return result
 
 
@@ -1784,11 +1777,13 @@ def _write_number_format_case(
     number_format = expected.get("number_format")
     value: Any = 1234.5
     value_type = CellType.NUMBER
-    if number_format and any(token in number_format for token in ["y", "m", "d"]):
-        from datetime import date
-
-        value = date(2026, 2, 4)
-        value_type = CellType.DATE
+    if isinstance(number_format, str) and any(
+        token in number_format.lower() for token in ["y", "m", "d"]
+    ):
+        # Use a numeric serial for date-like formats. This avoids accidental
+        # passes where libraries ignore write_cell_format() but a default date
+        # number format is auto-assigned for native date objects.
+        value = 45326.0  # 2024-02-04 in Excel's 1900 date system.
     adapter.write_cell_value(workbook, sheet, cell, CellValue(type=value_type, value=value))
     adapter.write_cell_format(workbook, sheet, cell, _cell_format_from_expected(expected))
 

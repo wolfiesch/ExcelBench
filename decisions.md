@@ -40,6 +40,25 @@ Skip logging for routine bug fixes, refactors, or incremental test additions.
 
 ## Decisions
 
+### DEC-017 — Do not inject Excel alignment defaults in benchmark comparisons (2026-02-17)
+
+**Context**: Several value-focused adapters return an empty `CellFormat()` for alignment reads/writes.
+The harness previously injected Excel defaults (`h_align=general`, `v_align=bottom`) during
+comparison, which created false-positive passes (notably `v_bottom`) even when no alignment
+transformation happened.
+
+**Decision**: Remove default alignment injection from the harness comparison path. Alignment checks now
+use only values explicitly surfaced by the adapter/oracle. This prevents unsupported adapters from
+earning non-zero alignment credit via implicit defaults.
+
+**Alternatives considered**: (1) Keep default injection and only change fixtures (rejected: fragile,
+still allows accidental matches). (2) Keep injection but add per-adapter exemptions (rejected:
+complex, brittle, and hard to reason about). (3) Remove the `v_bottom` case entirely (rejected: this
+remains a useful explicit-read test for adapters that truly report bottom alignment).
+
+**Consequences**: Some previously non-zero alignment results drop to zero where support was not real.
+Scores are stricter but more semantically accurate and less susceptible to default-value artifacts.
+
 ### DEC-016 — Extract WolfXL to standalone GitHub repo + PyPI (2026-02-15)
 
 **Context**: WolfXL was embedded inside ExcelBench across `packages/wolfxl/` (Python wrapper) and

@@ -767,9 +767,20 @@ class TestWriteCaseFunctions:
         _write_number_format_case(adapter, wb, "S1", "A1", {"number_format": "yyyy-mm-dd"})
         adapter.save_workbook(wb, tmp_path / "out.xlsx")
         wb2 = adapter.open_workbook(tmp_path / "out.xlsx")
-        v = adapter.read_cell_value(wb2, "S1", "A1")
-        assert v.type == CellType.DATE
+        fmt = adapter.read_cell_format(wb2, "S1", "A1")
+        assert fmt.number_format == "yyyy-mm-dd"
         adapter.close_workbook(wb2)
+
+    def test_write_number_format_date_uses_numeric_value(self) -> None:
+        adapter = MagicMock()
+        wb = {}
+        _write_number_format_case(adapter, wb, "S1", "A1", {"number_format": "yyyy-mm-dd"})
+
+        value_call = adapter.write_cell_value.call_args
+        assert value_call is not None
+        cell_value = value_call.args[3]
+        assert cell_value.type == CellType.NUMBER
+        assert isinstance(cell_value.value, (int, float))
 
     def test_write_alignment_case(self, adapter: OpenpyxlAdapter, tmp_path: Path) -> None:
         wb = adapter.create_workbook()
@@ -1141,11 +1152,10 @@ class TestFindByKey:
 
 
 class TestReadAlignmentActual:
-    def test_defaults_injected(self, adapter: OpenpyxlAdapter) -> None:
+    def test_defaults_not_injected(self, adapter: OpenpyxlAdapter) -> None:
         wb = adapter.open_workbook(FIXTURES_DIR / "tier1/01_cell_values.xlsx")
         result = read_alignment_actual(adapter, wb, "cell_values", "B2")
-        assert result["h_align"] == "general"
-        assert result["v_align"] == "bottom"
+        assert result == {}
         adapter.close_workbook(wb)
 
 

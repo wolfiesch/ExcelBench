@@ -289,6 +289,12 @@ class TestReadTextFormatActual:
 
 
 class TestReadAlignmentActual:
+    def test_empty_format_returns_empty_dict(self) -> None:
+        adapter = _mock_adapter()
+        adapter.read_cell_format.return_value = CellFormat()
+        result = read_alignment_actual(adapter, MagicMock(), "Sheet1", "B2")
+        assert result == {}
+
     def test_wrap_rotation_indent(self) -> None:
         """Wrap, rotation, and indent branches should all appear."""
         adapter = _mock_adapter()
