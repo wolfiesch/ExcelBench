@@ -10,6 +10,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from excelbench.results.report_policy import filter_report_data, modify_mode_label
+
 
 def render_dashboard(
     fidelity_json: Path,
@@ -25,11 +27,13 @@ def render_dashboard(
     """
     with open(fidelity_json) as f:
         fidelity_data = json.load(f)
+    fidelity_data = filter_report_data(fidelity_data)
 
     perf_data: dict[str, Any] | None = None
     if perf_json and perf_json.exists():
         with open(perf_json) as f:
             perf_data = json.load(f)
+        perf_data = filter_report_data(perf_data)
 
     lines = _build_dashboard(fidelity_data, perf_data)
 
@@ -43,6 +47,8 @@ def _build_dashboard(
     perf: dict[str, Any] | None,
 ) -> list[str]:
     """Build combined dashboard markdown lines."""
+    fidelity = filter_report_data(fidelity)
+    perf = filter_report_data(perf) if perf else None
     lines: list[str] = []
 
     profile = fidelity.get("metadata", {}).get("profile", "xlsx")
@@ -73,19 +79,19 @@ def _build_dashboard(
 
     if has_perf:
         lines.append(
-            "| Library | Caps | Green Features | Pass Rate | "
+            "| Library | Caps | Modify | Green Features | Pass Rate | "
             "Read (cells/s) | Write (cells/s) | Best For |"
         )
         lines.append(
-            "|---------|:----:|:--------------:|:---------:|"
+            "|---------|:----:|:------:|:--------------:|:---------:|"
             ":--------------:|:---------------:|----------|"
         )
     else:
         lines.append(
-            "| Library | Caps | Green Features | Pass Rate | Best For |"
+            "| Library | Caps | Modify | Green Features | Pass Rate | Best For |"
         )
         lines.append(
-            "|---------|:----:|:--------------:|:---------:|----------|"
+            "|---------|:----:|:------:|:--------------:|:---------:|----------|"
         )
 
     for lib in sorted_libs:
@@ -100,12 +106,13 @@ def _build_dashboard(
             r_rate = _fmt_rate(throughput.get("read_rate"))
             w_rate = _fmt_rate(throughput.get("write_rate"))
             lines.append(
-                f"| {lib} | {stats['caps']} | {green_str} | {pass_str} | "
+                f"| {lib} | {stats['caps']} | {stats['modify']} | {green_str} | {pass_str} | "
                 f"{r_rate} | {w_rate} | {best_for} |"
             )
         else:
             lines.append(
-                f"| {lib} | {stats['caps']} | {green_str} | {pass_str} | {best_for} |"
+                f"| {lib} | {stats['caps']} | {stats['modify']} | "
+                f"{green_str} | {pass_str} | {best_for} |"
             )
 
     lines.append("")
@@ -170,6 +177,7 @@ def _compute_fidelity_stats(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
 
         out[lib] = {
             "caps": caps_label,
+            "modify": modify_mode_label(lib, list(caps)),
             "best_green": best_green,
             "total_scored": total_scored,
             "pass_rate": pass_rate,
@@ -306,20 +314,12 @@ def _best_adapter_by_workload_profile(perf: dict[str, Any] | None) -> list[str]:
     lines.append("| Workload Size | Best Read Adapter | Best Write Adapter |")
     lines.append("|---------------|-------------------|--------------------|")
 
-    has_any = False
     for size in ("small", "medium", "large"):
         read = by_size[size].get("read")
         write = by_size[size].get("write")
-        if read or write:
-            has_any = True
         read_label = f"{read[0]} ({_fmt_rate(read[1])} cells/s)" if read else "—"
         write_label = f"{write[0]} ({_fmt_rate(write[1])} cells/s)" if write else "—"
         lines.append(f"| {size} | {read_label} | {write_label} |")
-
-    if not has_any:
-        lines.append("| small | — | — |")
-        lines.append("| medium | — | — |")
-        lines.append("| large | — | — |")
 
     lines.append("")
     return lines

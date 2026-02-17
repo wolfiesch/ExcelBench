@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 from matplotlib.colors import ListedColormap  # noqa: E402
 
+from excelbench.results.report_policy import filter_report_data
+
 # Feature display order (tier-grouped)
 _FEATURE_ORDER: list[str] = [
     # Tier 0
@@ -71,7 +73,7 @@ def render_heatmap(results_json: Path, output_dir: Path) -> list[Path]:
     Returns list of generated file paths.
     """
     with open(results_json) as f:
-        data = json.load(f)
+        data = filter_report_data(json.load(f))
 
     matrix, feature_labels, lib_labels = _build_matrix(data)
 

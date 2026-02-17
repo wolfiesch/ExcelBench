@@ -264,6 +264,32 @@ def test_render_markdown_write_only_lib_stats(tmp_path: Path) -> None:
     assert "Write" in content
 
 
+def test_render_markdown_hides_pyumya_and_includes_modify_label(tmp_path: Path) -> None:
+    results = _make_results(
+        features=["cell_values"],
+        libs={"openpyxl": ["read", "write"], "pyumya": ["read", "write"]},
+        scores=[
+            FeatureScore(
+                feature="cell_values",
+                library="openpyxl",
+                read_score=3,
+                write_score=3,
+            ),
+            FeatureScore(
+                feature="cell_values",
+                library="pyumya",
+                read_score=3,
+                write_score=3,
+            ),
+        ],
+    )
+    out = tmp_path / "test.md"
+    render_markdown(results, out)
+    content = out.read_text()
+    assert "modify: Rewrite" in content
+    assert "pyumya" not in content
+
+
 # ─────────────────────────────────────────────────
 # fidelity deltas
 # ─────────────────────────────────────────────────

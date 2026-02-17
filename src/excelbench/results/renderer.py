@@ -3,10 +3,12 @@
 import json
 import subprocess
 from collections.abc import Callable
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
 from excelbench.models import BenchmarkResults, Diagnostic, FeatureScore, OperationType, TestResult
+from excelbench.results.report_policy import is_visible_library, modify_mode_label
 
 # Feature tier assignments
 _FEATURE_TIERS: dict[str, tuple[int, str]] = {
@@ -80,6 +82,7 @@ _SHORT_FEATURE_NAMES: dict[str, str] = {
 
 def render_results(results: BenchmarkResults, output_dir: Path) -> None:
     """Render results to all output formats."""
+    results = _filter_hidden_libraries(results)
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -92,6 +95,7 @@ def render_results(results: BenchmarkResults, output_dir: Path) -> None:
 
 def render_json(results: BenchmarkResults, path: Path) -> None:
     """Render results to JSON."""
+    results = _filter_hidden_libraries(results)
     data = {
         "metadata": {
             "benchmark_version": results.metadata.benchmark_version,
@@ -130,6 +134,7 @@ def render_json(results: BenchmarkResults, path: Path) -> None:
 
 def render_markdown(results: BenchmarkResults, path: Path) -> None:
     """Render results to markdown summary."""
+    results = _filter_hidden_libraries(results)
     lines: list[str] = []
 
     # Header
@@ -229,7 +234,10 @@ def render_markdown(results: BenchmarkResults, path: Path) -> None:
     lines.append("")
     for name, info in sorted(results.libraries.items()):
         caps_str = ", ".join(sorted(info.capabilities))
-        lines.append(f"- **{name}** v{info.version} ({info.language}) - {caps_str}")
+        modify = modify_mode_label(name, info.capabilities)
+        lines.append(
+            f"- **{name}** v{info.version} ({info.language}) - {caps_str}; modify: {modify}"
+        )
     lines.append("")
 
     # Diagnostic summaries
@@ -398,11 +406,12 @@ def _render_tier_list(
     lines: list[str] = []
 
     # Compute stats per library: best green features (max of R green, W green)
-    lib_stats: list[tuple[str, int, int, str]] = []  # (lib, best_green, total_scored, caps_str)
+    lib_stats: list[tuple[str, int, int, str, str]] = []
     for lib in libraries:
         caps = results.libraries[lib].capabilities
         has_rw = "read" in caps and "write" in caps
         caps_label = "R+W" if has_rw else ("R" if "read" in caps else "W")
+        modify = modify_mode_label(lib, caps)
 
         r_green = 0
         w_green = 0
@@ -425,7 +434,7 @@ def _render_tier_list(
         total_scored = max(r_scored, w_scored)
         if total_scored == 0:
             continue
-        lib_stats.append((lib, best_green, total_scored, caps_label))
+        lib_stats.append((lib, best_green, total_scored, caps_label, modify))
 
     if not lib_stats:
         return lines
@@ -448,10 +457,10 @@ def _render_tier_list(
         "> Libraries ranked by their best capability (max of read/write green features)."
     )
     lines.append("")
-    lines.append("| Tier | Library | Caps | Green Features | Summary |")
-    lines.append("|:----:|---------|:----:|:--------------:|---------|")
+    lines.append("| Tier | Library | Caps | Modify | Green Features | Summary |")
+    lines.append("|:----:|---------|:----:|:------:|:--------------:|---------|")
 
-    for lib, best_green, total_scored, caps_label in lib_stats:
+    for lib, best_green, total_scored, caps_label, modify in lib_stats:
         tier_label = "D"
         for t_label, _, predicate in tier_defs:
             if predicate(best_green, total_scored):
@@ -459,7 +468,7 @@ def _render_tier_list(
                 break
         summary = _lib_summary(lib, best_green, total_scored)
         lines.append(
-            f"| **{tier_label}** | {lib} | {caps_label} | "
+            f"| **{tier_label}** | {lib} | {caps_label} | {modify} | "
             f"{best_green}/{total_scored} | {summary} |"
         )
 
@@ -638,6 +647,7 @@ def _render_per_test_table(score: FeatureScore) -> list[str]:
 
 def render_csv(results: BenchmarkResults, path: Path) -> None:
     """Render results to CSV."""
+    results = _filter_hidden_libraries(results)
     lines = ["library,feature,read_score,write_score"]
 
     for score in results.scores:
@@ -680,6 +690,17 @@ def _group_test_cases(test_results: list[TestResult]) -> dict[str, Any]:
             "label": tr.label,
         }
     return grouped
+
+
+def _filter_hidden_libraries(results: BenchmarkResults) -> BenchmarkResults:
+    """Drop hidden libraries from rendered outputs."""
+    libraries = {
+        name: info
+        for name, info in results.libraries.items()
+        if is_visible_library(name)
+    }
+    scores = [score for score in results.scores if is_visible_library(score.library)]
+    return replace(results, libraries=libraries, scores=scores)
 
 
 def _get_git_commit() -> str | None:

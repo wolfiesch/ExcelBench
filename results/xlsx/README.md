@@ -44,21 +44,21 @@
 
 > Libraries ranked by their best capability (max of read/write green features).
 
-| Tier | Library | Caps | Green Features | Summary |
-|:----:|---------|:----:|:--------------:|---------|
-| **S** | openpyxl | R+W | 16/16 | Reference adapter — full read + write fidelity |
-| **A** | xlsxwriter | W | 15/16 | Best write-only option — full formatting support |
-| **A** | rust_xlsxwriter | W | 14/16 | 14/16 features with full fidelity |
-| **A** | wolfxl | R+W | 14/16 | 14/16 features with full fidelity |
-| **B** | xlsxwriter-constmem | W | 12/16 | Memory-optimized write — loses images, comments, row height |
-| **B** | xlwt | W | 4/16 | Legacy .xls writer — basic formatting subset |
-| **C** | openpyxl-readonly | R | 3/16 | Streaming read — loses all formatting metadata |
-| **C** | pandas | R+W | 3/16 | DataFrame abstraction — errors coerced to NaN on read |
-| **C** | pyexcel | R+W | 3/16 | Meta-library wrapping openpyxl — preserves error values |
-| **C** | tablib | R+W | 3/16 | Dataset wrapper — matches pyexcel on fidelity |
-| **C** | pylightxl | R+W | 2/16 | Lightweight — basic values, no formatting API |
-| **C** | python-calamine | R | 1/16 | Fast Rust-backed reader — cell values + sheet names only |
-| **D** | polars | R | 0/16 | Rust DataFrame reader — columnar type coercion drops fidelity |
+| Tier | Library | Caps | Modify | Green Features | Summary |
+|:----:|---------|:----:|:------:|:--------------:|---------|
+| **S** | openpyxl | R+W | Rewrite | 16/16 | Reference adapter — full read + write fidelity |
+| **A** | xlsxwriter | W | No | 15/16 | Best write-only option — full formatting support |
+| **A** | rust_xlsxwriter | W | No | 14/16 | 14/16 features with full fidelity |
+| **A** | wolfxl | R+W | Patch | 14/16 | 14/16 features with full fidelity |
+| **B** | xlsxwriter-constmem | W | No | 12/16 | Memory-optimized write — loses images, comments, row height |
+| **B** | xlwt | W | No | 4/16 | Legacy .xls writer — basic formatting subset |
+| **C** | openpyxl-readonly | R | No | 3/16 | Streaming read — loses all formatting metadata |
+| **C** | pandas | R+W | Rebuild | 3/16 | DataFrame abstraction — errors coerced to NaN on read |
+| **C** | pyexcel | R+W | Rebuild | 3/16 | Meta-library wrapping openpyxl — preserves error values |
+| **C** | tablib | R+W | Rebuild | 3/16 | Dataset wrapper — matches pyexcel on fidelity |
+| **C** | pylightxl | R+W | Rebuild | 2/16 | Lightweight — basic values, no formatting API |
+| **C** | python-calamine | R | No | 1/16 | Fast Rust-backed reader — cell values + sheet names only |
+| **D** | polars | R | No | 0/16 | Rust DataFrame reader — columnar type coercion drops fidelity |
 
 ## Score Legend
 
@@ -139,20 +139,20 @@
 
 ## Libraries Tested
 
-- **openpyxl** v3.1.5 (python) - read, write
-- **openpyxl-readonly** v3.1.5 (python) - read
-- **pandas** v3.0.0 (python) - read, write
-- **polars** v1.38.1 (python) - read
-- **pyexcel** v0.7.4 (python) - read, write
-- **pylightxl** v1.61 (python) - read, write
-- **python-calamine** v0.6.1 (python) - read
-- **rust_xlsxwriter** v0.79.4 (rust) - write
-- **tablib** v3.9.0 (python) - read, write
-- **wolfxl** vcal=0.1.0+rxw=0.79.4 (rust) - read, write
-- **xlrd** v2.0.2 (python) - read
-- **xlsxwriter** v3.2.9 (python) - write
-- **xlsxwriter-constmem** v3.2.9 (python) - write
-- **xlwt** v1.3.0 (python) - write
+- **openpyxl** v3.1.5 (python) - read, write; modify: Rewrite
+- **openpyxl-readonly** v3.1.5 (python) - read; modify: No
+- **pandas** v3.0.0 (python) - read, write; modify: Rebuild
+- **polars** v1.38.1 (python) - read; modify: No
+- **pyexcel** v0.7.4 (python) - read, write; modify: Rebuild
+- **pylightxl** v1.61 (python) - read, write; modify: Rebuild
+- **python-calamine** v0.6.1 (python) - read; modify: No
+- **rust_xlsxwriter** v0.79.4 (rust) - write; modify: No
+- **tablib** v3.9.0 (python) - read, write; modify: Rebuild
+- **wolfxl** vcal=0.1.0+rxw=0.79.4 (rust) - read, write; modify: Patch
+- **xlrd** v2.0.2 (python) - read; modify: No
+- **xlsxwriter** v3.2.9 (python) - write; modify: No
+- **xlsxwriter-constmem** v3.2.9 (python) - write; modify: No
+- **xlwt** v1.3.0 (python) - write; modify: No
 
 ## Diagnostics Summary
 

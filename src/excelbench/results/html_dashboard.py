@@ -17,6 +17,12 @@ import re
 from pathlib import Path
 from typing import Any
 
+from excelbench.results.report_policy import (
+    filter_memory_rows,
+    filter_report_data,
+    modify_mode_label,
+)
+
 # ── Feature ordering / tier map (shared with other renderers) ──────
 
 _FEATURE_ORDER: list[str] = [
@@ -164,13 +170,16 @@ def render_html_dashboard(
 ) -> None:
     """Generate a single self-contained HTML dashboard."""
     fidelity = json.loads(fidelity_json.read_text())
+    fidelity = filter_report_data(fidelity)
     perf = None
     if perf_json and perf_json.exists():
         perf = json.loads(perf_json.read_text())
+        perf = filter_report_data(perf)
 
     memory: list[dict[str, Any]] | None = None
     if memory_json and memory_json.exists():
         memory = json.loads(memory_json.read_text())
+        memory = filter_memory_rows(memory)
 
     svgs: dict[str, str] = {}
     if scatter_dir:
@@ -716,8 +725,15 @@ def _section_comparison(fidelity: dict[str, Any], perf: dict[str, Any] | None) -
     lib_stats: dict[str, dict[str, Any]] = {}
     for lib, info in libs_info.items():
         cap = _cap_label(info.get("capabilities", []))
-        lib_stats[lib] = {"cap": cap, "version": info.get("version", "?"),
-                          "green": 0, "scored": 0, "passed": 0, "total": 0}
+        lib_stats[lib] = {
+            "cap": cap,
+            "modify": modify_mode_label(lib, info.get("capabilities", [])),
+            "version": info.get("version", "?"),
+            "green": 0,
+            "scored": 0,
+            "passed": 0,
+            "total": 0,
+        }
 
     for entry in results:
         lib = entry["library"]
@@ -780,6 +796,7 @@ def _section_comparison(fidelity: dict[str, Any], perf: dict[str, Any] | None) -
     rows.append("<thead><tr>"
                 "<th class='sort'>Library</th>"
                 "<th>Caps</th>"
+                "<th>Modify</th>"
                 "<th>Version</th>"
                 "<th class='sort' data-type='n'>Green</th>"
                 "<th class='sort' data-type='n'>Pass Rate</th>")
@@ -796,6 +813,7 @@ def _section_comparison(fidelity: dict[str, Any], perf: dict[str, Any] | None) -
         wolf_badge = '<span class="wolfxl-badge">Recommended</span>' if lib == "wolfxl" else ""
         rows.append(f"<tr{row_cls}><td><b>{_esc(lib)}</b>{wolf_badge}</td>"
                     f"<td>{st['cap']}</td>"
+                    f"<td>{st['modify']}</td>"
                     f"<td style='font-family:monospace;font-size:.75rem'>{_esc(st['version'])}</td>"
                     f"<td data-v='{st['green']}'>{st['green']}/{st['scored']}</td>"
                     f"<td data-v='{pr:.1f}'>{pr:.0f}%</td>")

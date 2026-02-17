@@ -49,3 +49,42 @@ def test_dashboard_includes_best_adapter_by_workload_profile() -> None:
     assert "| small |" in doc
     assert "| medium |" in doc
     assert "| large |" in doc
+
+
+def test_dashboard_filters_pyumya_and_shows_modify_column() -> None:
+    fidelity = {
+        "metadata": {"profile": "xlsx", "run_date": "2026-01-01T00:00:00Z"},
+        "libraries": {
+            "wolfxl": {"capabilities": ["read", "write"]},
+            "openpyxl": {"capabilities": ["read", "write"]},
+            "pyumya": {"capabilities": ["read", "write"]},
+        },
+        "results": [
+            {
+                "feature": "cell_values",
+                "library": "wolfxl",
+                "scores": {"read": 3, "write": 3},
+                "test_cases": {},
+            },
+            {
+                "feature": "cell_values",
+                "library": "openpyxl",
+                "scores": {"read": 3, "write": 3},
+                "test_cases": {},
+            },
+            {
+                "feature": "cell_values",
+                "library": "pyumya",
+                "scores": {"read": 3, "write": 3},
+                "test_cases": {},
+            },
+        ],
+    }
+
+    lines = _build_dashboard(fidelity, perf=None)
+    doc = "\n".join(lines)
+
+    assert "| Library | Caps | Modify | Green Features | Pass Rate | Best For |" in doc
+    assert "| wolfxl | R+W | Patch |" in doc
+    assert "| openpyxl | R+W | Rewrite |" in doc
+    assert "pyumya" not in doc

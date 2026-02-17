@@ -29,6 +29,8 @@ from matplotlib.axes import Axes  # noqa: E402
 from matplotlib.figure import Figure  # noqa: E402
 from matplotlib.lines import Line2D  # noqa: E402
 
+from excelbench.results.report_policy import filter_report_data
+
 # ── Feature ↔ perf-workload mapping ────────────────────────────────
 # Each fidelity feature maps to a list of perf workloads (prefer first).
 
@@ -126,7 +128,7 @@ _ZONE_BANDS: list[tuple[float, float, str, str]] = [
 def _load_json(path: Path) -> dict[str, Any]:
     with open(path) as f:
         result: dict[str, Any] = json.load(f)
-        return result
+        return filter_report_data(result)
 
 
 def _compute_pass_rates(data: dict[str, Any]) -> dict[str, dict[str, float]]:

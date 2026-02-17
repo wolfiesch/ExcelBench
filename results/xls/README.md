@@ -27,10 +27,10 @@
 
 > Libraries ranked by their best capability (max of read/write green features).
 
-| Tier | Library | Caps | Green Features | Summary |
-|:----:|---------|:----:|:--------------:|---------|
-| **S** | xlrd | R | 4/4 | Legacy .xls reader — not applicable to .xlsx |
-| **C** | python-calamine | R | 2/4 | Fast Rust-backed reader — cell values + sheet names only |
+| Tier | Library | Caps | Modify | Green Features | Summary |
+|:----:|---------|:----:|:------:|:--------------:|---------|
+| **S** | xlrd | R | No | 4/4 | Legacy .xls reader — not applicable to .xlsx |
+| **C** | python-calamine | R | No | 2/4 | Fast Rust-backed reader — cell values + sheet names only |
 
 ## Score Legend
 
@@ -71,8 +71,8 @@
 
 ## Libraries Tested
 
-- **python-calamine** v0.6.1 (python) - read
-- **xlrd** v2.0.2 (python) - read
+- **python-calamine** v0.6.1 (python) - read; modify: No
+- **xlrd** v2.0.2 (python) - read; modify: No
 
 ## Diagnostics Summary
 
