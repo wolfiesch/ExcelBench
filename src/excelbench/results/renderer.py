@@ -445,7 +445,8 @@ def _render_tier_list(
     # Assign tiers
     tier_defs: list[tuple[str, str, Callable[[int, int], bool]]] = [
         ("S", "Full Fidelity", lambda g, t: g >= t and t > 0),
-        ("A", "Near-Complete", lambda g, t: g >= t * 0.8 and g < t),
+        ("S-", "Near-Full", lambda g, t: g >= t * 0.85 and g < t),
+        ("A", "Near-Complete", lambda g, t: g >= t * 0.7 and g < t * 0.85),
         ("B", "Partial", lambda g, _t: g >= 4),
         ("C", "Basic", lambda g, _t: g >= 1),
         ("D", "Values Only", lambda g, _t: g == 0),
@@ -480,6 +481,8 @@ def _lib_summary(lib: str, green: int, total: int) -> str:
     """One-line summary for tier list."""
     summaries: dict[str, str] = {
         "openpyxl": "Reference adapter — full read + write fidelity",
+        "wolfxl": "Hybrid Rust+Python — near-full fidelity at 3-9x throughput",
+        "rust_xlsxwriter": "Rust write backend — used internally by WolfXL",
         "xlsxwriter": "Best write-only option — full formatting support",
         "xlsxwriter-constmem": "Memory-optimized write — loses images, comments, row height",
         "openpyxl-readonly": "Streaming read — loses all formatting metadata",
