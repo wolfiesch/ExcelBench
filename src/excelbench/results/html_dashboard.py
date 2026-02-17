@@ -338,8 +338,8 @@ code.val{font-family:'JetBrains Mono','Fira Code',monospace;font-size:.72rem;
 .bbar span:nth-child(4){background:#10b981}
 
 /* ── SVG container ── */
-.svg-wrap{overflow-x:auto;margin:1rem 0}
-.svg-wrap svg{max-width:100%;height:auto}
+.svg-wrap{overflow-x:auto;margin:1rem 0;display:flex;justify-content:center}
+.svg-wrap svg{display:block;width:100%;max-width:none;height:auto}
 
 /* ── Filter ── */
 .filter-box{margin-bottom:.75rem}
