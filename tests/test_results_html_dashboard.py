@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from excelbench.results.html_dashboard import render_html_dashboard
+from excelbench.results.html_dashboard import _compute_radar_data, render_html_dashboard
 
 
 def test_render_html_dashboard_smoke(tmp_path: Path) -> None:
@@ -21,6 +21,11 @@ def test_render_html_dashboard_smoke(tmp_path: Path) -> None:
     html = out.read_text()
     assert "<title>ExcelBench Dashboard</title>" in html
     assert "<script>" in html
+    # Radar and histogram sections present
+    assert 'id="radar"' in html
+    assert 'id="histogram"' in html
+    assert "Strength Profiles" in html
+    assert "Score Distribution" in html
 
 
 def test_render_html_dashboard_works_without_perf_or_svgs(tmp_path: Path) -> None:
@@ -61,3 +66,49 @@ def test_render_html_dashboard_works_without_perf_or_svgs(tmp_path: Path) -> Non
     assert "<th>Modify</th>" in html
     assert "Rewrite" in html
     assert "pyumya" not in html
+    # Radar should still render (speed axes = 0 without perf data)
+    assert 'id="radar"' in html
+    assert 'id="histogram"' in html
+
+
+def test_compute_radar_data_uses_p50_when_op_count_missing() -> None:
+    fidelity = {
+        "libraries": {
+            "openpyxl": {"capabilities": ["read", "write"]},
+            "pandas": {"capabilities": ["read", "write"]},
+        },
+        "results": [
+            {"feature": "cell_values", "library": "openpyxl", "scores": {"read": 3, "write": 3}},
+            {"feature": "cell_values", "library": "pandas", "scores": {"read": 3, "write": 3}},
+        ],
+    }
+    perf = {
+        "results": [
+            {
+                "feature": "cell_values",
+                "library": "openpyxl",
+                "perf": {
+                    "read": {"wall_ms": {"p50": 2.0}, "op_count": None},
+                    "write": {"wall_ms": {"p50": 4.0}, "op_count": None},
+                },
+            },
+            {
+                "feature": "cell_values",
+                "library": "pandas",
+                "perf": {
+                    "read": {"wall_ms": {"p50": 4.0}, "op_count": None},
+                    "write": {"wall_ms": {"p50": 8.0}, "op_count": None},
+                },
+            },
+        ]
+    }
+
+    rows = _compute_radar_data(fidelity, perf, focus_libs=["openpyxl", "pandas"])
+    by_lib = {r["library"]: r["values"] for r in rows}
+
+    # openpyxl baseline is anchored to 50 by design.
+    assert by_lib["openpyxl"][1] == 50.0
+    assert by_lib["openpyxl"][2] == 50.0
+    # pandas is half as fast as openpyxl in this fixture.
+    assert by_lib["pandas"][1] == 25.0
+    assert by_lib["pandas"][2] == 25.0

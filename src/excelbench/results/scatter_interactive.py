@@ -357,12 +357,13 @@ def render_interactive_scatter_tiers(
 ) -> str:
     """Generate an interactive 1x3 tier scatter grid as an HTML fragment.
 
-    The returned string includes the plotly.js library inline.
+    Assumes plotly.js was already included earlier on the page (e.g. by the
+    radar chart section).
     """
     fidelity = json.loads(fidelity_json.read_text())
     perf = json.loads(perf_json.read_text())
     fig = _build_tiers_figure(fidelity, perf)
-    return str(fig.to_html(full_html=False, include_plotlyjs=True, config=_PLOTLY_CONFIG))
+    return str(fig.to_html(full_html=False, include_plotlyjs=False, config=_PLOTLY_CONFIG))
 
 
 def render_interactive_scatter_features(
@@ -386,9 +387,12 @@ def render_interactive_scatter_tiers_from_data(
     fidelity: dict[str, Any],
     perf: dict[str, Any],
 ) -> str:
-    """Like render_interactive_scatter_tiers but accepts pre-loaded dicts."""
+    """Like render_interactive_scatter_tiers but accepts pre-loaded dicts.
+
+    Assumes plotly.js was already included earlier on the page.
+    """
     fig = _build_tiers_figure(fidelity, perf)
-    return str(fig.to_html(full_html=False, include_plotlyjs=True, config=_PLOTLY_CONFIG))
+    return str(fig.to_html(full_html=False, include_plotlyjs=False, config=_PLOTLY_CONFIG))
 
 
 def render_interactive_scatter_features_from_data(

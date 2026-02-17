@@ -65,6 +65,167 @@ _TIER_NAMES: dict[int, str] = {
     3: "Tier 3 — Workbook Metadata",
 }
 
+# ── Radar / histogram data helpers ─────────────────────────────────
+
+_DEFAULT_RADAR_LIBS: list[str] = [
+    "wolfxl", "openpyxl", "xlsxwriter", "xlsxwriter-constmem",
+    "pandas", "python-calamine",
+]
+
+
+def _compute_radar_data(
+    fidelity: dict[str, Any],
+    perf: dict[str, Any] | None,
+    *,
+    focus_libs: list[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Compute 5-axis radar data for selected libraries.
+
+    Axes (all normalised 0–100):
+      - Fidelity: green_count / total_scored * 100
+      - Read Speed: min(100, lib_ops / openpyxl_ops * 50)
+      - Write Speed: same formula for write
+      - Feature Coverage: features_with_any_score / total_features * 100
+      - Capability Breadth: R-only/W-only=33, R+W=66, R+W+Patch=100
+    """
+    results = fidelity.get("results", [])
+    libs_info = fidelity.get("libraries", {})
+    focus = focus_libs or _DEFAULT_RADAR_LIBS
+    available = set(libs_info.keys())
+    focus = [lib for lib in focus if lib in available]
+
+    all_features = sorted({e["feature"] for e in results})
+    total_features = len(all_features)
+
+    # Per-lib aggregates from fidelity
+    lib_green: dict[str, int] = {}
+    lib_scored: dict[str, int] = {}
+    lib_features: dict[str, set[str]] = {}
+    for entry in results:
+        lib = entry["library"]
+        if lib not in available:
+            continue
+        s = entry.get("scores", {})
+        best = max(
+            (x for x in [s.get("read"), s.get("write")] if x is not None),
+            default=None,
+        )
+        lib_scored[lib] = lib_scored.get(lib, 0) + (1 if best is not None else 0)
+        if best == 3:
+            lib_green[lib] = lib_green.get(lib, 0) + 1
+        lib_features.setdefault(lib, set())
+        if best is not None:
+            lib_features[lib].add(entry["feature"])
+
+    # Perf throughput (read/write ops/s via cell_values workloads)
+    read_ops: dict[str, float] = {}
+    write_ops: dict[str, float] = {}
+    if perf:
+        for e in perf.get("results", []):
+            lib = e["library"]
+            p = e.get("perf", {})
+            # Prefer bulk workloads for throughput
+            for op, store in [("read", read_ops), ("write", write_ops)]:
+                if lib in store:
+                    continue
+                od = p.get(op)
+                if not od:
+                    continue
+                wall = od.get("wall_ms", {})
+                p50_raw = wall.get("p50") if isinstance(wall, dict) else None
+                try:
+                    p50 = float(p50_raw) if p50_raw is not None else None
+                except (TypeError, ValueError):
+                    p50 = None
+                if p50 is None or p50 <= 0:
+                    continue
+
+                # New perf schema may omit op_count for feature-level benchmarks.
+                # In that case, use ops/s from wall time alone for relative speed.
+                oc_raw = od.get("op_count")
+                if oc_raw is None:
+                    store[lib] = 1000.0 / p50
+                    continue
+
+                try:
+                    oc = float(oc_raw)
+                except (TypeError, ValueError):
+                    continue
+                if oc <= 0:
+                    continue
+                store[lib] = oc * 1000.0 / p50
+
+    opx_read = read_ops.get("openpyxl", 1.0)
+    opx_write = write_ops.get("openpyxl", 1.0)
+
+    # Capability breadth
+    def _breadth(lib: str) -> float:
+        caps = set(libs_info.get(lib, {}).get("capabilities", []))
+        has_r = "read" in caps
+        has_w = "write" in caps
+        # wolfxl has patch/modify capability
+        has_patch = lib == "wolfxl" or "modify" in caps or "patch" in caps
+        if has_r and has_w and has_patch:
+            return 100.0
+        if has_r and has_w:
+            return 66.0
+        return 33.0
+
+    out: list[dict[str, Any]] = []
+    for lib in focus:
+        scored = lib_scored.get(lib, 0)
+        fid = (lib_green.get(lib, 0) / scored * 100) if scored else 0.0
+        r_speed = min(100.0, (read_ops.get(lib, 0) / opx_read) * 50) if opx_read else 0.0
+        w_speed = min(100.0, (write_ops.get(lib, 0) / opx_write) * 50) if opx_write else 0.0
+        feat_count = len(lib_features.get(lib, set()))
+        coverage = (feat_count / total_features * 100) if total_features else 0.0
+        breadth = _breadth(lib)
+        out.append({
+            "library": lib,
+            "axes": ["Fidelity", "Read Speed", "Write Speed", "Feature Coverage", "Capability"],
+            "values": [round(fid, 1), round(r_speed, 1), round(w_speed, 1),
+                       round(coverage, 1), round(breadth, 1)],
+        })
+    return out
+
+
+def _compute_score_distribution(fidelity: dict[str, Any]) -> list[dict[str, Any]]:
+    """Count how many libraries score 3/2/1/0 for each feature."""
+    results = fidelity.get("results", [])
+
+    # (feature, library) -> best score
+    feat_scores: dict[str, list[int]] = {}
+    for entry in results:
+        feat = entry["feature"]
+        s = entry.get("scores", {})
+        best = max(
+            (x for x in [s.get("read"), s.get("write")] if x is not None),
+            default=None,
+        )
+        if best is not None:
+            feat_scores.setdefault(feat, []).append(best)
+
+    ordered = [f for f in _FEATURE_ORDER if f in feat_scores]
+    for f in sorted(feat_scores):
+        if f not in ordered:
+            ordered.append(f)
+
+    out: list[dict[str, Any]] = []
+    for feat in ordered:
+        scores = feat_scores.get(feat, [])
+        counts = {3: 0, 2: 0, 1: 0, 0: 0}
+        for s in scores:
+            if s in counts:
+                counts[s] += 1
+        out.append({
+            "feature": feat,
+            "label": _FEATURE_LABELS.get(feat, feat),
+            "tier": _TIER_MAP.get(feat, -1),
+            "counts": counts,
+        })
+    return out
+
+
 # ── Helpers ─────────────────────────────────────────────────────────
 
 
@@ -198,7 +359,9 @@ def render_html_dashboard(
     body_parts = [
         _section_nav(has_memory=memory is not None),
         _section_overview(fidelity, perf),
+        _section_radar(fidelity, perf),
         _section_matrix(fidelity),
+        _section_histogram(fidelity),
         _section_scatter(fidelity, perf, heatmap_svg, scatter_svgs),
         _section_comparison(fidelity, perf),
         _section_features(fidelity),
@@ -624,7 +787,9 @@ document.querySelectorAll('nav a[href^="#"]').forEach(a=>{
 def _section_nav(*, has_memory: bool = False) -> str:
     links = [
         ("#overview", "Overview"),
+        ("#radar", "Strength Profiles"),
         ("#matrix", "Score Matrix"),
+        ("#histogram", "Score Distribution"),
         ("#scatter", "Scatter Plots"),
         ("#comparison", "Comparison"),
         ("#features", "Features"),
@@ -747,6 +912,195 @@ def _section_overview(fidelity: dict[str, Any], perf: dict[str, Any] | None) -> 
         f'{wolf_hero}'
         f'<div class="cards-grid">{cards_html}</div>'
         f'</section>'
+    )
+
+
+def _section_radar(
+    fidelity: dict[str, Any],
+    perf: dict[str, Any] | None,
+) -> str:
+    """Render a 5-axis spider chart comparing top libraries."""
+    import plotly.graph_objects as go
+
+    from excelbench.results.scatter import (
+        _DARK_BG,
+        _DARK_GRID,
+        _DARK_TEXT,
+        _DARK_TEXT2,
+        _FALLBACK_COLOR,
+        _LIB_COLORS,
+        _LIB_SHORT,
+    )
+    from excelbench.results.scatter_interactive import _PLOTLY_CONFIG
+
+    data = _compute_radar_data(fidelity, perf)
+    if not data:
+        return ""
+
+    fig = go.Figure()
+    for item in data:
+        lib = item["library"]
+        axes = item["axes"]
+        vals = item["values"]
+        # Close the polygon by repeating the first point
+        theta = axes + [axes[0]]
+        r = vals + [vals[0]]
+        color = _LIB_COLORS.get(lib, _FALLBACK_COLOR)
+        display_name = _LIB_SHORT.get(lib, lib)
+        is_wolfxl = lib == "wolfxl"
+
+        fig.add_trace(go.Scatterpolar(
+            r=r,
+            theta=theta,
+            fill="toself",
+            fillcolor=color,
+            opacity=0.20 if is_wolfxl else 0.15,
+            line=dict(color=color, width=3 if is_wolfxl else 1.5),
+            name=display_name,
+            hovertemplate=(
+                f"<b>{display_name}</b><br>"
+                "%{theta}: %{r:.0f}<extra></extra>"
+            ),
+        ))
+
+    fig.update_layout(
+        template="plotly_dark",
+        paper_bgcolor=_DARK_BG,
+        plot_bgcolor=_DARK_BG,
+        font=dict(color=_DARK_TEXT, family="system-ui, sans-serif"),
+        polar=dict(
+            bgcolor=_DARK_BG,
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100],
+                gridcolor=_DARK_GRID,
+                tickfont=dict(size=10, color=_DARK_TEXT2),
+            ),
+            angularaxis=dict(
+                gridcolor=_DARK_GRID,
+                tickfont=dict(size=13, color=_DARK_TEXT),
+            ),
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.1,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=13, color=_DARK_TEXT),
+        ),
+        margin=dict(l=80, r=80, t=40, b=80),
+        height=520,
+        showlegend=True,
+    )
+
+    chart_html = fig.to_html(
+        full_html=False, include_plotlyjs=True, config=_PLOTLY_CONFIG,
+    )
+
+    return (
+        '<section id="radar" class="container">'
+        '<h2>Library Strength Profiles</h2>'
+        '<p style="font-size:.8rem;color:var(--text2);margin-bottom:.5rem">'
+        '5-axis comparison: fidelity, read/write speed, feature coverage, '
+        'and capability breadth. All axes normalised 0\u2013100. '
+        'Speed baseline: openpyxl\u00a0=\u00a050.</p>'
+        '<div class="chart-maximize-wrap">'
+        '<button class="chart-maximize-btn" title="Maximize"'
+        ' aria-label="Maximize chart">\u26f6</button>'
+        f'<div class="plotly-chart">{chart_html}</div></div>'
+        '</section>'
+    )
+
+
+def _section_histogram(fidelity: dict[str, Any]) -> str:
+    """Render a stacked horizontal bar chart of score distribution per feature."""
+    import plotly.graph_objects as go
+
+    from excelbench.results.scatter import _DARK_BG, _DARK_GRID, _DARK_TEXT, _DARK_TEXT2
+    from excelbench.results.scatter_interactive import _PLOTLY_CONFIG
+
+    dist = _compute_score_distribution(fidelity)
+    if not dist:
+        return ""
+
+    # Reverse for top-to-bottom tier order (Plotly horizontal bars go bottom-up)
+    dist_rev = list(reversed(dist))
+    labels = [d["label"] for d in dist_rev]
+
+    score_colors = {3: "#62c073", 2: "#fbbf24", 1: "#fb923c", 0: "#ff6066"}
+    score_names = {3: "Score 3", 2: "Score 2", 1: "Score 1", 0: "Score 0"}
+
+    fig = go.Figure()
+    for score in [3, 2, 1, 0]:
+        counts = [d["counts"][score] for d in dist_rev]
+        fig.add_trace(go.Bar(
+            y=labels,
+            x=counts,
+            name=score_names[score],
+            orientation="h",
+            marker_color=score_colors[score],
+            hovertemplate=(
+                f"<b>{score_names[score]}</b><br>"
+                "%{y}: %{x} libraries<extra></extra>"
+            ),
+        ))
+
+    # Add tier separator annotations
+    prev_tier = dist_rev[0]["tier"] if dist_rev else -1
+    for i, d in enumerate(dist_rev):
+        if d["tier"] != prev_tier:
+            fig.add_hline(
+                y=i - 0.5,
+                line=dict(color="#51a8ff", width=1, dash="dot"),
+            )
+        prev_tier = d["tier"]
+
+    height = max(400, 40 * len(dist) + 120)
+    fig.update_layout(
+        barmode="stack",
+        template="plotly_dark",
+        paper_bgcolor=_DARK_BG,
+        plot_bgcolor=_DARK_BG,
+        font=dict(color=_DARK_TEXT, family="system-ui, sans-serif"),
+        xaxis=dict(
+            title=dict(text="Number of Libraries", font=dict(size=13, color=_DARK_TEXT)),
+            gridcolor=_DARK_GRID,
+            tickfont=dict(size=12, color=_DARK_TEXT2),
+            dtick=1,
+        ),
+        yaxis=dict(
+            tickfont=dict(size=12, color=_DARK_TEXT),
+            automargin=True,
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.12,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=13, color=_DARK_TEXT),
+        ),
+        margin=dict(l=140, r=30, t=30, b=70),
+        height=height,
+        showlegend=True,
+    )
+
+    chart_html = fig.to_html(
+        full_html=False, include_plotlyjs=False, config=_PLOTLY_CONFIG,
+    )
+
+    return (
+        '<section id="histogram" class="container">'
+        '<h2>Score Distribution by Feature</h2>'
+        '<p style="font-size:.8rem;color:var(--text2);margin-bottom:.5rem">'
+        'How many libraries achieve each score per feature. '
+        'Features grouped by tier (dotted lines).</p>'
+        '<div class="chart-maximize-wrap">'
+        '<button class="chart-maximize-btn" title="Maximize"'
+        ' aria-label="Maximize chart">\u26f6</button>'
+        f'<div class="plotly-chart">{chart_html}</div></div>'
+        '</section>'
     )
 
 
