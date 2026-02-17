@@ -116,6 +116,8 @@ class BorderInfo:
 class TestCase:
     """A single test case within a feature test file."""
 
+    __test__ = False  # prevent pytest collection
+
     id: str
     label: str
     row: int
@@ -128,6 +130,8 @@ class TestCase:
 @dataclass
 class TestFile:
     """Metadata for a generated test file."""
+
+    __test__ = False  # prevent pytest collection
 
     path: str
     feature: str
@@ -150,6 +154,8 @@ class Manifest:
 @dataclass
 class TestResult:
     """Result of testing a single test case."""
+
+    __test__ = False  # prevent pytest collection
 
     test_case_id: str
     operation: OperationType

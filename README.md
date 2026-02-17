@@ -4,25 +4,26 @@
 
 Most Excel library comparisons focus on speed. ExcelBench answers the question developers actually have: **"Can this library handle my complex spreadsheet?"**
 
-We test 16 features across 12 Python adapters, scoring each on a 0-3 fidelity scale against real Excel-generated reference files.
+We test 17 features across 12+ Python adapters, scoring each on a 0-3 fidelity scale against real Excel-generated reference files.
 
 ## Results at a Glance
 
-> Last run: 2026-02-08 | Excel 16.105.3 | macOS (Apple Silicon) | [Full results](results/xlsx/README.md)
+> Last run: 2026-02-17 | Excel 16.105.3 | macOS (Apple Silicon) | [Full results](results/xlsx/README.md)
 
 ![ExcelBench Heatmap](results/xlsx/heatmap.png)
 
-**The story:** openpyxl and xlsxwriter achieve full fidelity across all 16 features. Once you move past basic cell values, nearly every other library drops to zero. Formatting, comments, hyperlinks, images, merged cells, conditional formatting -- all red.
+**The story:** openpyxl achieves full fidelity across all 16 scored features. xlsxwriter follows close behind at 15/16. Once you move past basic cell values, nearly every other library drops to zero. Formatting, comments, hyperlinks, images, merged cells, conditional formatting -- all red.
 
 ### Library Tiers
 
 | Tier | Library | Green Features | Summary |
 |:----:|---------|:--------------:|---------|
 | **S** | openpyxl | 16/16 | Reference adapter -- full read + write fidelity |
-| **S** | xlsxwriter | 16/16 | Best write-only option -- full formatting support |
-| **A** | xlsxwriter-constmem | 13/16 | Memory-optimized write -- loses images, comments, row height |
+| **S** | xlsxwriter | 15/16 | Best write-only option -- near-full formatting support |
+| **S-** | wolfxl, rust_xlsxwriter | 14/16 | Rust-backed -- high fidelity with 3-5x throughput |
+| **A** | xlsxwriter-constmem | 12/16 | Memory-optimized write -- loses images, comments, row height |
 | **B** | xlwt | 4/16 | Legacy .xls writer -- basic formatting subset |
-| **C** | openpyxl-readonly, pandas, pyexcel, tablib | 2-3/16 | Values + basic formatting only |
+| **C** | openpyxl-readonly, pandas, pyexcel, pylightxl, tablib | 2-3/16 | Values + basic formatting only |
 | **D** | polars | 0/16 | Columnar type coercion drops all fidelity |
 
 ### Key Findings
@@ -137,23 +138,19 @@ uv run excelbench generate --output fixtures/excel
 
 ## Feature Coverage
 
-### Scored (16 features)
+### Scored (17 features)
 
-| Tier | Features |
-|:-----|:---------|
-| **Tier 0** -- Basic Values | Cell values, formulas, multiple sheets |
-| **Tier 1** -- Formatting | Text formatting, background colors, number formats, alignment, borders, dimensions |
-| **Tier 2** -- Advanced | Merged cells, conditional formatting, data validation, hyperlinks, images, comments, freeze panes |
+| Tier | Features | Count |
+|:-----|:---------|:-----:|
+| **Tier 0** -- Core | Cell values, formulas, multiple sheets | 3 |
+| **Tier 1** -- Formatting | Text formatting, background colors, number formats, alignment, borders, dimensions | 6 |
+| **Tier 2** -- Advanced | Merged cells, conditional formatting, data validation, hyperlinks, images, comments, freeze panes, pivot tables | 8 |
 
-### In Progress (Tier 3)
-
-Named ranges and tables have generators and tests but are not yet in the official scored results.
+> Pivot tables are tested but score N/A across all adapters -- no Python library supports programmatic pivot table creation. Library scores use a /16 denominator (excluding pivot tables).
 
 ### Planned
 
-Charts, print settings, protection.
-
-> Pivot tables have a generator but require a Windows-generated fixture (macOS Excel limitation).
+Named ranges, tables, charts, print settings, protection.
 
 ## Detailed Results
 
@@ -165,9 +162,9 @@ Charts, print settings, protection.
 
 ## Project Status
 
-**v0.1.0** -- 18 scored features, 12 Python xlsx adapters + 2 xls + 5 Rust/PyO3.
+**v0.1.0** -- 17 features tested, 12 Python xlsx adapters + 2 xls + 5 Rust/PyO3.
 
-1124 tests passing. Actively maintained.
+1126 tests passing. Actively maintained.
 
 ## Contributing
 

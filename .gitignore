@@ -27,7 +27,6 @@ ENV/
 
 # uv
 .uv/
-uv.lock
 
 # Test files - regenerated on demand
 test_files/
@@ -73,6 +72,17 @@ docs/pyumya/site/
 
 # WolfXL docs (moved to wolfxl repo)
 docs/wolfxl/
+
+# Claude Code workspace
+.claude/
+
+# Ephemeral output (screenshots, debug artifacts)
+output/
+
+# Environment files
+.env
+.env.*
+!.env.example
 
 # Logs
 logs/

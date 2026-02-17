@@ -1,5 +1,10 @@
 # calamine + rust_xlsxwriter Sprint Tracker
 
+> **ARCHIVED**: This tracker is superseded by the WolfXL standalone project
+> (https://github.com/wolfiesch/wolfxl). The work described here was completed and
+> extracted into the wolfxl PyPI package. Sprint dashboard below reflects the
+> state at time of tracker creation, not final completion status.
+
 > Historical naming note: this tracker predates the module rename. References to
 > `excelbench_rust` refer to what is now imported as `wolfxl._rust`. The crate path
 > `rust/excelbench_rust/` remains current.

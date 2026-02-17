@@ -1,6 +1,10 @@
 # ExcelBench: Comprehensive Excel Library Benchmark Suite
 
 > Design Document - February 4, 2026
+>
+> **Status**: Phases 1-3 complete. Phase 4 partially complete. Checkboxes below
+> reflect the original plan state and were not updated during implementation.
+> See `docs/trackers/` for current status.
 
 ## Executive Summary
 

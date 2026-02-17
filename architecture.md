@@ -110,8 +110,8 @@ Common starting points by intent:
   - Harness exercise/scoring: `src/excelbench/harness/runner.py`
 
 - Extend Tier 2/3 OOXML parsing:
-  - Rust: `rust/excelbench_rust/src/ooxml_util.rs`
-  - Rust: `rust/excelbench_rust/src/calamine_styled_backend.rs`
+  - WolfXL (external): calamine-styled + ooxml utilities live in [wolfxl repo](https://github.com/wolfiesch/wolfxl)
+  - ExcelBench-local Rust: `rust/excelbench_rust/src/` (basic calamine, umya bindings)
 
 - Performance track:
   - Runner: `src/excelbench/perf/runner.py`

@@ -17,7 +17,7 @@ Status legend:
 ## Working State (keep updated)
 
 Current focus:
-- [ ] PB-M3: baseline runs
+- Core perf track complete (M0-M4). Remaining items are optional polish.
 
 Current blockers:
 - None

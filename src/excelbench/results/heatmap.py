@@ -147,10 +147,10 @@ def _render(
     output_path: Path,
 ) -> None:
     """Render the heatmap to a file (dark theme)."""
-    _BG = "#0a0a0a"
-    _CARD = "#191919"
-    _TEXT = "#ededed"
-    _TEXT2 = "#a0a0a0"
+    _bg = "#0a0a0a"
+    _card = "#191919"
+    _text = "#ededed"
+    _text2 = "#a0a0a0"
 
     n_features, n_libs = matrix.shape
 
@@ -167,8 +167,8 @@ def _render(
     fig_h = max(1.5 + n_features * cell_h, 4)
 
     fig, ax = plt.subplots(figsize=(fig_w, fig_h))
-    fig.set_facecolor(_BG)
-    ax.set_facecolor(_CARD)
+    fig.set_facecolor(_bg)
+    ax.set_facecolor(_card)
     ax.imshow(plot_data, cmap=cmap, vmin=0, vmax=4, aspect="auto")
 
     # Annotate cells
@@ -178,7 +178,7 @@ def _render(
         for j in range(n_libs):
             val = matrix[i, j]
             text = score_labels.get(val, "")
-            tc = text_colors.get(val, _TEXT2)
+            tc = text_colors.get(val, _text2)
             ax.text(j, i, text, ha="center", va="center", fontsize=9, fontweight="bold",
                     color=tc)
 
@@ -209,9 +209,9 @@ def _render(
             x_labels.append(f"\u25C6 {lib}")
         else:
             x_labels.append(lib)
-    ax.set_xticklabels(x_labels, rotation=45, ha="right", fontsize=8, color=_TEXT)
+    ax.set_xticklabels(x_labels, rotation=45, ha="right", fontsize=8, color=_text)
     ax.set_yticks(range(n_features))
-    ax.set_yticklabels(feature_labels, fontsize=8, color=_TEXT)
+    ax.set_yticklabels(feature_labels, fontsize=8, color=_text)
 
     # Highlight WolfXL x-tick label
     if wolfxl_col is not None:
@@ -221,10 +221,10 @@ def _render(
     # Move x labels to top
     ax.xaxis.tick_top()
     ax.xaxis.set_label_position("top")
-    ax.tick_params(axis="both", colors=_TEXT2)
+    ax.tick_params(axis="both", colors=_text2)
 
     ax.set_title("ExcelBench — Feature Fidelity (best of R/W)", fontsize=12,
-                 fontweight="bold", pad=15, color=_TEXT)
+                 fontweight="bold", pad=15, color=_text)
 
     for spine in ax.spines.values():
         spine.set_color("#2d2d2d")
@@ -240,9 +240,9 @@ def _render(
     ]
     ax.legend(handles=legend_items, loc="lower right", fontsize=7,
               bbox_to_anchor=(1.0, -0.15), ncol=5, frameon=False,
-              labelcolor=_TEXT2)
+              labelcolor=_text2)
 
     plt.tight_layout()
     dpi = 200 if output_path.suffix == ".png" else 150
-    fig.savefig(output_path, dpi=dpi, bbox_inches="tight", facecolor=_BG)
+    fig.savefig(output_path, dpi=dpi, bbox_inches="tight", facecolor=_bg)
     plt.close(fig)

@@ -4,11 +4,11 @@
 > when you introduce new top-level modules, flows, or dependency directions.
 
 > **DECISION LOG**: When making a significant design or architecture decision, always add an entry
-> to `decisions.md` using the `DEC-NNN` format. Next ID: **DEC-017**.
+> to `decisions.md` using the `DEC-NNN` format. Next ID: **DEC-018**.
 
 ## What This Project Is
 
-ExcelBench is an objective, reproducible benchmark suite that scores Python Excel libraries on **feature fidelity** (correctness) and optionally **performance** (speed/memory). It tests 16 scored features across 12+ adapters using real Excel-generated fixtures as ground truth.
+ExcelBench is an objective, reproducible benchmark suite that scores Python Excel libraries on **feature fidelity** (correctness) and optionally **performance** (speed/memory). It tests 17 features across 12+ adapters using real Excel-generated fixtures as ground truth.
 
 ## Quick Reference
 
@@ -154,9 +154,9 @@ tests/                      # pytest + pytest-cov
 - **Build backend**: hatchling (pure Python); Rust via maturin (separate crate)
 - **Commit style**: conventional commits (`feat`/`fix`/`refactor`/`test`/`docs`/`chore`)
 
-## Current State (as of 2026-02-15)
+## Current State (as of 2026-02-17)
 
-- **Fidelity**: Tier 0 (3) + Tier 1 (6) + Tier 2 (7 + pivot_tables=0) + Tier 3 (2) = 18 scored features
+- **Fidelity**: Tier 0 (3) + Tier 1 (6) + Tier 2 (8, incl. pivot_tables=N/A) = 17 features tested, 16 with scores
 - **Adapters**: 12 Python xlsx + 2 xls + 5 Rust/PyO3 = 19 total
 - **WolfXL** (hybrid): calamine read + rust_xlsxwriter write → R:17/18 + W:17/18 green (S- tier)
   - calamine-styled: R:17/18 green (borders=1 diagonal, images=0)

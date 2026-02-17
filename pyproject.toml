@@ -6,10 +6,20 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [
-    { name = "Wolfgang Schoenberger" }
+    { name = "Wolfgang Schoenberger", email = "wolfgangs2000@gmail.com" }
 ]
 keywords = ["excel", "benchmark", "xlsx", "openpyxl", "xlsxwriter"]
-
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Office/Business :: Financial :: Spreadsheet",
+]
 dependencies = [
     # Test file generation (requires Excel installed)
     "xlwings>=0.30.0",
@@ -53,6 +63,12 @@ docs = [
 
 [project.scripts]
 excelbench = "excelbench.cli:app"
+
+[project.urls]
+Homepage = "https://excelbench.vercel.app"
+Repository = "https://github.com/wolfiesch/ExcelBench"
+Documentation = "https://github.com/wolfiesch/ExcelBench#readme"
+Issues = "https://github.com/wolfiesch/ExcelBench/issues"
 
 [build-system]
 requires = ["hatchling"]
