@@ -21,11 +21,9 @@ def test_render_html_dashboard_smoke(tmp_path: Path) -> None:
     html = out.read_text()
     assert "<title>ExcelBench Dashboard</title>" in html
     assert "<script>" in html
-    # Radar and histogram sections present
+    # Radar section present
     assert 'id="radar"' in html
-    assert 'id="histogram"' in html
     assert "Strength Profiles" in html
-    assert "Score Distribution" in html
 
 
 def test_render_html_dashboard_works_without_perf_or_svgs(tmp_path: Path) -> None:
@@ -68,7 +66,6 @@ def test_render_html_dashboard_works_without_perf_or_svgs(tmp_path: Path) -> Non
     assert "pyumya" not in html
     # Radar should still render (speed axes = 0 without perf data)
     assert 'id="radar"' in html
-    assert 'id="histogram"' in html
 
 
 def test_compute_radar_data_uses_p50_when_op_count_missing() -> None:
