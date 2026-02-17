@@ -156,10 +156,11 @@ def _compute_pass_rates(data: dict[str, Any]) -> dict[str, dict[str, float]]:
 
 
 def _compute_throughputs(data: dict[str, Any]) -> dict[str, dict[str, float]]:
-    """Per-library, per-*fidelity*-feature throughput (cells/s).
+    """Per-library, per-*fidelity*-feature throughput (ops/s).
 
-    Maps perf workloads back to fidelity feature names.
-    Returns ``{lib: {fidelity_feature: cells_per_sec}}``.
+    Tries scale-suffixed workload names first (legacy), then falls back
+    to direct feature names (current format).
+    Returns ``{lib: {fidelity_feature: ops_per_sec}}``.
     """
     lookup: dict[tuple[str, str], dict[str, Any]] = {}
     for entry in data.get("results", []):
@@ -170,8 +171,10 @@ def _compute_throughputs(data: dict[str, Any]) -> dict[str, dict[str, float]]:
 
     for lib in all_libs:
         for fidelity_feat, workloads in _FEATURE_PERF_MAP.items():
-            for workload in workloads:
-                perf = lookup.get((workload, lib), {})
+            # Try scale-suffixed names first, then the plain feature name
+            candidates = [*workloads, fidelity_feat]
+            for candidate in candidates:
+                perf = lookup.get((candidate, lib), {})
                 rate = _best_throughput(perf)
                 if rate is not None:
                     out.setdefault(lib, {})[fidelity_feat] = rate
@@ -180,20 +183,29 @@ def _compute_throughputs(data: dict[str, Any]) -> dict[str, dict[str, float]]:
 
 
 def _best_throughput(perf: dict[str, Any]) -> float | None:
-    """Best-of(read, write) throughput from a single perf entry."""
+    """Best-of(read, write) throughput from a single perf entry.
+
+    When ``op_count`` is set, returns cells/s.
+    When ``op_count`` is None (fidelity-feature benchmarks), returns
+    ops/s = 1000 / wall_ms as a comparable speed metric.
+    """
     best: float | None = None
     for op in ("read", "write"):
         op_data = perf.get(op)
         if not op_data or not isinstance(op_data, dict):
             continue
-        op_count = op_data.get("op_count")
         wall = op_data.get("wall_ms")
-        if op_count is None or not isinstance(wall, dict):
+        if not isinstance(wall, dict):
             continue
         p50 = wall.get("p50")
         if p50 is None or float(p50) == 0:
             continue
-        rate = float(op_count) * 1000.0 / float(p50)
+        op_count = op_data.get("op_count")
+        if op_count is not None:
+            rate = float(op_count) * 1000.0 / float(p50)
+        else:
+            # No explicit op_count — use ops/s (one op = full feature exercise)
+            rate = 1000.0 / float(p50)
         if best is None or rate > best:
             best = rate
     return best
@@ -202,7 +214,7 @@ def _best_throughput(perf: dict[str, Any]) -> float | None:
 def _compute_representative_throughput(data: dict[str, Any]) -> dict[str, float]:
     """Single representative throughput per library (for the Overall panel).
 
-    Prefers bulk scenarios, then per-cell.
+    Prefers bulk scenarios, then per-cell, then plain feature name.
     """
     lookup: dict[tuple[str, str], dict[str, Any]] = {}
     for entry in data.get("results", []):
@@ -215,6 +227,7 @@ def _compute_representative_throughput(data: dict[str, Any]) -> dict[str, float]
         "cell_values_10k_bulk_write",
         "cell_values_10k",
         "cell_values_1k",
+        "cell_values",
     ]
     for lib in all_libs:
         for scenario in scenarios:
@@ -457,7 +470,7 @@ def _style_axes(ax: Axes, title: str) -> None:
     ax.set_xscale("log")
     ax.set_ylim(-5, 110)
     ax.set_ylabel("Pass Rate (%)", fontsize=9, labelpad=6)
-    ax.set_xlabel("Throughput (cells / s)", fontsize=9, labelpad=6)
+    ax.set_xlabel("Throughput (ops / s)", fontsize=9, labelpad=6)
     ax.set_title(title, fontsize=11, fontweight="bold", pad=10)
     ax.tick_params(labelsize=8)
     ax.grid(True, axis="x", alpha=0.12, zorder=0)
