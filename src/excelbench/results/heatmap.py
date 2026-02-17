@@ -147,15 +147,15 @@ def _render(
     output_path: Path,
 ) -> None:
     """Render the heatmap to a file (dark theme)."""
-    _BG = "#0b0f19"
-    _CARD = "#111827"
-    _TEXT = "#e2e8f0"
-    _TEXT2 = "#94a3b8"
+    _BG = "#0a0a0a"
+    _CARD = "#191919"
+    _TEXT = "#ededed"
+    _TEXT2 = "#a0a0a0"
 
     n_features, n_libs = matrix.shape
 
     # Color map: -1=dark gray (N/A), 0=red, 1=orange, 2=yellow, 3=green
-    colors = ["#1e293b", "#991b1b", "#92400e", "#854d0e", "#065f46"]
+    colors = ["#141414", "#200d0d", "#1c0b00", "#1c1105", "#0d2b1a"]
     cmap = ListedColormap(colors)
 
     # Shift matrix so -1 maps to index 0, 0->1, 1->2, 2->3, 3->4
@@ -173,7 +173,7 @@ def _render(
 
     # Annotate cells
     score_labels = {-1: "", 0: "0", 1: "1", 2: "2", 3: "3"}
-    text_colors = {-1: "#64748b", 0: "#fca5a5", 1: "#fdba74", 2: "#fde68a", 3: "#6ee7b7"}
+    text_colors = {-1: "#878787", 0: "#ff6066", 1: "#fb923c", 2: "#fbbf24", 3: "#62c073"}
     for i in range(n_features):
         for j in range(n_libs):
             val = matrix[i, j]
@@ -185,7 +185,7 @@ def _render(
     # Tier boundary lines
     for boundary_row in _TIER_BOUNDARIES:
         if boundary_row < n_features:
-            ax.axhline(y=boundary_row + 0.5, color="#475569", linewidth=1.5, linestyle="-")
+            ax.axhline(y=boundary_row + 0.5, color="#444444", linewidth=1.5, linestyle="-")
 
     # WolfXL column highlight
     wolfxl_col = None
@@ -227,16 +227,16 @@ def _render(
                  fontweight="bold", pad=15, color=_TEXT)
 
     for spine in ax.spines.values():
-        spine.set_color("#334155")
+        spine.set_color("#2d2d2d")
 
     # Legend in bottom-right
     from matplotlib.patches import Patch
     legend_items = [
-        Patch(facecolor="#065f46", edgecolor="#6ee7b7", label="3 — Full"),
-        Patch(facecolor="#854d0e", edgecolor="#fde68a", label="2 — Functional"),
-        Patch(facecolor="#92400e", edgecolor="#fdba74", label="1 — Minimal"),
-        Patch(facecolor="#991b1b", edgecolor="#fca5a5", label="0 — Unsupported"),
-        Patch(facecolor="#1e293b", edgecolor="#64748b", label="N/A"),
+        Patch(facecolor="#0d2b1a", edgecolor="#62c073", label="3 — Full"),
+        Patch(facecolor="#1c1105", edgecolor="#fbbf24", label="2 — Functional"),
+        Patch(facecolor="#1c0b00", edgecolor="#fb923c", label="1 — Minimal"),
+        Patch(facecolor="#200d0d", edgecolor="#ff6066", label="0 — Unsupported"),
+        Patch(facecolor="#141414", edgecolor="#878787", label="N/A"),
     ]
     ax.legend(handles=legend_items, loc="lower right", fontsize=7,
               bbox_to_anchor=(1.0, -0.15), ncol=5, frameon=False,

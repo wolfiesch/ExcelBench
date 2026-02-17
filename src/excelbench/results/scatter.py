@@ -111,9 +111,9 @@ _CAP_LABELS: dict[str, str] = {
 # ── Score-zone band styling ────────────────────────────────────────
 
 _ZONE_BANDS: list[tuple[float, float, str, str]] = [
-    (0, 50, "#fef2f2", "0"),  # red-50
-    (50, 80, "#fffbeb", "1"),  # amber-50
-    (80, 100, "#f0fdf4", "2–3"),  # green-50
+    (0, 50, "#1a0a0a", "0"),  # dark red tint
+    (50, 80, "#1a1400", "1"),  # dark amber tint
+    (80, 100, "#0a1f14", "2–3"),  # dark green tint
 ]
 
 
@@ -351,27 +351,27 @@ def _draw_panel(ax: Axes, title: str, points: list[Point]) -> None:
 
     # ── Score-zone background bands ──
     for y_lo, y_hi, colour, _ in _ZONE_BANDS:
-        ax.axhspan(y_lo, y_hi, color=colour, alpha=0.7, zorder=0)
+        ax.axhspan(y_lo, y_hi, color=colour, alpha=0.5, zorder=0)
 
     # Threshold lines
     for y_val, ls, c, lw in [
-        (50, "--", "#d4d4d8", 0.8),
-        (80, "--", "#d4d4d8", 0.8),
-        (100, "-", "#86efac", 1.0),
+        (50, "--", "#444444", 0.8),
+        (80, "--", "#444444", 0.8),
+        (100, "-", "#62c073", 1.0),
     ]:
         ax.axhline(y_val, color=c, linewidth=lw, linestyle=ls, zorder=1)
 
     # Zone score annotations on the right edge (very subtle, behind data)
     for y_pos, label, colour in [
-        (25, "Score 0", "#ef4444"),
-        (65, "Score 1", "#f59e0b"),
-        (90, "Score 2", "#22c55e"),
-        (102, "Score 3", "#15803d"),
+        (25, "Score 0", "#e4484d"),
+        (65, "Score 1", "#e79c12"),
+        (90, "Score 2", "#62c073"),
+        (102, "Score 3", "#62c073"),
     ]:
         ax.text(
             0.99, y_pos, label,
             transform=ax.get_yaxis_transform(),
-            ha="right", va="center", fontsize=5.5, color=colour, alpha=0.3,
+            ha="right", va="center", fontsize=5.5, color=colour, alpha=0.6,
             fontstyle="italic", zorder=2,
         )
 
@@ -380,7 +380,7 @@ def _draw_panel(ax: Axes, title: str, points: list[Point]) -> None:
         ax.text(
             0.5, 0.5, "No data",
             transform=ax.transAxes, ha="center", va="center",
-            fontsize=11, color="#9ca3af",
+            fontsize=11, color="#a0a0a0",
         )
         _style_axes(ax, title)
         return
@@ -481,11 +481,11 @@ def _stagger_offset(
     return 0.0
 
 
-_DARK_BG = "#0b0f19"
-_DARK_CARD = "#111827"
-_DARK_TEXT = "#e2e8f0"
-_DARK_TEXT2 = "#94a3b8"
-_DARK_GRID = "#1e293b"
+_DARK_BG = "#0a0a0a"
+_DARK_CARD = "#191919"
+_DARK_TEXT = "#ededed"
+_DARK_TEXT2 = "#a0a0a0"
+_DARK_GRID = "#2d2d2d"
 
 
 def _style_axes(ax: Axes, title: str) -> None:
@@ -514,7 +514,7 @@ def _add_capability_legend(fig: Figure) -> None:
     handles = [
         Line2D(
             [0], [0], marker=m, color="none",
-            markerfacecolor="#94a3b8", markeredgecolor=_DARK_CARD,
+            markerfacecolor="#a0a0a0", markeredgecolor=_DARK_CARD,
             markersize=8, label=_CAP_LABELS[cap],
         )
         for cap, m in _CAP_MARKERS.items()
