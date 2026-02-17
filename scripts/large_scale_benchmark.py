@@ -27,7 +27,7 @@ SCALES = {
     "10m": (3162, 3162),  # 9,998,244 cells (~50 MB)
 }
 
-READ_ADAPTERS = ["wolfxl", "calamine-styled", "openpyxl", "python-calamine"]
+READ_ADAPTERS = ["wolfxl", "openpyxl", "python-calamine"]
 WRITE_ADAPTERS = ["wolfxl", "rust_xlsxwriter", "openpyxl", "xlsxwriter"]
 
 FIXTURE_DIR = Path("test_files/throughput_xlsx/large_scale")

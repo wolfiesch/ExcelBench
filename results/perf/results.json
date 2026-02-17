@@ -40,14 +40,6 @@
         "read"
       ]
     },
-    "calamine-styled": {
-      "name": "calamine-styled",
-      "version": "0.1.0",
-      "language": "rust",
-      "capabilities": [
-        "read"
-      ]
-    },
     "rust_xlsxwriter": {
       "name": "rust_xlsxwriter",
       "version": "0.79.4",
@@ -265,41 +257,6 @@
             "parse": 0.877457,
             "write": 0.0,
             "verify": 8.4e-05
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "cell_values",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.203542,
-            "p50": 0.207958,
-            "p95": 0.236666
-          },
-          "cpu_ms": {
-            "min": 0.203,
-            "p50": 0.209,
-            "p95": 0.236
-          },
-          "rss_peak_mb": 144.921875,
-          "breakdown_ms": {
-            "open": 0.062625,
-            "sheets": 0.000334,
-            "exercise": 0.142708,
-            "close": 0.001041
-          },
-          "phase_attribution_ms": {
-            "parse": 0.20625,
-            "write": 0.0,
-            "verify": 0.001041
           },
           "op_count": null,
           "op_unit": null
@@ -925,41 +882,6 @@
     },
     {
       "feature": "formulas",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.15725,
-            "p50": 0.161,
-            "p95": 0.181416
-          },
-          "cpu_ms": {
-            "min": 0.158,
-            "p50": 0.161,
-            "p95": 0.183
-          },
-          "rss_peak_mb": 161.296875,
-          "breakdown_ms": {
-            "open": 0.054042,
-            "sheets": 0.000375,
-            "exercise": 0.103875,
-            "close": 0.000417
-          },
-          "phase_attribution_ms": {
-            "parse": 0.159833,
-            "write": 0.0,
-            "verify": 0.000417
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "formulas",
       "library": "rust_xlsxwriter",
       "workload_size": "small",
       "perf": {
@@ -1565,41 +1487,6 @@
             "parse": 0.081541,
             "write": 0.0,
             "verify": 8.3e-05
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "text_formatting",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.134083,
-            "p50": 0.147958,
-            "p95": 0.153334
-          },
-          "cpu_ms": {
-            "min": 0.133,
-            "p50": 0.147,
-            "p95": 0.153
-          },
-          "rss_peak_mb": 163.40625,
-          "breakdown_ms": {
-            "open": 0.081916,
-            "sheets": 0.000292,
-            "exercise": 0.064916,
-            "close": 0.000209
-          },
-          "phase_attribution_ms": {
-            "parse": 0.14675,
-            "write": 0.0,
-            "verify": 0.000209
           },
           "op_count": null,
           "op_unit": null
@@ -2225,41 +2112,6 @@
     },
     {
       "feature": "background_colors",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.076666,
-            "p50": 0.084292,
-            "p95": 0.086625
-          },
-          "cpu_ms": {
-            "min": 0.076,
-            "p50": 0.084,
-            "p95": 0.087
-          },
-          "rss_peak_mb": 164.140625,
-          "breakdown_ms": {
-            "open": 0.057834,
-            "sheets": 0.000333,
-            "exercise": 0.0255,
-            "close": 0.000208
-          },
-          "phase_attribution_ms": {
-            "parse": 0.083459,
-            "write": 0.0,
-            "verify": 0.000208
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "background_colors",
       "library": "rust_xlsxwriter",
       "workload_size": "small",
       "perf": {
@@ -2865,41 +2717,6 @@
             "parse": 0.056041,
             "write": 0.0,
             "verify": 8.3e-05
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "number_formats",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.082167,
-            "p50": 0.090416,
-            "p95": 0.095541
-          },
-          "cpu_ms": {
-            "min": 0.082,
-            "p50": 0.09,
-            "p95": 0.096
-          },
-          "rss_peak_mb": 164.65625,
-          "breakdown_ms": {
-            "open": 0.058666,
-            "sheets": 0.000333,
-            "exercise": 0.031042,
-            "close": 0.000208
-          },
-          "phase_attribution_ms": {
-            "parse": 0.08937500000000001,
-            "write": 0.0,
-            "verify": 0.000208
           },
           "op_count": null,
           "op_unit": null
@@ -3525,41 +3342,6 @@
     },
     {
       "feature": "alignment",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.083208,
-            "p50": 0.094709,
-            "p95": 0.098333
-          },
-          "cpu_ms": {
-            "min": 0.084,
-            "p50": 0.094,
-            "p95": 0.099
-          },
-          "rss_peak_mb": 165.3125,
-          "breakdown_ms": {
-            "open": 0.052666,
-            "sheets": 0.000333,
-            "exercise": 0.041,
-            "close": 0.000209
-          },
-          "phase_attribution_ms": {
-            "parse": 0.09375,
-            "write": 0.0,
-            "verify": 0.000209
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "alignment",
       "library": "rust_xlsxwriter",
       "workload_size": "small",
       "perf": {
@@ -4150,41 +3932,6 @@
     },
     {
       "feature": "borders",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.303,
-            "p50": 0.362584,
-            "p95": 0.385208
-          },
-          "cpu_ms": {
-            "min": 0.303,
-            "p50": 0.361,
-            "p95": 0.386
-          },
-          "rss_peak_mb": 165.546875,
-          "breakdown_ms": {
-            "open": 0.074292,
-            "sheets": 0.000375,
-            "exercise": 0.284584,
-            "close": 0.00025
-          },
-          "phase_attribution_ms": {
-            "parse": 0.360833,
-            "write": 0.0,
-            "verify": 0.00025
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "borders",
       "library": "rust_xlsxwriter",
       "workload_size": "small",
       "perf": {
@@ -4765,41 +4512,6 @@
             "parse": 0.061209,
             "write": 0.0,
             "verify": 8.3e-05
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "dimensions",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.072375,
-            "p50": 0.08125,
-            "p95": 0.084667
-          },
-          "cpu_ms": {
-            "min": 0.073,
-            "p50": 0.081,
-            "p95": 0.085
-          },
-          "rss_peak_mb": 166.0,
-          "breakdown_ms": {
-            "open": 0.056459,
-            "sheets": 0.000292,
-            "exercise": 0.023542,
-            "close": 0.000208
-          },
-          "phase_attribution_ms": {
-            "parse": 0.080166,
-            "write": 0.0,
-            "verify": 0.000208
           },
           "op_count": null,
           "op_unit": null
@@ -5425,41 +5137,6 @@
     },
     {
       "feature": "multiple_sheets",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.055333,
-            "p50": 0.062291,
-            "p95": 0.063792
-          },
-          "cpu_ms": {
-            "min": 0.054,
-            "p50": 0.062,
-            "p95": 0.064
-          },
-          "rss_peak_mb": 166.71875,
-          "breakdown_ms": {
-            "open": 0.059709,
-            "sheets": 0.000375,
-            "exercise": 0.001042,
-            "close": 0.000209
-          },
-          "phase_attribution_ms": {
-            "parse": 0.061167,
-            "write": 0.0,
-            "verify": 0.000209
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "multiple_sheets",
       "library": "rust_xlsxwriter",
       "workload_size": "small",
       "perf": {
@@ -6065,41 +5742,6 @@
             "parse": 0.059249,
             "write": 0.0,
             "verify": 8.4e-05
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "merged_cells",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.184709,
-            "p50": 0.200916,
-            "p95": 0.215417
-          },
-          "cpu_ms": {
-            "min": 0.185,
-            "p50": 0.201,
-            "p95": 0.216
-          },
-          "rss_peak_mb": 167.125,
-          "breakdown_ms": {
-            "open": 0.058917,
-            "sheets": 0.000333,
-            "exercise": 0.139792,
-            "close": 0.000542
-          },
-          "phase_attribution_ms": {
-            "parse": 0.1995,
-            "write": 0.0,
-            "verify": 0.000542
           },
           "op_count": null,
           "op_unit": null
@@ -6725,41 +6367,6 @@
     },
     {
       "feature": "conditional_formatting",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.190708,
-            "p50": 0.206625,
-            "p95": 0.2145
-          },
-          "cpu_ms": {
-            "min": 0.191,
-            "p50": 0.207,
-            "p95": 0.214
-          },
-          "rss_peak_mb": 167.671875,
-          "breakdown_ms": {
-            "open": 0.051041,
-            "sheets": 0.000375,
-            "exercise": 0.153542,
-            "close": 0.000208
-          },
-          "phase_attribution_ms": {
-            "parse": 0.205667,
-            "write": 0.0,
-            "verify": 0.000208
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "conditional_formatting",
       "library": "rust_xlsxwriter",
       "workload_size": "small",
       "perf": {
@@ -7340,41 +6947,6 @@
             "parse": 0.05075,
             "write": 0.0,
             "verify": 8.3e-05
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "data_validation",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.141833,
-            "p50": 0.151708,
-            "p95": 0.159375
-          },
-          "cpu_ms": {
-            "min": 0.142,
-            "p50": 0.151,
-            "p95": 0.159
-          },
-          "rss_peak_mb": 167.734375,
-          "breakdown_ms": {
-            "open": 0.049209,
-            "sheets": 0.000334,
-            "exercise": 0.103667,
-            "close": 0.000208
-          },
-          "phase_attribution_ms": {
-            "parse": 0.150751,
-            "write": 0.0,
-            "verify": 0.000208
           },
           "op_count": null,
           "op_unit": null
@@ -7975,41 +7547,6 @@
     },
     {
       "feature": "hyperlinks",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.215,
-            "p50": 0.224917,
-            "p95": 0.23525
-          },
-          "cpu_ms": {
-            "min": 0.215,
-            "p50": 0.225,
-            "p95": 0.235
-          },
-          "rss_peak_mb": 167.984375,
-          "breakdown_ms": {
-            "open": 0.050333,
-            "sheets": 0.000375,
-            "exercise": 0.174917,
-            "close": 0.000208
-          },
-          "phase_attribution_ms": {
-            "parse": 0.223959,
-            "write": 0.0,
-            "verify": 0.000208
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "hyperlinks",
       "library": "rust_xlsxwriter",
       "workload_size": "small",
       "perf": {
@@ -8600,41 +8137,6 @@
     },
     {
       "feature": "images",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.049125,
-            "p50": 0.049875,
-            "p95": 0.060125
-          },
-          "cpu_ms": {
-            "min": 0.048,
-            "p50": 0.051,
-            "p95": 0.059
-          },
-          "rss_peak_mb": 169.28125,
-          "breakdown_ms": {
-            "open": 0.047875,
-            "sheets": 0.00025,
-            "exercise": 0.000833,
-            "close": 0.000208
-          },
-          "phase_attribution_ms": {
-            "parse": 0.048958,
-            "write": 0.0,
-            "verify": 0.000208
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "images",
       "library": "rust_xlsxwriter",
       "workload_size": "small",
       "perf": {
@@ -9215,41 +8717,6 @@
             "parse": 0.050208,
             "write": 0.0,
             "verify": 8.4e-05
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "pivot_tables",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.048375,
-            "p50": 0.050166,
-            "p95": 0.054375
-          },
-          "cpu_ms": {
-            "min": 0.048,
-            "p50": 0.051,
-            "p95": 0.055
-          },
-          "rss_peak_mb": 169.28125,
-          "breakdown_ms": {
-            "open": 0.048833,
-            "sheets": 0.000292,
-            "exercise": 8.3e-05,
-            "close": 0.000208
-          },
-          "phase_attribution_ms": {
-            "parse": 0.049292,
-            "write": 0.0,
-            "verify": 0.000208
           },
           "op_count": null,
           "op_unit": null
@@ -9875,41 +9342,6 @@
     },
     {
       "feature": "comments",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.196333,
-            "p50": 0.212042,
-            "p95": 0.223334
-          },
-          "cpu_ms": {
-            "min": 0.196,
-            "p50": 0.212,
-            "p95": 0.224
-          },
-          "rss_peak_mb": 169.28125,
-          "breakdown_ms": {
-            "open": 0.062167,
-            "sheets": 0.000333,
-            "exercise": 0.15125,
-            "close": 0.000209
-          },
-          "phase_attribution_ms": {
-            "parse": 0.211042,
-            "write": 0.0,
-            "verify": 0.000209
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "comments",
       "library": "rust_xlsxwriter",
       "workload_size": "small",
       "perf": {
@@ -10525,41 +9957,6 @@
     },
     {
       "feature": "freeze_panes",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.204625,
-            "p50": 0.221792,
-            "p95": 0.233792
-          },
-          "cpu_ms": {
-            "min": 0.204,
-            "p50": 0.222,
-            "p95": 0.234
-          },
-          "rss_peak_mb": 169.28125,
-          "breakdown_ms": {
-            "open": 0.051917,
-            "sheets": 0.000417,
-            "exercise": 0.171458,
-            "close": 0.000209
-          },
-          "phase_attribution_ms": {
-            "parse": 0.220834,
-            "write": 0.0,
-            "verify": 0.000209
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "freeze_panes",
       "library": "rust_xlsxwriter",
       "workload_size": "small",
       "perf": {
@@ -11150,41 +10547,6 @@
     },
     {
       "feature": "named_ranges",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.044583,
-            "p50": 0.049958,
-            "p95": 0.053208
-          },
-          "cpu_ms": {
-            "min": 0.045,
-            "p50": 0.05,
-            "p95": 0.054
-          },
-          "rss_peak_mb": 169.515625,
-          "breakdown_ms": {
-            "open": 0.0475,
-            "sheets": 0.000292,
-            "exercise": 0.00125,
-            "close": 0.000208
-          },
-          "phase_attribution_ms": {
-            "parse": 0.049,
-            "write": 0.0,
-            "verify": 0.000208
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "named_ranges",
       "library": "rust_xlsxwriter",
       "workload_size": "small",
       "perf": {
@@ -11765,41 +11127,6 @@
             "parse": 0.054125,
             "write": 0.0,
             "verify": 8.3e-05
-          },
-          "op_count": null,
-          "op_unit": null
-        },
-        "write": null
-      },
-      "notes": "Write unsupported"
-    },
-    {
-      "feature": "tables",
-      "library": "calamine-styled",
-      "workload_size": "small",
-      "perf": {
-        "read": {
-          "wall_ms": {
-            "min": 0.049042,
-            "p50": 0.054667,
-            "p95": 0.055333
-          },
-          "cpu_ms": {
-            "min": 0.049,
-            "p50": 0.054,
-            "p95": 0.055
-          },
-          "rss_peak_mb": 169.59375,
-          "breakdown_ms": {
-            "open": 0.052166,
-            "sheets": 0.000292,
-            "exercise": 0.001208,
-            "close": 0.000208
-          },
-          "phase_attribution_ms": {
-            "parse": 0.053666,
-            "write": 0.0,
-            "verify": 0.000208
           },
           "op_count": null,
           "op_unit": null

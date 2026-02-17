@@ -107,7 +107,6 @@ def main() -> None:
                 "python-calamine",
                 "tablib",
                 "wolfxl",
-                "calamine-styled",
             ],
             "features": [
                 "cell_values_1k_bulk_read",
@@ -196,7 +195,6 @@ def main() -> None:
                     "python-calamine",
                     "tablib",
                     "wolfxl",
-                    "calamine-styled",
                 ],
                 "features": [
                     "cell_values_100k_bulk_read",

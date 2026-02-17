@@ -330,6 +330,13 @@ code.val{font-family:'JetBrains Mono','Fira Code',monospace;font-size:.72rem;
 .mem-insight{background:#fffbeb;border:1px solid #fef3c7;border-radius:8px;padding:.8rem 1rem;
   font-size:.82rem;color:#92400e;margin-bottom:1rem}
 
+/* ── WolfXL highlight ── */
+.wolfxl-col{background:rgba(249,115,22,.06)}
+.wolfxl-hdr{border-bottom:3px solid #f97316}
+.wolfxl-hdr div:first-child::before{content:'\\2B50 ';font-size:.6rem}
+.wolfxl-row{border-left:3px solid #f97316;background:rgba(249,115,22,.04)}
+.wolfxl-row td:first-child{font-weight:700;color:#ea580c}
+
 /* ── Misc ── */
 .btn{display:inline-block;padding:.3rem .8rem;border:1px solid var(--border);border-radius:6px;
   font-size:.78rem;cursor:pointer;background:var(--card);color:var(--text2)}
@@ -522,7 +529,9 @@ def _section_matrix(fidelity: dict[str, Any]) -> str:
     rows.append("<thead><tr><th class='feat'>Feature</th>")
     for lib in libs:
         cap = _cap_label(libs_info.get(lib, {}).get("capabilities", []))
-        rows.append(f"<th><div>{_esc(lib)}</div><div style='font-size:.65rem;color:var(--text2)'>"
+        hdr_cls = " wolfxl-hdr" if lib == "wolfxl" else ""
+        rows.append(f"<th class='{hdr_cls.strip()}'><div>{_esc(lib)}</div>"
+                    f"<div style='font-size:.65rem;color:var(--text2)'>"
                     f"{cap}</div></th>")
     rows.append("</tr></thead><tbody>")
 
@@ -540,6 +549,8 @@ def _section_matrix(fidelity: dict[str, Any]) -> str:
             rs, ws = score_map.get((feat, lib), (None, None))
             best = max((x for x in [rs, ws] if x is not None), default=None)
             cls = _score_cls(best)
+            if lib == "wolfxl":
+                cls += " wolfxl-col"
             tip = f"Read: {_score_label(rs)} / Write: {_score_label(ws)}"
             rows.append(f'<td class="{cls}" title="{tip}">{_score_label(best)}</td>')
         rows.append("</tr>")
@@ -645,7 +656,8 @@ def _section_comparison(fidelity: dict[str, Any], perf: dict[str, Any] | None) -
     for lib in sorted_libs:
         st = lib_stats[lib]
         pr = (st["passed"] / st["total"] * 100) if st["total"] else 0
-        rows.append(f"<tr><td><b>{_esc(lib)}</b></td>"
+        row_cls = " class='wolfxl-row'" if lib == "wolfxl" else ""
+        rows.append(f"<tr{row_cls}><td><b>{_esc(lib)}</b></td>"
                     f"<td>{st['cap']}</td>"
                     f"<td style='font-family:monospace;font-size:.75rem'>{_esc(st['version'])}</td>"
                     f"<td data-v='{st['green']}'>{st['green']}/{st['scored']}</td>"
@@ -746,8 +758,9 @@ def _section_features(fidelity: dict[str, Any]) -> str:
                             lp += 1
             lpr = (lp / lt * 100) if lt else 0
             notes = _esc(entry.get("notes") or "\u2014")
+            feat_row_cls = " class='wolfxl-row'" if lib == "wolfxl" else ""
             rows.append(
-                f"<tr><td><b>{_esc(lib)}</b></td>"
+                f"<tr{feat_row_cls}><td><b>{_esc(lib)}</b></td>"
                 f"<td class='{_score_cls(rs)}'>{_score_label(rs)}</td>"
                 f"<td class='{_score_cls(ws)}'>{_score_label(ws)}</td>"
                 f"<td data-v='{lpr:.1f}'>{lpr:.0f}%</td>"
@@ -918,8 +931,9 @@ def _section_performance(perf: dict[str, Any] | None) -> str:
                                 )
                         bar_html = f'<div class="bbar">{"".join(bar_parts)}</div>'
 
+                perf_row_cls = " class='wolfxl-row'" if lib == "wolfxl" else ""
                 rows.append(
-                    f"<tr><td><b>{_esc(lib)}</b></td>"
+                    f"<tr{perf_row_cls}><td><b>{_esc(lib)}</b></td>"
                     f"<td data-v='{wall.get('p50', 9e9)}'>{_fmt_ms(wall.get('p50'))}</td>"
                     f"<td data-v='{wall.get('p95', 9e9)}'>{_fmt_ms(wall.get('p95'))}</td>"
                     f"<td data-v='{wall.get('min', 9e9)}'>{_fmt_ms(wall.get('min'))}</td>"
@@ -942,7 +956,7 @@ def _section_memory(memory: list[dict[str, Any]] | None) -> str:
         return ""
 
     # Classify adapters as Rust or Python
-    rust_adapters = {"wolfxl", "calamine-styled", "rust_xlsxwriter", "python-calamine"}
+    rust_adapters = {"wolfxl", "rust_xlsxwriter", "python-calamine"}
 
     def _adapter_cls(name: str) -> str:
         return "rust" if name in rust_adapters else "python"

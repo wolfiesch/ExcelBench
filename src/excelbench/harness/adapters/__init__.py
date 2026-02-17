@@ -194,8 +194,8 @@ def get_all_adapters() -> list[ExcelAdapter]:
         adapters.append(CalamineAdapter())
     if RustCalamineAdapter is not None:
         adapters.append(RustCalamineAdapter())
-    if RustCalamineStyledAdapter is not None:
-        adapters.append(RustCalamineStyledAdapter())
+    # RustCalamineStyledAdapter is an internal WolfXL backend, not a standalone
+    # library — excluded from public benchmark runs.
     if RustXlsxWriterAdapter is not None:
         adapters.append(RustXlsxWriterAdapter())
     if UmyaAdapter is not None:

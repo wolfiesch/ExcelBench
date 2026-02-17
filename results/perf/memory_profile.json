@@ -10,16 +10,6 @@
     "scale": "1k"
   },
   {
-    "adapter": "calamine-styled",
-    "op": "read",
-    "cells": 1000,
-    "rss_before_mb": 139.05,
-    "rss_after_mb": 140.84,
-    "rss_delta_mb": 1.8,
-    "tracemalloc_peak_mb": 0.44,
-    "scale": "1k"
-  },
-  {
     "adapter": "openpyxl",
     "op": "read",
     "cells": 1000,
@@ -110,16 +100,6 @@
     "scale": "10k"
   },
   {
-    "adapter": "calamine-styled",
-    "op": "read",
-    "cells": 10000,
-    "rss_before_mb": 138.88,
-    "rss_after_mb": 151.84,
-    "rss_delta_mb": 12.97,
-    "tracemalloc_peak_mb": 4.32,
-    "scale": "10k"
-  },
-  {
     "adapter": "openpyxl",
     "op": "read",
     "cells": 10000,
@@ -206,16 +186,6 @@
     "rss_before_mb": 139.03,
     "rss_after_mb": 266.44,
     "rss_delta_mb": 127.41,
-    "tracemalloc_peak_mb": 43.07,
-    "scale": "100k"
-  },
-  {
-    "adapter": "calamine-styled",
-    "op": "read",
-    "cells": 99856,
-    "rss_before_mb": 138.94,
-    "rss_after_mb": 264.27,
-    "rss_delta_mb": 125.33,
     "tracemalloc_peak_mb": 43.07,
     "scale": "100k"
   },
