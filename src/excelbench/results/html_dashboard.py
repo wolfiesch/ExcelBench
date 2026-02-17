@@ -172,18 +172,18 @@ def render_html_dashboard(
     if memory_json and memory_json.exists():
         memory = json.loads(memory_json.read_text())
 
-    svgs: dict[str, str] = {}
+    # Heatmap SVG (still static — no interactive replacement needed)
+    heatmap_svg: str | None = None
     if scatter_dir:
-        for name in ("scatter_tiers", "scatter_features", "heatmap"):
-            svg_path = scatter_dir / f"{name}.svg"
-            if svg_path.exists():
-                svgs[name] = _namespace_svg_ids(svg_path.read_text(), f"{name}-")
+        heatmap_path = scatter_dir / "heatmap.svg"
+        if heatmap_path.exists():
+            heatmap_svg = _namespace_svg_ids(heatmap_path.read_text(), "heatmap-")
 
     body_parts = [
         _section_nav(has_memory=memory is not None),
         _section_overview(fidelity, perf),
         _section_matrix(fidelity),
-        _section_scatter(svgs),
+        _section_scatter(fidelity, perf, heatmap_svg),
         _section_comparison(fidelity, perf),
         _section_features(fidelity),
         _section_performance(perf),
@@ -227,11 +227,11 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-seri
   background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline;color:#80bfff}
-.container{max-width:1440px;margin:0 auto;padding:1.5rem 1.5rem}
+.container{max-width:2800px;margin:0 auto;padding:1.5rem 3rem}
 
 /* ── Nav ── */
 nav{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#0a0a0a,#191919);
-  padding:.6rem 1.5rem;display:flex;align-items:center;gap:1.5rem;
+  padding:.6rem 3rem;display:flex;align-items:center;gap:1.5rem;
   box-shadow:0 2px 12px rgba(0,0,0,.4);border-bottom:1px solid #2d2d2d}
 nav .brand{font-weight:700;font-size:1.1rem;color:#ededed;letter-spacing:-.02em}
 nav .links{display:flex;gap:1rem;flex-wrap:wrap}
@@ -381,6 +381,28 @@ code.val{font-family:'JetBrains Mono','Fira Code',monospace;font-size:.72rem;
 .wolfxl-hero .wolf-text p{margin:.2rem 0 0;font-size:.82rem;color:#fbbf24;line-height:1.4}
 .wolfxl-hero .wolf-text a{color:#fb923c;font-weight:600}
 
+/* ── Interactive chart containers ── */
+.chart-maximize-wrap{position:relative;margin-bottom:1rem}
+.chart-maximize-btn{position:absolute;top:6px;right:6px;z-index:10;
+  background:rgba(25,25,25,.85);border:1px solid #2d2d2d;border-radius:6px;
+  color:#a0a0a0;font-size:1rem;padding:.25rem .5rem;cursor:pointer;
+  transition:all .15s;line-height:1}
+.chart-maximize-btn:hover{background:#282828;color:#ededed;border-color:#51a8ff}
+.plotly-chart{width:100%;overflow-x:auto}
+.plotly-chart .js-plotly-plot{width:100%!important}
+
+/* ── Chart maximize modal ── */
+.chart-modal-overlay{display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,.88);align-items:center;justify-content:center;padding:2vh 2vw}
+.chart-modal-overlay.active{display:flex}
+.chart-modal-content{width:96vw;height:92vh;background:#0a0a0a;border-radius:12px;
+  border:1px solid #2d2d2d;position:relative;overflow:hidden}
+.chart-modal-close{position:absolute;top:10px;right:14px;z-index:10;
+  background:rgba(25,25,25,.9);border:1px solid #2d2d2d;border-radius:6px;
+  color:#a0a0a0;font-size:1.2rem;padding:.3rem .7rem;cursor:pointer;line-height:1}
+.chart-modal-close:hover{background:#282828;color:#ededed;border-color:#ff6066}
+.chart-modal-body{width:100%;height:100%;overflow:auto}
+
 /* ── Misc ── */
 .btn{display:inline-block;padding:.3rem .8rem;border:1px solid #2d2d2d;border-radius:6px;
   font-size:.78rem;cursor:pointer;background:#191919;color:#a0a0a0}
@@ -402,6 +424,45 @@ footer{text-align:center;padding:2rem;color:var(--text2);font-size:.78rem}
   .cards-grid{grid-template-columns:1fr 1fr}
   .container{padding:1rem}
   .filter-box input{width:100%}
+}
+@media(min-width:2000px){
+  body{font-size:16px}
+  .container{padding:2rem 4rem}
+  nav{padding:.7rem 4rem;gap:2rem}
+  nav .brand{font-size:1.3rem}
+  nav .links a{font-size:.95rem}
+  h1{font-size:2rem}
+  h2{font-size:1.6rem}
+  h3{font-size:1.25rem}
+  .stat-card .val{font-size:2.8rem}
+  .stat-card .lbl{font-size:.95rem}
+  .stat-card{padding:1.6rem}
+  table{font-size:.92rem}
+  th,td{padding:.55rem .75rem}
+  .matrix th,.matrix td{padding:.45rem .65rem;min-width:64px;font-size:.88rem}
+  .matrix .feat{min-width:160px}
+  details summary{font-size:1rem;padding:.85rem 1.2rem}
+  .meta-bar{font-size:.92rem}
+  .wolfxl-hero{padding:1.5rem 2rem}
+  .wolfxl-hero .wolf-text h3{font-size:1.2rem}
+  .wolfxl-hero .wolf-text p{font-size:.95rem}
+  .filter-box input{width:360px;font-size:.95rem;padding:.5rem .9rem}
+}
+@media(min-width:3000px){
+  body{font-size:18px}
+  .container{padding:2.5rem 5rem}
+  nav{padding:.8rem 5rem}
+  nav .brand{font-size:1.5rem}
+  h1{font-size:2.4rem}
+  h2{font-size:1.9rem}
+  h3{font-size:1.45rem}
+  .stat-card .val{font-size:3.4rem}
+  .stat-card .lbl{font-size:1.05rem}
+  table{font-size:1rem}
+  th,td{padding:.6rem .85rem}
+  .matrix th,.matrix td{padding:.5rem .75rem;min-width:76px;font-size:.95rem}
+  .matrix .feat{min-width:180px}
+  details summary{font-size:1.1rem}
 }
 """
 
@@ -469,6 +530,45 @@ document.querySelectorAll('.toggle-all').forEach(btn=>{
     btn.textContent=open?'Expand All':'Collapse All';
   });
 });
+/* Chart maximize modal — all content is same-origin Plotly output, no untrusted data */
+(function(){
+  var overlay=document.createElement('div');
+  overlay.className='chart-modal-overlay';
+  var content=document.createElement('div');
+  content.className='chart-modal-content';
+  var closeBtn=document.createElement('button');
+  closeBtn.className='chart-modal-close';
+  closeBtn.title='Close';
+  closeBtn.textContent='\u00d7';
+  var modalBody=document.createElement('div');
+  modalBody.className='chart-modal-body';
+  content.appendChild(closeBtn);
+  content.appendChild(modalBody);
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+  var closeModal=function(){
+    overlay.classList.remove('active');
+    while(modalBody.firstChild)modalBody.removeChild(modalBody.firstChild);
+  };
+  closeBtn.addEventListener('click',closeModal);
+  overlay.addEventListener('click',function(e){if(e.target===overlay)closeModal();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+  document.querySelectorAll('.chart-maximize-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var wrap=btn.closest('.chart-maximize-wrap');
+      var chart=wrap?wrap.querySelector('.plotly-chart'):null;
+      if(!chart)return;
+      /* Clone chart nodes into modal (same-origin Plotly SVG, safe to clone) */
+      var clone=chart.cloneNode(true);
+      while(modalBody.firstChild)modalBody.removeChild(modalBody.firstChild);
+      modalBody.appendChild(clone);
+      overlay.classList.add('active');
+      /* Re-render Plotly charts at full size */
+      var plots=modalBody.querySelectorAll('.js-plotly-plot');
+      plots.forEach(function(p){if(window.Plotly)window.Plotly.Plots.resize(p);});
+    });
+  });
+})();
 /* Smooth scroll */
 document.querySelectorAll('nav a[href^="#"]').forEach(a=>{
   a.addEventListener('click',e=>{
@@ -693,17 +793,45 @@ def _section_matrix(fidelity: dict[str, Any]) -> str:
     return "\n".join(rows)
 
 
-def _section_scatter(svgs: dict[str, str]) -> str:
-    if not svgs:
+def _section_scatter(
+    fidelity: dict[str, Any],
+    perf: dict[str, Any] | None,
+    heatmap_svg: str | None,
+) -> str:
+    if not perf and not heatmap_svg:
         return ""
+
     parts = ['<section id="scatter" class="container"><h2>Fidelity vs. Throughput</h2>']
-    for key, label in [
-        ("scatter_tiers", "By Feature Group"),
-        ("scatter_features", "Per Feature"),
-        ("heatmap", "Heatmap"),
-    ]:
-        if key in svgs:
-            parts.append(f'<h3>{label}</h3><div class="svg-wrap">{svgs[key]}</div>')
+
+    # Interactive Plotly scatter charts (only when perf data exists)
+    if perf:
+        from excelbench.results.scatter_interactive import (
+            render_interactive_scatter_features_from_data,
+            render_interactive_scatter_tiers_from_data,
+        )
+
+        tiers_html = render_interactive_scatter_tiers_from_data(fidelity, perf)
+        features_html = render_interactive_scatter_features_from_data(fidelity, perf)
+
+        parts.append(
+            '<h3>By Feature Group</h3>'
+            f'<div class="chart-maximize-wrap">'
+            f'<button class="chart-maximize-btn" title="Maximize"'
+            f' aria-label="Maximize chart">\u26f6</button>'
+            f'<div class="plotly-chart">{tiers_html}</div></div>'
+        )
+        parts.append(
+            '<h3>Per Feature</h3>'
+            f'<div class="chart-maximize-wrap">'
+            f'<button class="chart-maximize-btn" title="Maximize"'
+            f' aria-label="Maximize chart">\u26f6</button>'
+            f'<div class="plotly-chart">{features_html}</div></div>'
+        )
+
+    # Static heatmap SVG (unchanged)
+    if heatmap_svg:
+        parts.append(f'<h3>Heatmap</h3><div class="svg-wrap">{heatmap_svg}</div>')
+
     parts.append("</section>")
     return "\n".join(parts)
 
