@@ -1236,7 +1236,7 @@ def main() -> None:
     palette = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00"]
     files.append(
         TestFile(
-            path=f"tier0/00_background_colors_1k.xlsx",
+            path="tier0/00_background_colors_1k.xlsx",
             feature=scenario,
             tier=0,
             file_format="xlsx",
@@ -1272,7 +1272,7 @@ def main() -> None:
     rng = f"A1:{end_cell}"
     files.append(
         TestFile(
-            path=f"tier0/00_number_formats_1k.xlsx",
+            path="tier0/00_number_formats_1k.xlsx",
             feature=scenario,
             tier=0,
             file_format="xlsx",
@@ -1308,7 +1308,7 @@ def main() -> None:
     rng = f"A1:{end_cell}"
     files.append(
         TestFile(
-            path=f"tier0/00_borders_200.xlsx",
+            path="tier0/00_borders_200.xlsx",
             feature=scenario,
             tier=0,
             file_format="xlsx",
