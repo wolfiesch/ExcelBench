@@ -1,0 +1,65 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "ExcelBench",
+  "description": "Objective benchmark suite for Python Excel libraries — fidelity, performance, and feature coverage.",
+  "colors": {
+    "primary": "#62c073",
+    "light": "#a3e4af",
+    "dark": "#3da050"
+  },
+  "favicon": "/favicon.svg",
+  "navbar": {
+    "links": [
+      {
+        "type": "github",
+        "href": "https://github.com/SynthGL/excelbench"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Live Dashboard",
+      "href": "https://excelbench.vercel.app"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/SynthGL/excelbench",
+      "x": "https://x.com/wolfgangsch"
+    }
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": ["index", "quickstart"]
+      },
+      {
+        "group": "CLI Reference",
+        "pages": [
+          "cli/overview",
+          "cli/benchmark",
+          "cli/perf",
+          "cli/report"
+        ]
+      },
+      {
+        "group": "Benchmark",
+        "pages": [
+          "benchmark/methodology",
+          "benchmark/features",
+          "benchmark/scoring"
+        ]
+      },
+      {
+        "group": "Adapters",
+        "pages": [
+          "adapters/overview",
+          "adapters/wolfxl",
+          "adapters/openpyxl",
+          "adapters/adding-adapters"
+        ]
+      }
+    ]
+  }
+}

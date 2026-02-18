@@ -1,0 +1,60 @@
+---
+title: "perf"
+description: "Run performance benchmarks measuring wall time, CPU time, and RSS memory."
+---
+
+## `perf`
+
+```bash
+uv run excelbench perf --tests <fixture-dir> --output <output-dir> [options]
+```
+
+Measures read and write throughput (ops/second) plus RSS memory for each adapter.
+
+### What It Measures
+
+For each library, the perf runner captures:
+
+| Metric | Description |
+|--------|-------------|
+| Wall time | Elapsed real time (p50, p95, p99) |
+| CPU time | User + system CPU time |
+| RSS delta | Memory usage increase |
+| Throughput | Operations per second (cells read/written) |
+
+### Benchmark Workloads
+
+- **Per-cell read** — iterate cells one at a time (10K cells)
+- **Per-cell styled read** — read with formatting attributes (1K cells)
+- **Bulk read** — `read_sheet_values()` returning all cells at once (10K cells)
+- **Bulk write** — `write_sheet_values()` writing all cells at once (100K cells)
+
+Rust adapters (WolfXL, calamine-styled) implement bulk methods for maximum throughput.
+
+### Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--tests` | required | Path to throughput fixture directory |
+| `--output` | required | Output directory for perf results |
+| `--adapters` | all | Comma-separated adapter names |
+| `--iterations` | 5 | Number of iterations per workload |
+
+### Example
+
+```bash
+uv run excelbench perf --tests fixtures/excel --output results
+```
+
+### Reference Numbers
+
+All on Apple M-series, release build:
+
+| Library | Bulk Read (ops/s) | Bulk Write (ops/s) |
+|---------|-------------------|--------------------|
+| WolfXL | ~1.26M | ~1.73M |
+| openpyxl | ~372K | ~347K |
+| python-calamine | ~1.1M | — |
+| pandas | ~630K | ~660K |
+
+WolfXL is **3-5x faster** than openpyxl across workloads.

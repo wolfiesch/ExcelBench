@@ -1,0 +1,47 @@
+---
+title: "Tested Features"
+description: "The 17 Excel features ExcelBench benchmarks, organized by tier."
+---
+
+ExcelBench tests 17 features across 3 tiers of complexity.
+
+## Tier 0 — Core (must-pass)
+
+| Feature | What's tested |
+|---------|--------------|
+| `cell_values` | Integers, floats, strings, booleans, dates, None |
+| `multiple_sheets` | Multi-sheet workbooks, sheet names, active sheet |
+| `number_formats` | Date formats, currency, percentages, custom patterns |
+
+## Tier 1 — Formatting
+
+| Feature | What's tested |
+|---------|--------------|
+| `text_formatting` | Bold, italic, underline, font family, font size, color |
+| `background_colors` | Fill color, pattern fills |
+| `borders` | All border styles (thin, thick, dashed, double), diagonal borders |
+| `alignment` | Horizontal/vertical alignment, wrap text, indent level |
+| `merged_cells` | Merged ranges, content in merged cells |
+| `dimensions` | Row height, column width, hidden rows/columns |
+
+## Tier 2 — Advanced
+
+| Feature | What's tested |
+|---------|--------------|
+| `formulas` | SUM, IF, VLOOKUP, cross-sheet references |
+| `freeze_panes` | Frozen rows and columns |
+| `hyperlinks` | URL links, email links, tooltip text |
+| `images` | Embedded PNG/JPEG, image dimensions and position |
+| `comments` | Cell comments (author, text, position) |
+| `data_validation` | Dropdown lists, numeric constraints, date constraints |
+| `conditional_formatting` | Color scales, icon sets, data bars, formula-based rules |
+| `pivot_tables` | Pivot table structure (Windows-only fixture) |
+
+## Not Tested
+
+- Named ranges (tracked separately)
+- Tables (structured references)
+- Charts
+- Macros/VBA
+
+These are tracked in the [library expansion tracker](https://github.com/SynthGL/excelbench) and may be added in future tiers.

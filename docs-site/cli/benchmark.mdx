@@ -1,0 +1,56 @@
+---
+title: "benchmark / benchmark-profiles"
+description: "Run fidelity tests against Excel fixtures."
+---
+
+## `benchmark`
+
+```bash
+uv run excelbench benchmark --tests <fixture-dir> --output <output-dir> [options]
+```
+
+Runs fidelity tests on all registered adapters using `.xlsx` fixture files as ground truth.
+
+### Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--tests` | required | Path to fixture directory (e.g. `fixtures/excel`) |
+| `--output` | required | Output directory for `results.json`, `results.md`, etc. |
+| `--adapters` | all | Comma-separated list of adapter names to include |
+| `--features` | all | Comma-separated list of features to test |
+| `--oracle` | auto | Oracle strategy: `xlwings` (requires Excel) or `openpyxl` |
+
+### Output Files
+
+- `results/xlsx/results.json` — Machine-readable scores for all libs + features
+- `results/xlsx/results.md` — Markdown table
+- `results/xlsx/results.csv` — Flat CSV
+
+### Example
+
+```bash
+# Full benchmark
+uv run excelbench benchmark --tests fixtures/excel --output results
+
+# Single adapter
+uv run excelbench benchmark --tests fixtures/excel --output results --adapters wolfxl
+
+# Single feature
+uv run excelbench benchmark --tests fixtures/excel --output results --features borders,hyperlinks
+```
+
+---
+
+## `benchmark-profiles`
+
+```bash
+uv run excelbench benchmark-profiles --output <output-dir>
+```
+
+Runs both `.xlsx` and `.xls` profiles sequentially and writes results to:
+
+- `results/xlsx/` — xlsx profile
+- `results/xls/` — xls profile
+
+Uses the default fixture paths (`fixtures/excel` and `fixtures/excel_xls`).

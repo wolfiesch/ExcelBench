@@ -1,0 +1,46 @@
+---
+title: "CLI Overview"
+description: "All ExcelBench commands at a glance."
+---
+
+ExcelBench exposes everything through a single CLI entry point:
+
+```bash
+uv run excelbench <command> [options]
+```
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `generate` | Generate `.xlsx` fixtures via xlwings + Excel |
+| `generate-xls` | Generate `.xls` fixtures via xlwt |
+| `benchmark` | Run fidelity benchmark against `.xlsx` fixtures |
+| `benchmark-profiles` | Run both xlsx + xls benchmark profiles |
+| `perf` | Run performance (wall/CPU/RSS) benchmark |
+| `report` | Regenerate markdown/CSV/JSON report from `results.json` |
+| `heatmap` | Generate heatmap PNG + SVG |
+| `dashboard` | Generate combined fidelity + performance static dashboard |
+| `html` | Generate single-file interactive HTML dashboard |
+| `scatter` | Generate fidelity-vs-throughput scatter plots |
+
+## Global Flags
+
+All commands support:
+
+```
+--help    Show options for the command
+```
+
+## Typical Workflow
+
+```bash
+# 1. Run fidelity benchmark
+uv run excelbench benchmark --tests fixtures/excel --output results
+
+# 2. Run performance benchmark
+uv run excelbench perf --tests fixtures/excel --output results
+
+# 3. Generate interactive dashboard
+uv run excelbench html --output deploy/index.html
+```

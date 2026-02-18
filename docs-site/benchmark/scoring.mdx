@@ -1,0 +1,60 @@
+---
+title: "Scoring Model"
+description: "How feature scores translate to tier ratings and radar chart axes."
+---
+
+## Feature Score (0–3)
+
+Each feature x library x operation (read/write) receives:
+
+```
+3  All test cases pass
+2  ≥80% pass
+1  ≥50% pass
+0  <50% pass
+```
+
+The overall fidelity score for a library is: `green_features / total_scored_features`.
+
+## Radar Chart Axes
+
+The radar chart normalizes 5 dimensions to 0–100:
+
+### Fidelity
+```
+green_count / scored_features * 100
+```
+Features where score = 3 count as "green". A score of 100 means the library passes every tested feature perfectly.
+
+### Read Speed / Write Speed
+```
+min(100, (lib_ops_per_sec / openpyxl_ops_per_sec) * 50)
+```
+openpyxl anchors at 50. A library twice as fast as openpyxl scores 100 (capped). This lets slower libraries show meaningfully below 50.
+
+### Feature Coverage
+```
+features_with_score_gt_0 / total_features * 100
+```
+Counts features where the library achieved at least partial support (score ≥ 1). Write-only libraries receive 0 on read-specific features and vice versa.
+
+### Capability Breadth
+```
+R-only or W-only  → 33
+R + W             → 66
+R + W + Modify    → 100
+```
+Modify means surgical in-place patching without full rewrite (WolfXL's `load_workbook(path, modify=True)`).
+
+## Tier List
+
+Libraries are grouped by overall fidelity + capability:
+
+| Tier | Criteria |
+|------|---------|
+| S | ≥90% fidelity, R+W, fast |
+| A | ≥80% fidelity, full R or W |
+| B | ≥60% fidelity |
+| C | below 60% fidelity or limited scope |
+
+See [live dashboard](https://excelbench.vercel.app) for current tier assignments.

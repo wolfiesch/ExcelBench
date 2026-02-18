@@ -1,0 +1,70 @@
+---
+title: "Quick Start"
+description: "Run ExcelBench in under 60 seconds."
+---
+
+## Prerequisites
+
+- Python 3.11+
+- [uv](https://docs.astral.sh/uv/) (recommended) or pip
+
+## Install
+
+```bash
+git clone https://github.com/SynthGL/excelbench
+cd excelbench
+uv sync
+```
+
+To include the WolfXL Rust adapter (pre-built wheel from PyPI):
+
+```bash
+uv sync --extra rust
+```
+
+## Run a Benchmark
+
+The repo ships with pre-built `.xlsx` fixtures, so you can benchmark immediately without Excel installed:
+
+```bash
+uv run excelbench benchmark --tests fixtures/excel --output results
+```
+
+This runs fidelity tests on all registered adapters and writes results to `results/xlsx/`.
+
+## Generate a Report
+
+```bash
+uv run excelbench report --input results/xlsx/results.json --output results/xlsx
+```
+
+Produces `results.md`, `results.csv`, and `summary.md`.
+
+## Open the Dashboard
+
+```bash
+uv run excelbench html --output deploy/index.html
+open deploy/index.html
+```
+
+Or visit the live version at [excelbench.vercel.app](https://excelbench.vercel.app).
+
+## Run Both Profiles
+
+ExcelBench tests both `.xlsx` and `.xls` formats:
+
+```bash
+uv run excelbench benchmark-profiles --output results
+```
+
+## Performance Benchmarks
+
+```bash
+uv run excelbench perf --tests fixtures/excel --output results
+```
+
+See [Performance CLI](/cli/perf) for all options.
+
+<Note>
+Fixture generation (creating the ground-truth `.xlsx` files from scratch) requires Excel installed on macOS via xlwings. The pre-built fixtures in `fixtures/excel/` are tracked in git and work everywhere.
+</Note>

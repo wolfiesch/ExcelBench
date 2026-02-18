@@ -1,0 +1,87 @@
+---
+title: "Adding an Adapter"
+description: "Benchmark your own Excel library against the ExcelBench suite."
+---
+
+Adding a new adapter takes about 30 minutes for a simple read-only library.
+
+## 1. Create the Adapter File
+
+```python
+# src/excelbench/harness/adapters/mylib_adapter.py
+from __future__ import annotations
+from excelbench.harness.adapters.base import ExcelAdapter
+from excelbench.models import LibraryInfo, SheetData, CellValue
+
+class MyLibAdapter(ExcelAdapter):
+    def info(self) -> LibraryInfo:
+        import mylib
+        return LibraryInfo(
+            name="mylib",
+            version=mylib.__version__,
+            language="python",
+            capabilities={"read", "write"},
+        )
+
+    def read_workbook(self, path: Path) -> dict[str, SheetData]:
+        import mylib
+        wb = mylib.load(path)
+        # ... convert to SheetData
+        return sheets
+
+    def write_workbook(self, path: Path, data: dict[str, SheetData]) -> None:
+        import mylib
+        # ... write from SheetData
+```
+
+For a **read-only** library, subclass `ReadOnlyAdapter` instead of `ExcelAdapter`. For **write-only**, use `WriteOnlyAdapter`.
+
+## 2. Register the Adapter
+
+In `src/excelbench/harness/adapters/__init__.py`, add to `get_all_adapters()`:
+
+```python
+try:
+    from excelbench.harness.adapters.mylib_adapter import MyLibAdapter
+    adapters.append(MyLibAdapter())
+except ImportError:
+    pass
+```
+
+The `try/except` guard keeps the benchmark runnable even if `mylib` isn't installed.
+
+## 3. Add the Dependency
+
+In `pyproject.toml`:
+
+```toml
+[project.optional-dependencies]
+mylib = ["mylib>=1.0"]
+```
+
+## 4. Implement Feature Methods
+
+`ExcelAdapter` has abstract methods for each feature. At minimum, implement:
+
+- `read_cell_values()` / `write_cell_values()`
+- Any other features you want to test
+
+Unimplemented features return `None` scores automatically.
+
+## 5. Run the Benchmark
+
+```bash
+uv run excelbench benchmark --tests fixtures/excel --output results --adapters mylib
+```
+
+## AbstractBase Reference
+
+See `src/excelbench/harness/adapters/base.py` for the full protocol. Key types:
+
+| Type | Description |
+|------|-------------|
+| `LibraryInfo` | Name, version, language, capabilities |
+| `SheetData` | Dict of cell coordinates to `CellValue` |
+| `CellValue` | Value + format + style metadata |
+| `CellFormat` | Number format, alignment, font |
+| `BorderInfo` | Border style per edge |

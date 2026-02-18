@@ -1,0 +1,64 @@
+---
+title: "ExcelBench"
+description: "Objective, reproducible benchmark suite for Python Excel libraries."
+---
+
+<img
+  className="block dark:hidden"
+  src="/images/hero-light.png"
+  alt="ExcelBench Dashboard"
+/>
+<img
+  className="hidden dark:block"
+  src="/images/hero-dark.png"
+  alt="ExcelBench Dashboard"
+/>
+
+## What is ExcelBench?
+
+ExcelBench scores Python Excel libraries on two dimensions:
+
+- **Fidelity** — does the library correctly read and write Excel features?
+- **Performance** — how fast is it, and how much memory does it use?
+
+It tests **17 features** across **12+ adapters** using real Excel-generated fixtures as ground truth. Every score is reproducible from a single command.
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Run your first benchmark in 60 seconds.
+  </Card>
+  <Card title="Live Dashboard" icon="chart-bar" href="https://excelbench.vercel.app">
+    See current scores for all tested libraries.
+  </Card>
+  <Card title="Methodology" icon="flask" href="/benchmark/methodology">
+    How features are scored and what counts as correct.
+  </Card>
+  <Card title="Add an Adapter" icon="plug" href="/adapters/adding-adapters">
+    Benchmark your own library against the suite.
+  </Card>
+</CardGroup>
+
+## Why It Exists
+
+Picking an Excel library for Python involves tradeoffs that are hard to quantify:
+
+- openpyxl is the reference — full fidelity, but slow
+- calamine is fast for reads but Python-only-no-styles
+- xlsxwriter writes beautifully but can't read
+- pandas wraps openpyxl but adds overhead
+
+ExcelBench makes those tradeoffs concrete. Every claim is backed by a test.
+
+## Tested Libraries
+
+| Library | Read | Write | Modify |
+|---------|------|-------|--------|
+| WolfXL | ✓ | ✓ | ✓ |
+| openpyxl | ✓ | ✓ | — |
+| xlsxwriter | — | ✓ | — |
+| python-calamine | ✓ | — | — |
+| pandas | ✓ | ✓ | — |
+| polars | ✓ | ✓ | — |
+| pyumya | ✓ | ✓ | — |
+
+See the [full adapter list](/adapters/overview) for all 19 tested adapters.

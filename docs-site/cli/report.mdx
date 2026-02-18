@@ -1,0 +1,66 @@
+---
+title: "report / heatmap / html / scatter"
+description: "Generate reports and visualizations from existing results."
+---
+
+All visualization commands work from pre-existing `results.json` files — no re-run needed.
+
+## `report`
+
+```bash
+uv run excelbench report --input results/xlsx/results.json --output results/xlsx
+```
+
+Regenerates markdown, CSV, and JSON summary from a completed benchmark run.
+
+**Output:**
+- `results.md` — Full feature x library matrix
+- `results.csv` — Flat CSV for spreadsheet analysis
+- `summary.md` — Tier list + adapter capability table
+
+---
+
+## `heatmap`
+
+```bash
+uv run excelbench heatmap
+```
+
+Generates a feature x library heatmap as PNG and SVG. Reads from `results/xlsx/results.json` by default.
+
+---
+
+## `html`
+
+```bash
+uv run excelbench html --output deploy/index.html
+```
+
+Generates a single self-contained HTML file with:
+
+- Fidelity overview table (sortable)
+- Strength profile radar charts (Plotly)
+- Interactive fidelity-vs-throughput scatter
+- Per-feature drill-down
+
+This is what deploys to [excelbench.vercel.app](https://excelbench.vercel.app).
+
+---
+
+## `dashboard`
+
+```bash
+uv run excelbench dashboard
+```
+
+Generates a combined static dashboard (PNG/SVG) showing fidelity and performance side-by-side.
+
+---
+
+## `scatter`
+
+```bash
+uv run excelbench scatter
+```
+
+Generates fidelity-vs-throughput scatter plots as PNG and SVG, broken down by tier.

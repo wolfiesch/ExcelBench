@@ -1,0 +1,64 @@
+---
+title: "Adapter Overview"
+description: "All 19 tested Excel library adapters."
+---
+
+ExcelBench tests adapters across three categories.
+
+## Python xlsx Adapters (12)
+
+| Adapter | Capabilities | Notes |
+|---------|-------------|-------|
+| `openpyxl` | R+W | Reference adapter, full fidelity |
+| `openpyxl-readonly` | R | `read_only=True` mode |
+| `xlsxwriter` | W | High-fidelity write-only |
+| `xlsxwriter-constmem` | W | Memory-optimized write mode |
+| `pandas` | R+W | Wraps openpyxl/xlrd |
+| `polars` | R+W | DataFrame-centric |
+| `python-calamine` | R | Fast read, no styles |
+| `pyumya` | R+W | umya-spreadsheet via PyO3 |
+| `pylightxl` | R | Minimal dependency reader |
+| `xlrd` | R | `.xls` focused, legacy xlsx |
+| `pyexcel` | R+W | Plugin-based |
+| `tablib` | R+W | Multi-format, Excel support |
+
+## xls Adapters (2)
+
+| Adapter | Capabilities | Notes |
+|---------|-------------|-------|
+| `xlrd` | R | `.xls` and legacy `.xlsx` |
+| `xlwt` | W | `.xls` write-only |
+
+## Rust / PyO3 Adapters (5)
+
+| Adapter | Capabilities | Notes |
+|---------|-------------|-------|
+| `wolfxl` | R+W+Modify | WolfXL: calamine read + rust_xlsxwriter write + XlsxPatcher |
+| `calamine-styled` | R | calamine fork with style support |
+| `rust-calamine` | R | Basic calamine (no styles) |
+| `rust-xlsxwriter` | W | rust_xlsxwriter write bindings |
+| `pyumya` | R+W | umya-spreadsheet R+W |
+
+## Capability Legend
+
+| Symbol | Meaning |
+|--------|---------|
+| R | Can read `.xlsx` files |
+| W | Can write `.xlsx` files |
+| Modify | Can surgically patch existing files without full rewrite |
+
+## Installation
+
+All Python adapters are optional dependencies. Install everything:
+
+```bash
+uv sync  # installs all extras defined in pyproject.toml
+```
+
+For Rust adapters:
+
+```bash
+uv sync --extra rust   # WolfXL from PyPI (pre-built wheel)
+# For local Rust dev:
+cd rust/excelbench_rust && maturin develop --release
+```
