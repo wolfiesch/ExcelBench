@@ -54,7 +54,7 @@ class WolfxlAdapter(ExcelAdapter):
             name="wolfxl",
             version=f"cal={cal_ver}+rxw={rxw_ver}",
             language="rust",
-            capabilities={"read", "write"},
+            capabilities={"read", "write", "modify"},
         )
 
     @property

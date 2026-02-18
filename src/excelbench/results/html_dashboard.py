@@ -114,7 +114,7 @@ def _compute_radar_data(
         if best == 3:
             lib_green[lib] = lib_green.get(lib, 0) + 1
         lib_features.setdefault(lib, set())
-        if best is not None:
+        if best is not None and best > 0:
             lib_features[lib].add(entry["feature"])
 
     # Perf throughput (read/write ops/s via cell_values workloads)
@@ -163,8 +163,7 @@ def _compute_radar_data(
         caps = set(libs_info.get(lib, {}).get("capabilities", []))
         has_r = "read" in caps
         has_w = "write" in caps
-        # wolfxl has patch/modify capability
-        has_patch = lib == "wolfxl" or "modify" in caps or "patch" in caps
+        has_patch = "modify" in caps or "patch" in caps
         if has_r and has_w and has_patch:
             return 100.0
         if has_r and has_w:
